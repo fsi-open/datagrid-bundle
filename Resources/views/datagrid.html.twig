@@ -1,0 +1,90 @@
+{% block datagrid_render_attributes %}
+{% for name, attribute in attributes %}
+ {% spaceless %}{{ " " ~ name }}="{{ attribute }}"{% endspaceless %}
+{% endfor %}
+{% endblock %}
+
+{% block datagrid_cell_form %}
+{% spaceless %}
+    <{{ cell.form.wrapper_tag }}{{ datagrid_render_attributes(cell.form.wrapper_attributes) }}>
+    {% for child in cell.form.element.children %}
+        {% for subchild in child.children %}
+            {{ form_label(subchild) }}
+            {{ form_errors(subchild) }}
+            {{ form_widget(subchild) }}
+        {% endfor %}
+    {% endfor %}
+    {% if cell.form.submit == true %}
+        <input type="submit"{{ datagrid_render_attributes(cell.form.submit_attributes) }}/>
+    {% endif %}
+    </{{ cell.form.wrapper_tag }}>
+{% endspaceless %}
+{% endblock %}
+
+{% block datagrid_cell_action %}
+{% spaceless %}
+    {% for action in cell.value %}
+    Action<br/>
+    {% endfor %}
+{% endspaceless %}
+{% endblock %}
+
+{% block datagrid_cell %}
+{% spaceless %}
+    <{{ cell.tag }}{{ datagrid_render_attributes(cell.value_attributes) }}>
+    {% if cell.type == 'action' %}
+        {{ block('datagrid_cell_action') }}
+    {% else %}
+        {{ cell.value }}
+    {% endif %}
+    </{{ cell.tag }}>
+    {% if cell.form is not empty %}
+        {{ block('datagrid_cell_form') }}
+    {% endif %}
+{% endspaceless %}
+{% endblock %}
+
+{% block datagrid_header_column_table %}
+{% spaceless %}
+    <th{{ datagrid_render_attributes(column.wrapper_attributes) }}>
+        <{{ column.tag }}{{ datagrid_render_attributes(column.label_attributes) }}>{{ column.label }}</{{ column.tag }}>
+    </th>
+{% endspaceless %}
+{% endblock %}
+
+
+{% block datagrid_header_table %}
+{% spaceless %}
+<tr>
+    {% for column in columns %}
+        {{ block('datagrid_header_column_table') }}
+    {% endfor %}
+</tr>
+{% endspaceless %}
+{% endblock %}
+
+{% block datagrid_rowset_row_cell_table %}
+{% spaceless %}
+    <td{{ datagrid_render_attributes(cell.wrapper_attributes) }}>
+        {{ block('datagrid_cell') }}
+    </td>
+{% endspaceless %}
+{% endblock %}
+
+{% block datagrid_rowset_row_table %}
+{% spaceless %}
+    <tr>
+        {% for cell in row.cells %}
+            {{ block('datagrid_rowset_row_cell_table') }}
+        {% endfor %}
+    </tr>
+{% endspaceless %}
+{% endblock %}
+
+{% block datagrid_rowset_table %}
+{% spaceless %}
+    {% for row in rowset %}
+        {{ block('datagrid_rowset_row_table') }}
+    {% endfor %}
+{% endspaceless %}
+{% endblock %}
