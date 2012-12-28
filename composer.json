@@ -3,6 +3,7 @@
     "type": "symfony-bundle",
     "description": "FSi Datagrid Bundle",
     "keywords": ["fsi", "symfony", "datagrid", "datagrid-bundle", "bundle"],
+    "license": "MIT",
     "authors": [
         {
             "name": "Norbert Orzechowicz",
