@@ -55,7 +55,8 @@ class DataGridExtension extends \Twig_Extension
                 'tag' => $headerAttributes['label_tag'],
                 'label' => $column->getLabel(),
                 'wrapper_attributes' => $headerAttributes['wrapper_attributes'],
-                'label_attributes' => $headerAttributes['label_attributes']
+                'label_attributes' => $headerAttributes['label_attributes'],
+                'translation_domain' => $column->getAttribute('translation_domain')
             );
         }
 
@@ -95,7 +96,8 @@ class DataGridExtension extends \Twig_Extension
                     'type' => $cell->getType(),
                     'form' => $form,
                     'wrapper_attributes' => $cellAttributes['wrapper_attributes'],
-                    'value_attributes' => $cellAttributes['value_attributes']
+                    'value_attributes' => $cellAttributes['value_attributes'],
+                    'translation_domain' => $cell->getAttribute('translation_domain')
                 );
 
                 if ($cell->getType() == 'action') {
@@ -119,10 +121,11 @@ class DataGridExtension extends \Twig_Extension
         ));
     }
 
-    public function datagridAttributes(array $attributes)
+    public function datagridAttributes(array $attributes, $translationDomain = null)
     {
         return $this->template->renderBlock('datagrid_render_attributes', array(
-            'attributes' => $attributes
+            'attributes' => $attributes,
+            'translation_domain' => $translationDomain
         ));
     }
 

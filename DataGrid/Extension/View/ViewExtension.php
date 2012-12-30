@@ -23,6 +23,7 @@ class ViewExtension extends DataGridAbstractExtension
     {
         return array(
             new ColumnTypeExtension\ColumnViewOptionsExtension(),
+            new ColumnTypeExtension\ActionViewOptionsExtension(),
         );
     }
 }

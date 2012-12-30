@@ -72,18 +72,18 @@ class ColumnViewOptionsExtension extends ColumnAbstractTypeExtension
         }
 
         $view->setAttribute('cell', $cellOptions);
+        $view->setAttribute('translation_domain', $column->getOption('translation_domain'));
     }
 
     public function buildHeaderView(ColumnTypeInterface $column, HeaderViewInterface $view)
     {
         $this->validateHeaderOptions($column);
 
-        $dataGridName = $column->getDataGrid()->getName();
-
         $headerOptions = $column->getOption('header');
         $headerOptions = array_merge($this->headerOptions, $headerOptions);
 
         $view->setAttribute('header', $headerOptions);
+        $view->setAttribute('translation_domain', $column->getOption('translation_domain'));
     }
 
     public function getExtendedColumnTypes()
@@ -102,6 +102,7 @@ class ColumnViewOptionsExtension extends ColumnAbstractTypeExtension
     public function getDefaultOptionsValues(ColumnTypeInterface $column)
     {
         $options = array(
+            'translation_domain' => null,
             'header' => $this->headerOptions,
             'cell' => $this->cellOptions
         );
@@ -120,7 +121,7 @@ class ColumnViewOptionsExtension extends ColumnAbstractTypeExtension
 
     public function getAvailableOptions(ColumnTypeInterface $column)
     {
-        return array('header', 'cell');
+        return array('translation_domain', 'header', 'cell');
     }
 
     private function validateCellOptions(ColumnTypeInterface $column)
