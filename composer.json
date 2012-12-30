@@ -13,7 +13,8 @@
     "require": {
         "php": ">=5.3.3",
         "twig/twig": ">=1.2,<2.0-dev",
-        "fsi/datagrid": "dev-master"
+        "symfony/framework-bundle" : "2.1.*",
+        "fsi/datagrid": "0.9.*"
     },
     "autoload": {
         "psr-0": { "FSi\\Bundle\\DataGridBundle\\": "" }
