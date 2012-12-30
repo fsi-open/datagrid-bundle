@@ -13,7 +13,7 @@
         <parameter key="datagrid.extension.class">FSi\Component\DataGrid\Extension\Symfony\DependencyInjectionExtension</parameter>
     </parameters>
 
-    <services>        
+    <services>
         <service id="datagrid.extension" class="%datagrid.extension.class%">
             <argument type="service" id="service_container" />
             <!-- All services with tag "datagrid.column" are inserted here by DataGridPass -->
@@ -24,7 +24,7 @@
             <argument type="collection" />
             <tag name="datagrid.extension" alias="dependencyinjection" />
         </service>
-        
+
         <!-- DataMapper\Reflection -->
         <service id="datagrid.datamapper.reflection" class="%datagrid.datamapper.reflection.class%" />
 
@@ -88,27 +88,31 @@
 
         <service id="datagrid.column_extension.default" class="FSi\Component\DataGrid\Extension\Core\ColumnTypeExtension\DefaultColumnOptionsExtension">
             <tag name="datagrid.column_extension" alias="default"/>
-        </service>  
+        </service>
 
         <service id="datagrid.subscriber.core.columnorder" class="FSi\Component\DataGrid\Extension\Core\EventSubscriber\ColumnOrder">
             <tag name="datagrid.subscriber" alias="core.columnorder"/>
-        </service>  
+        </service>
 
         <service id="datagrid.column_extension.view" class="FSi\Bundle\DataGridBundle\DataGrid\Extension\View\ColumnTypeExtension\ColumnViewOptionsExtension">
             <tag name="datagrid.column_extension" alias="view"/>
-        </service>  
+        </service>
+
+        <service id="datagrid.column_extension.action_view" class="FSi\Bundle\DataGridBundle\DataGrid\Extension\View\ColumnTypeExtension\ActionViewOptionsExtension">
+            <tag name="datagrid.column_extension" alias="action_view"/>
+        </service>
 
         <!-- SymfonyFormExtension -->
         <service id="datagrid.column_extension.symfony.form" class="FSi\Component\DataGrid\Extension\Symfony\ColumnTypeExtension\FormExtension">
             <tag name="datagrid.column_extension" alias="symfony.form"/>
             <argument type="service" id="form.factory" />
-        </service>  
+        </service>
         <service id="datagrid.subscriber.symfony.bindrequest" class="FSi\Component\DataGrid\Extension\Symfony\EventSubscriber\BindRequest">
             <tag name="datagrid.subscriber" alias="symfony.form.bindrequest"/>
-        </service>  
+        </service>
         <service id="datagrid.column_extension.symfony.action" class="FSi\Component\DataGrid\Extension\Symfony\ColumnTypeExtension\ActionColumnExtension">
             <tag name="datagrid.column_extension" alias="symfony.action"/>
             <argument type="service" id="router" />
-        </service>  
+        </service>
     </services>
 </container>

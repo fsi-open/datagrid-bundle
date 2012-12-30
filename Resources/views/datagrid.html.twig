@@ -23,8 +23,8 @@
 
 {% block datagrid_cell_action %}
 {% spaceless %}
-    {% for action in cell.value %}
-    Action<br/>
+    {% for action_name, action in cell.value %}
+        <a href="{{ action.url }}"{{ datagrid_render_attributes(cell['anchors'][action_name]['attributes']) }}>{{ action.anchor }}</a>
     {% endfor %}
 {% endspaceless %}
 {% endblock %}

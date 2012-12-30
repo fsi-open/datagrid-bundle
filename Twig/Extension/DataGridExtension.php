@@ -72,15 +72,13 @@ class DataGridExtension extends \Twig_Extension
         $rowset = array();
         foreach ($view as $index => $row) {
             $cells = array();
-            $wrapperAttributes = array();
 
             foreach ($row as $cell) {
                 $cellAttributes = $cell->getAttribute('cell');
-
                 $form = null;
+
                 if ($cell->hasAttribute('form')) {
                     $formAttributes = $cellAttributes['form'];
-                    $formWrapperAttributes = array();
 
                     $form = array(
                         'element' => $cell->getAttribute('form'),
@@ -91,7 +89,7 @@ class DataGridExtension extends \Twig_Extension
                     );
                 }
 
-                $cells[] = array(
+                $cellViewAttributes = array(
                     'value' => $cell->getValue(),
                     'tag' => $cellAttributes['value_tag'],
                     'type' => $cell->getType(),
@@ -99,6 +97,14 @@ class DataGridExtension extends \Twig_Extension
                     'wrapper_attributes' => $cellAttributes['wrapper_attributes'],
                     'value_attributes' => $cellAttributes['value_attributes']
                 );
+
+                if ($cell->getType() == 'action') {
+                    $anchorsAttributes =  $cell->getAttribute('anchors');
+                    $cellViewAttributes['anchors'] = $anchorsAttributes;
+                }
+
+
+                $cells[] = $cellViewAttributes;
             }
 
             $rowset[] = array(
@@ -115,7 +121,7 @@ class DataGridExtension extends \Twig_Extension
 
     public function datagridAttributes(array $attributes)
     {
-        return $this->template->renderBlock('datagrid_attributes', array(
+        return $this->template->renderBlock('datagrid_render_attributes', array(
             'attributes' => $attributes
         ));
     }
