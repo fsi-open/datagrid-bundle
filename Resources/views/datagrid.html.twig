@@ -35,7 +35,7 @@
     {% if cell.type == 'action' %}
         {{ block('datagrid_cell_action') }}
     {% else %}
-        {{ cell.value }}
+        {{ cell.value|raw }}
     {% endif %}
     </{{ cell.tag }}>
     {% if cell.form is not empty %}
