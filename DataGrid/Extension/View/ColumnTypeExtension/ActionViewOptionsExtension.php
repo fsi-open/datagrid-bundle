@@ -38,6 +38,13 @@ class ActionViewOptionsExtension extends ColumnAbstractTypeExtension
             }
         }
 
+        $actions = $column->getOption('actions');
+        foreach ($actions as $name => $action) {
+            if (!array_key_exists($name, $anchorsOptions)) {
+                $anchorsOptions[$name] = $this->anchorOptions;
+            }
+        }
+
         $view->setAttribute('anchors', $anchorsOptions);
     }
 
