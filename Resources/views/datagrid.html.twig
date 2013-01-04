@@ -24,7 +24,7 @@
 {% block datagrid_cell_action %}
 {% spaceless %}
     {% for action_name, action in cell.value %}
-        <a href="{{ action.url }}"{{ datagrid_render_attributes(cell['anchors'][action_name]['attributes'], cell.translation_domain) }}>{{ action.anchor|trans({}, cell.translation_domain) }}</a>
+        <a href="{{ action.url }}"{{ datagrid_render_attributes(cell['anchors'][action_name]['attributes'], cell.translation_domain) }}>{{ action.anchor|trans({}, cell.translation_domain)|raw }}</a>
     {% endfor %}
 {% endspaceless %}
 {% endblock %}
