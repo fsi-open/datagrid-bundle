@@ -1,7 +1,7 @@
-# FSi DataGrid Budnle #
+# FSi DataGrid Bundle #
 
 Main purpose of this bundle is to register ``FSi DataGrid Component`` service 
-and tiwg rendering functions. 
+and twig rendering functions. 
 
 ## Installation ##
 
