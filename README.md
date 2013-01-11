@@ -104,7 +104,7 @@ class DefaultController extends Controller
 
 ```
 
-How to display created grid in twig template: 
+How to display created datagrid in twig template: 
 
 ```
 
@@ -112,14 +112,7 @@ How to display created grid in twig template:
 
 <div class="table-border">
     <form action="{{ path('demo_index') }}" method="post">
-    <table class="table table-hover" id="table-edit-rows">
-        <thead>
-        {{ datagrid_header(datagrid) }}
-        </thead>
-        <tbody>
-        {{ datagrid_rowset(datagrid) }}
-        </tbody>
-    </table>
+    {{ datagrid_widget(datagrid, {wrapper_attributes : {'class' : 'table table-hover', 'id' : 'table-edit-rows'}}) }}
     </form>
 </div>
 

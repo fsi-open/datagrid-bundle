@@ -35,15 +35,50 @@ class DataGridExtension extends \Twig_Extension
     public function getFunctions()
     {
         return array(
-            'datagrid_header' =>  new \Twig_Function_Method($this, 'datagridHeader', array('is_safe' => array('html'))),
-            'datagrid_rowset' =>  new \Twig_Function_Method($this, 'datagridRowset', array('is_safe' => array('html'))),
+            'datagrid_widget' => new \Twig_Function_Method($this, 'datagrid', array('is_safe' => array('html'))),
+            'datagrid_header_widget' =>  new \Twig_Function_Method($this, 'datagridHeader', array('is_safe' => array('html'))),
+            'datagrid_rowset_widget' =>  new \Twig_Function_Method($this, 'datagridRowset', array('is_safe' => array('html'))),
             'datagrid_render_attributes' =>  new \Twig_Function_Method($this, 'datagridAttributes', array('is_safe' => array('html')))
         );
     }
 
-    public function datagridHeader(DataGridViewInterface $view, $style = 'table')
+    public function datagrid(DataGridViewInterface $view, $options = array())
     {
-        $style = $this->getRenderingStyle($style);
+        $style = $this->getRenderingStyle($options);
+
+        $headerOptions = array_merge(
+            array(
+                'style' => $style
+            ),
+            (isset($options['header_options']) && is_array($options['header_options']))
+                ? $options['header_options']
+                : array()
+        );
+
+        $rowsetOptions = array_merge(
+            array(
+                'style' => $style
+            ),
+            (isset($options['rowset_options']) && is_array($options['rowset_options']))
+                ? $options['rowset_options']
+                : array()
+        );
+
+        $wrapperAttributes = (isset($options['wrapper_attributes']) && is_array($options['wrapper_attributes']))
+            ? $options['wrapper_attributes']
+            : array();
+
+        return $this->template->renderBlock('datagrid_' . $style, array(
+            'datagrid' => $view,
+            'header_options' => $headerOptions,
+            'rowset_options' => $rowsetOptions,
+            'wrapper_attributes' => $wrapperAttributes
+        ));
+    }
+
+    public function datagridHeader(DataGridViewInterface $view, $options = array())
+    {
+        $style = $this->getRenderingStyle($options);
 
         $columns = $view->getColumns();
         $columnsView = array();
@@ -61,14 +96,13 @@ class DataGridExtension extends \Twig_Extension
         }
 
         return $this->template->renderBlock('datagrid_header_' . $style, array(
-            'style' => $style,
             'columns' => $columnsView
         ));
     }
 
-    public function datagridRowset(DataGridViewInterface $view, $style = 'table')
+    public function datagridRowset(DataGridViewInterface $view, $options = array())
     {
-        $style = $this->getRenderingStyle($style);
+        $style = $this->getRenderingStyle($options);
 
         $rowset = array();
         foreach ($view as $index => $row) {
@@ -105,7 +139,6 @@ class DataGridExtension extends \Twig_Extension
                     $cellViewAttributes['anchors'] = $anchorsAttributes;
                 }
 
-
                 $cells[] = $cellViewAttributes;
             }
 
@@ -116,8 +149,8 @@ class DataGridExtension extends \Twig_Extension
         }
 
         return $this->template->renderBlock('datagrid_rowset_' . $style, array(
-            'style' => $style,
-            'rowset' => $rowset
+            'rowset' => $rowset,
+            'grid_name' => $view->getName()
         ));
     }
 
@@ -129,11 +162,15 @@ class DataGridExtension extends \Twig_Extension
         ));
     }
 
-    private function getRenderingStyle($style)
+    private function getRenderingStyle($options)
     {
+        if (!isset($options['style'])) {
+            return 'table';
+        }
+
         $styles = array('table'); //TODO: add div render style
-        if (in_array($style, $styles, true)) {
-            return $style;
+        if (in_array($options['style'], $styles, true)) {
+            return strtolower($options['style']);
         }
 
         return 'table';

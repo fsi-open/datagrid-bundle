@@ -37,14 +37,7 @@
 
         <!-- IndexingStrategy\Entity -->
         <service id="datagrid.indexingstrategy.entity" class="%datagrid.indexingstrategy.entity.class%">
-            <argument type="service" id="doctrine.orm.entity_manager"/>
-        </service>
-
-        <!-- IndexingStrategy\Chain -->
-        <service id="datagrid.indexingstrategy.chain" class="%datagrid.indexingstrategy.chain.class%">
-            <argument type="collection">
-                <argument type="service" id="datagrid.indexingstrategy.entity" />
-            </argument>
+            <argument type="service" id="doctrine"/>
         </service>
 
         <!-- DataGridFactory -->
@@ -59,7 +52,7 @@
                 -->
             </argument>
             <argument type="service" id="datagrid.datamapper.chain" />
-            <argument type="service" id="datagrid.indexingstrategy.chain" />
+            <argument type="service" id="datagrid.indexingstrategy.entity" />
         </service>
 
         <!-- CoreExtension -->
