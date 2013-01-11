@@ -63,7 +63,7 @@
 {% endspaceless %}
 {% endblock %}
 
-{% block datagrid_rowset_row_cell_table %}
+{% block datagrid_rowset_cell_table %}
 {% spaceless %}
     <td{{ datagrid_render_attributes(cell.wrapper_attributes, cell.translation_domain) }}>
         {{ block('datagrid_cell') }}
@@ -71,20 +71,27 @@
 {% endspaceless %}
 {% endblock %}
 
-{% block datagrid_rowset_row_table %}
+{% block datagrid_rowset_table %}
 {% spaceless %}
-    <tr>
-        {% for cell in row.cells %}
-            {{ block('datagrid_rowset_row_cell_table') }}
-        {% endfor %}
-    </tr>
+    {% for index, row in rowset %}
+        <tr id="{{ grid_name }}_{{ index }}">
+            {% for cell in row.cells %}
+                {{ block('datagrid_rowset_cell_table') }}
+            {% endfor %}
+        </tr>
+    {% endfor %}
 {% endspaceless %}
 {% endblock %}
 
-{% block datagrid_rowset_table %}
+{% block datagrid_table %}
 {% spaceless %}
-    {% for row in rowset %}
-        {{ block('datagrid_rowset_row_table') }}
-    {% endfor %}
+    <table{{ datagrid_render_attributes(wrapper_attributes) }}>
+        <thead>
+            {{ datagrid_header_widget(datagrid, header_options) }}
+        </thead>
+        <tbody>
+            {{ datagrid_rowset_widget(datagrid, rowset_options) }}
+        </tbody>
+    </table>
 {% endspaceless %}
 {% endblock %}
