@@ -6,7 +6,6 @@
 
     <parameters>
         <parameter key="datagrid.factory.class">FSi\Component\DataGrid\DataGridFactory</parameter>
-        <parameter key="datagrid.indexingstrategy.chain.class">FSi\Component\DataGrid\Data\ChainIndexingStrategy</parameter>
         <parameter key="datagrid.indexingstrategy.entity.class">FSi\Component\DataGrid\Data\EntityIndexingStrategy</parameter>
         <parameter key="datagrid.datamapper.chain.class">FSi\Component\DataGrid\DataMapper\ChainMapper</parameter>
         <parameter key="datagrid.datamapper.reflection.class">FSi\Component\DataGrid\DataMapper\ReflectionMapper</parameter>
