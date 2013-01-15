@@ -64,57 +64,56 @@
         <service id="datagrid.column.datetime" class="FSi\Component\DataGrid\Extension\Core\ColumnType\DateTime">
             <tag name="datagrid.column" alias="datetime" />
         </service>
-        <service id="datagrid.column.action" class="FSi\Component\DataGrid\Extension\Core\ColumnType\Action">
-            <tag name="datagrid.column" alias="action" />
-        </service>
         <service id="datagrid.column.money" class="FSi\Component\DataGrid\Extension\Core\ColumnType\Money">
             <tag name="datagrid.column" alias="money" />
         </service>
+        <service id="datagrid.column_extension.default" class="FSi\Component\DataGrid\Extension\Core\ColumnTypeExtension\DefaultColumnOptionsExtension">
+            <tag name="datagrid.column_extension" alias="core.default"/>
+        </service>
+        <service id="datagrid.column_extension.value_format" class="FSi\Component\DataGrid\Extension\Core\ColumnTypeExtension\ValueFormatColumnOptionsExtension">
+            <tag name="datagrid.column_extension" alias="core.value_format"/>
+        </service>
+        <service id="datagrid.subscriber.core.columnorder" class="FSi\Component\DataGrid\Extension\Core\EventSubscriber\ColumnOrder">
+            <tag name="datagrid.subscriber" alias="core.columnorder"/>
+        </service>
+        <!-- CoreExtension -->
+        
+        <!-- DoctrineExtension -->
         <service id="datagrid.column.entity" class="FSi\Component\DataGrid\Extension\Doctrine\ColumnType\Entity">
             <tag name="datagrid.column" alias="entity" />
         </service>
+        <service id="datagrid.column_extension.doctrine.value_format" class="FSi\Component\DataGrid\Extension\Doctrine\ColumnTypeExtension\ValueFormatColumnOptionsExtension">
+            <tag name="datagrid.column_extension" alias="doctrine.value_format"/>
+            <argument type="service" id="router" />
+        </service>
+        <!-- DoctrineExtension -->
+        
+        <!-- GedmoExtension -->
         <service id="datagrid.column.gedmo.tree" class="FSi\Component\DataGrid\Extension\Gedmo\ColumnType\Tree">
             <tag name="datagrid.column" alias="gedmo.tree" />
             <argument type="service" id="doctrine"/>
         </service>
-
-        <service id="datagrid.column_extension.default" class="FSi\Component\DataGrid\Extension\Core\ColumnTypeExtension\DefaultColumnOptionsExtension">
-            <tag name="datagrid.column_extension" alias="core.default"/>
-        </service>
+        <!-- GedmoExtension -->
         
-        <service id="datagrid.column_extension.value_format" class="FSi\Component\DataGrid\Extension\Core\ColumnTypeExtension\ValueFormatColumnOptionsExtension">
-            <tag name="datagrid.column_extension" alias="core.value_format"/>
+        <!-- SymfonyExtension -->
+        <service id="datagrid.column.symfony.action" class="FSi\Component\DataGrid\Extension\Symfony\ColumnType\Action">
+            <tag name="datagrid.column" alias="action" />
+            <argument type="service" id="service_container"/>
         </service>
-        
-        <service id="datagrid.subscriber.core.columnorder" class="FSi\Component\DataGrid\Extension\Core\EventSubscriber\ColumnOrder">
-            <tag name="datagrid.subscriber" alias="core.columnorder"/>
-        </service>
-
-        <service id="datagrid.column_extension.view" class="FSi\Bundle\DataGridBundle\DataGrid\Extension\View\ColumnTypeExtension\ColumnViewOptionsExtension">
-            <tag name="datagrid.column_extension" alias="datagrid.bundle.view"/>
-        </service>
-
-        <service id="datagrid.column_extension.action_view" class="FSi\Bundle\DataGridBundle\DataGrid\Extension\View\ColumnTypeExtension\ActionViewOptionsExtension">
-            <tag name="datagrid.column_extension" alias="datagrid.bundle.action_view"/>
-        </service>
-
         <service id="datagrid.column_extension.symfony.form" class="FSi\Component\DataGrid\Extension\Symfony\ColumnTypeExtension\FormExtension">
             <tag name="datagrid.column_extension" alias="symfony.form"/>
             <argument type="service" id="form.factory" />
         </service>
-        
         <service id="datagrid.subscriber.symfony.bindrequest" class="FSi\Component\DataGrid\Extension\Symfony\EventSubscriber\BindRequest">
             <tag name="datagrid.subscriber" alias="symfony.form.bindrequest"/>
         </service>
-        
-        <service id="datagrid.column_extension.symfony.action" class="FSi\Component\DataGrid\Extension\Symfony\ColumnTypeExtension\ActionColumnExtension">
-            <tag name="datagrid.column_extension" alias="symfony.action"/>
-            <argument type="service" id="router" />
+        <!-- SymfonyExtension -->
+
+        <service id="datagrid.column_extension.view" class="FSi\Bundle\DataGridBundle\DataGrid\Extension\View\ColumnTypeExtension\ColumnViewOptionsExtension">
+            <tag name="datagrid.column_extension" alias="datagrid.bundle.view"/>
         </service>
-        
-        <service id="datagrid.column_extension.symfony.value_format" class="FSi\Component\DataGrid\Extension\Doctrine\ColumnTypeExtension\ValueFormatColumnOptionsExtension">
-            <tag name="datagrid.column_extension" alias="doctrine.value_format"/>
-            <argument type="service" id="router" />
+        <service id="datagrid.column_extension.action_view" class="FSi\Bundle\DataGridBundle\DataGrid\Extension\View\ColumnTypeExtension\ActionViewOptionsExtension">
+            <tag name="datagrid.column_extension" alias="datagrid.bundle.action_view"/>
         </service>
     </services>
 </container>
