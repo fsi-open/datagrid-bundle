@@ -89,6 +89,7 @@ class ColumnViewOptionsExtension extends ColumnAbstractTypeExtension
     public function getExtendedColumnTypes()
     {
         return array(
+            'boolean',
             'text',
             'datetime',
             'number',

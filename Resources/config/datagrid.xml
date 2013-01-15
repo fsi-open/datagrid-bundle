@@ -6,9 +6,9 @@
 
     <parameters>
         <parameter key="datagrid.factory.class">FSi\Component\DataGrid\DataGridFactory</parameter>
-        <parameter key="datagrid.indexingstrategy.entity.class">FSi\Component\DataGrid\Data\EntityIndexingStrategy</parameter>
-        <parameter key="datagrid.datamapper.chain.class">FSi\Component\DataGrid\DataMapper\ChainMapper</parameter>
-        <parameter key="datagrid.datamapper.reflection.class">FSi\Component\DataGrid\DataMapper\ReflectionMapper</parameter>
+        <parameter key="datagrid.indexing_strategy.entity.class">FSi\Component\DataGrid\Data\EntityIndexingStrategy</parameter>
+        <parameter key="datagrid.data_mapper.chain.class">FSi\Component\DataGrid\DataMapper\ChainMapper</parameter>
+        <parameter key="datagrid.data_mapper.reflection.class">FSi\Component\DataGrid\DataMapper\ReflectionMapper</parameter>
         <parameter key="datagrid.extension.class">FSi\Component\DataGrid\Extension\Symfony\DependencyInjectionExtension</parameter>
     </parameters>
 
@@ -21,21 +21,21 @@
             <argument type="collection" />
             <!-- All services with tag "datagrid.subscriber" are inserted here by DataGridPass -->
             <argument type="collection" />
-            <tag name="datagrid.extension" alias="dependencyinjection" />
+            <tag name="datagrid.extension" alias="dependency_injection" />
         </service>
 
         <!-- DataMapper\Reflection -->
-        <service id="datagrid.datamapper.reflection" class="%datagrid.datamapper.reflection.class%" />
+        <service id="datagrid.data_mapper.reflection" class="%datagrid.data_mapper.reflection.class%" />
 
         <!-- DataMapper\Chain -->
-        <service id="datagrid.datamapper.chain" class="%datagrid.datamapper.chain.class%">
+        <service id="datagrid.data_mapper.chain" class="%datagrid.data_mapper.chain.class%">
             <argument type="collection">
-                <argument type="service" id="datagrid.datamapper.reflection" />
+                <argument type="service" id="datagrid.data_mapper.reflection" />
             </argument>
         </service>
 
         <!-- IndexingStrategy\Entity -->
-        <service id="datagrid.indexingstrategy.entity" class="%datagrid.indexingstrategy.entity.class%">
+        <service id="datagrid.indexing_strategy.entity" class="%datagrid.indexing_strategy.entity.class%">
             <argument type="service" id="doctrine"/>
         </service>
 
@@ -50,11 +50,14 @@
                  * more listeners can be registered with the datagrid.listener tag
                 -->
             </argument>
-            <argument type="service" id="datagrid.datamapper.chain" />
-            <argument type="service" id="datagrid.indexingstrategy.entity" />
+            <argument type="service" id="datagrid.data_mapper.chain" />
+            <argument type="service" id="datagrid.indexing_strategy.entity" />
         </service>
 
         <!-- CoreExtension -->
+        <service id="datagrid.column.boolean" class="FSi\Component\DataGrid\Extension\Core\ColumnType\Boolean">
+            <tag name="datagrid.column" alias="boolean" />
+        </service>
         <service id="datagrid.column.number" class="FSi\Component\DataGrid\Extension\Core\ColumnType\Number">
             <tag name="datagrid.column" alias="number" />
         </service>
@@ -73,11 +76,11 @@
         <service id="datagrid.column_extension.value_format" class="FSi\Component\DataGrid\Extension\Core\ColumnTypeExtension\ValueFormatColumnOptionsExtension">
             <tag name="datagrid.column_extension" alias="core.value_format"/>
         </service>
-        <service id="datagrid.subscriber.core.columnorder" class="FSi\Component\DataGrid\Extension\Core\EventSubscriber\ColumnOrder">
-            <tag name="datagrid.subscriber" alias="core.columnorder"/>
+        <service id="datagrid.subscriber.core.column_order" class="FSi\Component\DataGrid\Extension\Core\EventSubscriber\ColumnOrder">
+            <tag name="datagrid.subscriber" alias="core.column_order"/>
         </service>
         <!-- CoreExtension -->
-        
+
         <!-- DoctrineExtension -->
         <service id="datagrid.column.entity" class="FSi\Component\DataGrid\Extension\Doctrine\ColumnType\Entity">
             <tag name="datagrid.column" alias="entity" />
@@ -87,14 +90,14 @@
             <argument type="service" id="router" />
         </service>
         <!-- DoctrineExtension -->
-        
+
         <!-- GedmoExtension -->
         <service id="datagrid.column.gedmo.tree" class="FSi\Component\DataGrid\Extension\Gedmo\ColumnType\Tree">
             <tag name="datagrid.column" alias="gedmo.tree" />
             <argument type="service" id="doctrine"/>
         </service>
         <!-- GedmoExtension -->
-        
+
         <!-- SymfonyExtension -->
         <service id="datagrid.column.symfony.action" class="FSi\Component\DataGrid\Extension\Symfony\ColumnType\Action">
             <tag name="datagrid.column" alias="action" />
