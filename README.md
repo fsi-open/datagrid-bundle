@@ -172,4 +172,88 @@ Example usage:
 
 ```
 
+In most cases the options for all columns will be very similar. There should a mechanism in your code that will 
+pass default options to columns.
 
+
+## Twig Extension ##
+
+``FSiDataGridBundle`` provides also a Twig extension that allow you to render DataGrid with one function call.  
+Here is a list of DataGrid rendering functions (widgets) for twig. 
+Almost every single widget is rendered from block that is stored in ``DataGridBundle::datagrid.html.twig``
+
+###datagrid_widget###
+This widget can render entire DataGrid.   
+**Block name** - ``datagrid``
+
+**Available arguments:**  
+
+* ``view`` **(required)** - must be an instance of DataGridView  
+* ``options`` **(optional)** - array, currently only one option can be passed inside of options argument. 
+``wrapper_attributes``. 
+
+**Example**
+
+```
+datagrid_widget(datagrid, {'wrapper_attributes' : {'class' : 'table'} })
+```
+
+###datagrid_header_widget###
+This widget is used to render row with column headers (Table Head).  
+**Block name** - ``datagrid_header``
+
+**Available arguments:**  
+* ``view`` **(required)** - must be an instance of DataGridView  
+* ``vars`` **(optional)** - additional value passed to block rendering context under 'vars' key. It might be
+usefull if you need to overwrite ``datagrid_header`` block and add into it some extra variables. 
+
+**Example**
+
+```
+datagrid_header_widget(datagrid)
+```
+
+###datagrid_rowset_widget###
+This widget is used to render every single datagrid row in loop.  
+**Block name** - ``datagrid_rowset``
+
+**Available arguments:**  
+* ``view`` **(required)** - must be an instance of DataGridView  
+* ``vars`` **(optional)** - additional value passed to block rendering context under 'vars' key. It might be
+usefull if you need to overwrite ``datagrid_header`` block and add into it some extra variables. 
+
+**Example**
+
+```
+datagrid_rowset_widget(datagrid)
+```
+
+###datagrid_column_header_widget###
+This widget is used to render specific column header.  
+**Block name** - ``datagrid_column_header``
+
+**Available arguments:**  
+* ``view`` **(required)** - must be an instance of HeaderViewInterface  
+* ``vars`` **(optional)** - additional value passed to block rendering context under 'vars' key. It might be
+usefull if you need to overwrite ``datagrid_column_header`` block and add into it some extra variables. 
+
+**Example**
+
+```
+datagrid_column_header(header)
+```
+
+###ddatagrid_column_cell_widget###
+This widget is used to render specific column cell.  
+**Block name** - ``datagrid_column_cell``
+
+**Available arguments:**  
+* ``view`` **(required)** - must be an instance of HeaderViewInterface  
+* ``vars`` **(optional)** - additional value passed to block rendering context under 'vars' key. It might be
+usefull if you need to overwrite ``datagrid_column_cell`` block and add into it some extra variables. 
+
+**Example**
+
+```
+datagrid_column_cell(cell)
+```

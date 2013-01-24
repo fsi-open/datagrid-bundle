@@ -1,4 +1,4 @@
-{% block datagrid_render_attributes %}
+{% block datagrid_attributes %}
 {% for name, attribute in attributes %}
  {% spaceless %}{% if name in ['title'] %}{{ name }}="{{ attribute|trans({}, translation_domain) }}" {% else %} {{ " " ~ name }}="{{ attribute }}"{% endif %}{% endspaceless %}
 {% endfor %}
@@ -6,7 +6,7 @@
 
 {% block datagrid_cell_form %}
 {% spaceless %}
-    <{{ cell.form.wrapper_tag }}{{ datagrid_render_attributes(cell.form.wrapper_attributes, cell.translation_domain) }}>
+    <{{ cell.form.wrapper_tag }}{{ datagrid_attributes_widget(cell.form.wrapper_attributes, cell.translation_domain) }}>
     {% for child in cell.form.element.children %}
         {% for subchild in child.children %}
             {{ form_label(subchild) }}
@@ -15,7 +15,7 @@
         {% endfor %}
     {% endfor %}
     {% if cell.form.submit == true %}
-        <input type="submit"{{ datagrid_render_attributes(cell.form.submit_attributes, cell.translation_domain) }}/>
+        <input type="submit"{{ datagrid_attributes_widget(cell.form.submit_attributes, cell.translation_domain) }}/>
     {% endif %}
     </{{ cell.form.wrapper_tag }}>
 {% endspaceless %}
@@ -24,73 +24,66 @@
 {% block datagrid_cell_action %}
 {% spaceless %}
     {% for action_name, action in cell.value %}
-        <a href="{{ action.url }}"{{ datagrid_render_attributes(cell['anchors'][action_name]['attributes'], cell.translation_domain) }}>{{ action.anchor|trans({}, cell.translation_domain)|raw }}</a>
+        <a href="{{ action.url }}"{{ datagrid_attributes_widget(cell['anchors'][action_name]['attributes'], cell.translation_domain) }}>{{ action.anchor|trans({}, cell.translation_domain)|raw }}</a>
     {% endfor %}
 {% endspaceless %}
 {% endblock %}
 
-{% block datagrid_cell %}
+{% block datagrid_column_header %}
 {% spaceless %}
-    <{{ cell.tag }}{{ datagrid_render_attributes(cell.value_attributes, cell.translation_domain) }}>
-    {% if cell.type == 'action' %}
-        {{ block('datagrid_cell_action') }}
-    {% else %}
-        {{ cell.value|raw }}
-    {% endif %}
-    </{{ cell.tag }}>
-    {% if cell.form is not empty %}
-        {{ block('datagrid_cell_form') }}
-    {% endif %}
-{% endspaceless %}
-{% endblock %}
-
-{% block datagrid_header_column_table %}
-{% spaceless %}
-    <th{{ datagrid_render_attributes(column.wrapper_attributes, column.translation_domain) }}>
-        <{{ column.tag }}{{ datagrid_render_attributes(column.label_attributes, column.translation_domain) }}>{{ column.label|trans({}, column.translation_domain) }}</{{ column.tag }}>
+    <th{{ datagrid_attributes_widget(header.wrapper_attributes, header.translation_domain) }}>
+        <{{ header.tag }}{{ datagrid_attributes_widget(header.label_attributes, header.translation_domain) }}>{{ header.label|trans({}, header.translation_domain) }}</{{ header.tag }}>
     </th>
 {% endspaceless %}
 {% endblock %}
 
-
-{% block datagrid_header_table %}
+{% block datagrid_header %}
 {% spaceless %}
 <tr>
-    {% for column in columns %}
-        {{ block('datagrid_header_column_table') }}
+    {% for header in headers %}
+        {{ datagrid_column_header_widget(header) }}
     {% endfor %}
 </tr>
 {% endspaceless %}
 {% endblock %}
 
-{% block datagrid_rowset_cell_table %}
+{% block datagrid_column_cell %}
 {% spaceless %}
-    <td{{ datagrid_render_attributes(cell.wrapper_attributes, cell.translation_domain) }}>
-        {{ block('datagrid_cell') }}
+    <td{{ datagrid_attributes_widget(cell.wrapper_attributes, cell.translation_domain) }}>
+        <{{ cell.tag }}{{ datagrid_attributes_widget(cell.value_attributes, cell.translation_domain) }}>
+        {% if cell.column_type == 'action' %}
+            {{ block('datagrid_cell_action') }}
+        {% else %}
+            {{ cell.value|raw }}
+        {% endif %}
+        </{{ cell.tag }}>
+        {% if cell.form is not empty %}
+            {{ block('datagrid_cell_form') }}
+        {% endif %}
     </td>
 {% endspaceless %}
 {% endblock %}
 
-{% block datagrid_rowset_table %}
+{% block datagrid_rowset %}
 {% spaceless %}
     {% for index, row in rowset %}
         <tr id="{{ grid_name }}_{{ index }}">
             {% for cell in row.cells %}
-                {{ block('datagrid_rowset_cell_table') }}
+                {{ datagrid_column_cell_widget(cell) }}
             {% endfor %}
         </tr>
     {% endfor %}
 {% endspaceless %}
 {% endblock %}
 
-{% block datagrid_table %}
+{% block datagrid %}
 {% spaceless %}
-    <table{{ datagrid_render_attributes(wrapper_attributes) }}>
+    <table{{ datagrid_attributes_widget(wrapper_attributes) }}>
         <thead>
-            {{ datagrid_header_widget(datagrid, header_options) }}
+            {{ datagrid_header_widget(datagrid) }}
         </thead>
         <tbody>
-            {{ datagrid_rowset_widget(datagrid, rowset_options) }}
+            {{ datagrid_rowset_widget(datagrid) }}
         </tbody>
     </table>
 {% endspaceless %}
