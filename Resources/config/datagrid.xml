@@ -119,8 +119,5 @@
         <service id="datagrid.column_extension.view" class="FSi\Bundle\DataGridBundle\DataGrid\Extension\View\ColumnTypeExtension\ColumnViewOptionsExtension">
             <tag name="datagrid.column_extension" alias="datagrid.bundle.view"/>
         </service>
-        <service id="datagrid.column_extension.action_view" class="FSi\Bundle\DataGridBundle\DataGrid\Extension\View\ColumnTypeExtension\ActionViewOptionsExtension">
-            <tag name="datagrid.column_extension" alias="datagrid.bundle.action_view"/>
-        </service>
     </services>
 </container>

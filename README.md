@@ -3,7 +3,7 @@
 Main purpose of this bundle is to register ``FSi DataGrid Component`` service 
 and twig rendering functions. 
 
-## Installation ##
+#Installation#
 
 * Download DataGridBundle
 * Enable the bundle
@@ -16,7 +16,7 @@ Add to composer.json
 ```
 
 "require": {
-    "fsi/datagrid-bundle": "0.9.0
+    "fsi/datagrid-bundle": "0.9.*
 }
 
 ```
@@ -43,15 +43,11 @@ public function registerBundles()
 Add to config.yaml 
 
 ```
-    
 fsi_data_grid: 
     twig: ~
-
 ```
 
-## Usage ##
-
-### Create DataGrid in Controller ###
+# Usage #
 
 Basic DataGrid usage.
 
@@ -112,73 +108,17 @@ How to display created datagrid in twig template:
 
 <div class="table-border">
     <form action="{{ path('demo_index') }}" method="post">
-    {{ datagrid_widget(datagrid, {wrapper_attributes : {'class' : 'table table-hover', 'id' : 'table-edit-rows'}}) }}
+    {{ datagrid_widget(datagrid) }}
     </form>
 </div>
 
 ```
 
-## Additional Column Options ##
+# Twig Extension #
 
-There are two additional column options ``header`` and ``cell`` added by DataGridBundle.
+##Available Twig Functions##
 
-* ``header`` -- affects Column HeaderView
-    * ``wrapper_attributes``
-    * ``wrapper_attributes``
-    * ``label_tag`` - default ``span``
-* ``cell`` -- affects Column CellView
-    * ``wrapper_attributes``
-    * ``value_attributes``
-    * ``value_tag`` - default ``div``
-    * ``form`` - only if column has ``editable`` option
-        * ``wrapper_attributes``
-        * ``wrapper_tag`` - default ``div``
-        * ``submit`` - default ``true``
-        * ``submit_attributes`` 
-
-Example usage: 
-
-```
-<?php
-    
-    $column->add("name", "text", array(
-        "editable" => true,
-        "header" => array(
-            "label_tag" = "div",
-            "label_attributes" => array)
-                "class" => "test"
-            ),
-            "wrapper_attributes" => array(
-                "id" = "author"
-            )
-        ),
-        "cell" => array(
-            "wrapper_attributes" => array(
-                "class" => "form-group"
-            ),
-            "value_attributes" => array(
-                "class" = "edit_field"
-            ),
-            "form" => array(
-                "wrapper_attributes" => array(
-                    "class" = "form-edit hide"
-                ),
-                "submit_attributes" = array(
-                    "class" = "submit",
-                )
-            )
-        ),
-    );
-
-```
-
-In most cases the options for all columns will be very similar. There should a mechanism in your code that will 
-pass default options to columns.
-
-
-## Twig Extension ##
-
-``FSiDataGridBundle`` provides also a Twig extension that allow you to render DataGrid with one function call.  
+``FSiDataGridBundle`` provides also a Twig extension that allows you to render DataGrid with one function call.  
 Here is a list of DataGrid rendering functions (widgets) for twig. 
 Almost every single widget is rendered from block that is stored in ``DataGridBundle::datagrid.html.twig``
 
@@ -189,13 +129,11 @@ This widget can render entire DataGrid.
 **Available arguments:**  
 
 * ``view`` **(required)** - must be an instance of DataGridView  
-* ``options`` **(optional)** - array, currently only one option can be passed inside of options argument. 
-``wrapper_attributes``. 
 
 **Example**
 
 ```
-datagrid_widget(datagrid, {'wrapper_attributes' : {'class' : 'table'} })
+datagrid_widget(datagrid)
 ```
 
 ###datagrid_header_widget###
@@ -240,20 +178,167 @@ usefull if you need to overwrite ``datagrid_column_header`` block and add into i
 **Example**
 
 ```
-datagrid_column_header(header)
+datagrid_column_header_widget(header)
 ```
 
-###ddatagrid_column_cell_widget###
+###datagrid_column_cell_widget###
 This widget is used to render specific column cell.  
 **Block name** - ``datagrid_column_cell``
 
 **Available arguments:**  
-* ``view`` **(required)** - must be an instance of HeaderViewInterface  
+* ``view`` **(required)** - must be an instance of CellViewInterface  
 * ``vars`` **(optional)** - additional value passed to block rendering context under 'vars' key. It might be
 usefull if you need to overwrite ``datagrid_column_cell`` block and add into it some extra variables. 
 
 **Example**
 
 ```
-datagrid_column_cell(cell)
+ddatagrid_column_cell_widget(cell)
 ```
+
+###datagrid_column_cell_form_widget###
+This widget is used to render form if column is editable.  
+**Block name** - ``datagrid_column_cell_form``
+
+**Available arguments:**  
+* ``view`` **(required)** - must be an instance of CellViewInterface  
+* ``vars`` **(optional)** - additional value passed to block rendering context under 'vars' key. It might be
+usefull if you need to overwrite ``datagrid_column_cell`` block and add into it some extra variables. 
+
+**Example**
+
+```
+ddatagrid_column_cell_widget(cell)
+```
+
+##Theming DataGrid##
+
+Default DataGrid block used to render each parts of DataGrid are very simple, but in most cases you will 
+need to overwrite them.  
+This can be easily done with theming mechanism.  
+Theme is nothing else than a twig template that contains specific blocks.  
+
+###Basic Themes###
+
+If you want to set theme for your DataGridView Object you need to use special tag ``datagrid_theme``.  
+
+example: 
+
+```
+{% block body %}
+    {% datagrid_theme datagrid_view 'FSiDemoBundle::datagrid.html.twig' %}
+
+    {{ datagrid_widget(datagrid_view) }}
+{% endblock %}
+    
+```
+    
+Now in file ``FSiDemoBundle::datagrid.html.twig`` you can create block ``datagrid`` and ``datagrid_widget`` will use
+it to render DataGridView.  
+**Heads Up!!** You can also pass any kind of resources into theme. All you need to do is to pass them in array 
+
+```
+{% datagrid_theme datagrid_view 'FSiDemoBundle::datagrid.html.twig' with {'ds' : datasource} %}
+```
+
+And then ``datasource`` object will be available in all blocks from theme under ``vars.ds``.  
+You can also use ``_self`` theme location instead of standalone file.
+
+```
+{% datagrid_theme datagrid_view _self with {'ds' : datasource} %}
+```
+ 
+
+```
+{# FSiDemoBundle::datagrid.html.twig #}
+
+{% block datagrid %}
+    <h2>Custom DataGrid View</h2>
+    <table class="table table-hover" id="table-edit-rows">
+        <thead>
+            {{ datagrid_header_widget(datagrid) }}
+        </thead>
+        <tbody>
+            {{ datagrid_rowset_widget(datagrid) }}
+        </tbody>
+    </table>
+{% endblock %}
+```
+Simple, isn't it?  
+
+But what if you have to render two different DataGridView objects, one in admin panel ane second one in user part? 
+You can simply create two different themes and use them depending on situation, but there is also another way.  
+There is a way to create block for specific datagrid, column cell or column header.  
+Only thing you need to do is to create block name in proper naming convention. 
+
+For ``datagrid_widget`` you can use two patterns: 
+* {grid_name}_datagrid
+* datagrid
+
+Example: 
+
+```
+{# FSiDemoBundle::datagrid.html.twig #}
+
+{% block admin_datagrid %}
+    <h2>DataGrid View for admin panel</h2>
+    <table class="table table-hover" id="table-edit-rows">
+        <thead>
+            {{ datagrid_header_widget(datagrid) }}
+        </thead>
+        <tbody>
+            {{ datagrid_rowset_widget(datagrid) }}
+        </tbody>
+    </table>
+{% endblock %}
+
+{% block orders_datagrid %}
+    <h2>Your orders list.</h2>
+    <table class="table table-hover" id="table-edit-rows">
+        <thead>
+            {{ datagrid_header_widget(datagrid) }}
+        </thead>
+        <tbody>
+            {{ datagrid_rowset_widget(datagrid) }}
+        </tbody>
+    </table>
+{% endblock %}
+```
+
+##Blocks naming conventions for widgets###
+
+``datagrid_widget``
+* {grid_name}_datagrid
+* datagrid
+
+``datagrid_header_widget``
+* datagrid_{grid_name}_header
+* datagrid_header
+
+``datagrid_column_header_widget``
+* datagrid_{grid_name}_column_name_{column_name}_header
+* datagrid_{grid_name}_column_type_{column_type}_header
+* datagrid_column_name_{column_name}_header
+* datagrid_column_type_{column_type}_header
+* datagrid_column_header
+
+``datagrid_rowset_widget``
+* datagrid_{grid_name}_rowset
+* datagrid_rowset
+
+``datagrid_column_cell_widget``
+* datagrid_{grid_name}_column_name_{column_name}_cell
+* datagrid_{grid_name}_column_type_{column_type}_cell
+* datagrid_column_name_{column_name}_cell
+* datagrid_column_type_{column_type}_cell
+* datagrid_column_cell
+
+``datagrid_column_cell_form_widget``
+* datagrid_{grid_name}_column_name_{column_name}_cell_form
+* datagrid_{grid_name}_column_type_{column_type}_cell_form
+* datagrid_column_name_{column_name}_cell_form
+* datagrid_column_type_{column_type}_cell_form
+* datagrid_column_cell_form
+
+As you can see there are many ways to overwrite default block even for specific column in specific grid. 
+
