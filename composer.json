@@ -16,7 +16,7 @@
         "twig/twig": ">=1.2,<2.0-dev",
         "symfony/framework-bundle" : "2.1.*",
         "symfony/property-access": "2.2.*@dev",
-        "fsi/datagrid": "0.9.*"
+        "fsi/datagrid": "*"
     },
     "autoload": {
         "psr-0": { "FSi\\Bundle\\DataGridBundle\\": "" }
