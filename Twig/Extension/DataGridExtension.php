@@ -187,8 +187,6 @@ class DataGridExtension extends \Twig_Extension
      */
     public function datagridColumnHeader(HeaderViewInterface $view, array $vars = array())
     {
-        $headerAttributes = $view->getAttribute('header');
-
         $dataGridView = $view->getDataGridView();
         $templates = $this->getTemplates($dataGridView);
         $blockNames = array(
@@ -196,6 +194,7 @@ class DataGridExtension extends \Twig_Extension
             'datagrid_' . $dataGridView->getName() . '_column_type_' . $view->getType() . '_header',
             'datagrid_column_name_' . $view->getName() . '_header',
             'datagrid_column_type_' . $view->getType() . '_header',
+            'datagrid_' . $dataGridView->getName() . '_column_header',
             'datagrid_column_header',
         );
 
@@ -270,6 +269,7 @@ class DataGridExtension extends \Twig_Extension
             'datagrid_' . $dataGridView->getName() . '_column_type_' . $view->getType() . '_cell',
             'datagrid_column_name_' . $view->getName() . '_cell',
             'datagrid_column_type_' . $view->getType() . '_cell',
+            'datagrid_' . $dataGridView->getName() . '_column_cell',
             'datagrid_column_cell',
         );
 
@@ -316,6 +316,7 @@ class DataGridExtension extends \Twig_Extension
             'datagrid_' . $dataGridView->getName() . '_column_type_' . $view->getType() . '_cell_form',
             'datagrid_column_name_' . $view->getName() . '_cell_form',
             'datagrid_column_type_' . $view->getType() . '_cell_form',
+            'datagrid_' . $dataGridView->getName() . '_column_cell_form',
             'datagrid_column_cell_form',
         );
 
