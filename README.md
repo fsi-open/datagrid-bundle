@@ -345,3 +345,34 @@ Example:
 
 As you can see there are many ways to overwrite default block even for specific column in specific grid.
 
+# Exports #
+
+Sometimes you need to export data from grid into csv or xls file. ``DataGridBundle`` supports the following
+exports formats:
+* CSV
+* CSVExcel
+* Excel - for version 95-2003
+* Excel2003 - for version 2003
+* Excel2007
+
+To export DataGrid data you need to create special ResponseObject and set it as action return.
+
+```
+public function exportAction()
+{
+    return new \FSi\Bundle\DataGridBundle\HttpFoundation\CSVExport($dataGrid->createView(), 'export_file');
+}
+```
+
+**Don't forget to update your project dependencies before using export feature!**
+If you want to export data to excel formats you need to add into your project ``composer.json`` file following line:
+
+```
+{
+    "require" : {
+        ...
+        "phpoffice/phpexcel": "dev-calcEngine",
+        ...
+    }
+}
+```
