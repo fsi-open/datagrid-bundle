@@ -13,8 +13,8 @@
     "require": {
         "php": ">=5.3.3",
         "twig/twig": ">=1.2,<2.0-dev",
-        "symfony/framework-bundle" : "2.1.*",
-        "symfony/http-foundation": "2.1.*",
+        "symfony/framework-bundle" : "2.2.*",
+        "symfony/http-foundation": "2.2.*",
         "fsi/datagrid": ">=0.9.0,<=1.0.*-dev"
     },
     "autoload": {
