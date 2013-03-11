@@ -55,6 +55,22 @@ class ColumnViewOptionsExtension extends ColumnAbstractTypeExtension
     /**
      * {@inheritDoc}
      */
+    public function setDefaultOptions(ColumnTypeInterface $column)
+    {
+        $column->getOptionsResolver()->setDefaults(array(
+            'translation_domain' => null,
+        ));
+
+        $column->getOptionsResolver()->setAllowedTypes(array(
+            'translation_domain' => array(
+                'string' ,
+                'null'
+            ),
+        ));
+    }
+
+    /**
+     * {@inheritDoc}
     public function getDefaultOptionsValues(ColumnTypeInterface $column)
     {
         return array(
@@ -64,9 +80,9 @@ class ColumnViewOptionsExtension extends ColumnAbstractTypeExtension
 
     /**
      * {@inheritDoc}
-     */
     public function getAvailableOptions(ColumnTypeInterface $column)
     {
         return array('translation_domain');
     }
+    */
 }
