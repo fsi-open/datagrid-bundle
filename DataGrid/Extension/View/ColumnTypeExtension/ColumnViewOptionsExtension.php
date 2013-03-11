@@ -68,21 +68,4 @@ class ColumnViewOptionsExtension extends ColumnAbstractTypeExtension
             ),
         ));
     }
-
-    /**
-     * {@inheritDoc}
-    public function getDefaultOptionsValues(ColumnTypeInterface $column)
-    {
-        return array(
-            'translation_domain' => null
-        );
-    }
-
-    /**
-     * {@inheritDoc}
-    public function getAvailableOptions(ColumnTypeInterface $column)
-    {
-        return array('translation_domain');
-    }
-    */
 }
