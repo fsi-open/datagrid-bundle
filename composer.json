@@ -15,7 +15,7 @@
         "twig/twig": ">=1.2,<2.0-dev",
         "symfony/framework-bundle" : "2.2.*",
         "symfony/http-foundation": "2.2.*",
-        "fsi/datagrid": ">=0.9.0,<=1.0.*-dev"
+        "fsi/datagrid": "1.0.*"
     },
     "autoload": {
         "psr-0": { "FSi\\Bundle\\DataGridBundle\\": "" }

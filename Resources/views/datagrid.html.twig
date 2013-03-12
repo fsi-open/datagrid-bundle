@@ -3,7 +3,7 @@
     <td>
         <div>
             {% for action_name, action in cell.value %}
-                <a href="{{ action.url }}">{{ action.anchor|trans({}, translation_domain)|raw }}</a>
+                <a href="{{ action.url }}">{{ action_name|trans({}, translation_domain)|raw }}</a>
             {% endfor %}
         </div>
     </td>
