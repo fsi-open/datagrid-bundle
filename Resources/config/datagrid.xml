@@ -6,7 +6,6 @@
 
     <parameters>
         <parameter key="datagrid.factory.class">FSi\Component\DataGrid\DataGridFactory</parameter>
-        <parameter key="datagrid.indexing_strategy.entity.class">FSi\Component\DataGrid\Data\EntityIndexingStrategy</parameter>
         <parameter key="datagrid.data_mapper.chain.class">FSi\Component\DataGrid\DataMapper\ChainMapper</parameter>
         <parameter key="datagrid.data_mapper.reflection.class">FSi\Component\DataGrid\DataMapper\ReflectionMapper</parameter>
         <parameter key="datagrid.data_mapper.property_accessor.class">FSi\Component\DataGrid\DataMapper\PropertyAccessorMapper</parameter>
@@ -38,11 +37,6 @@
             </argument>
         </service>
 
-        <!-- IndexingStrategy\Entity -->
-        <service id="datagrid.indexing_strategy.entity" class="%datagrid.indexing_strategy.entity.class%">
-            <argument type="service" id="doctrine"/>
-        </service>
-
         <!-- DataGridFactory -->
         <service id="datagrid.factory" class="%datagrid.factory.class%">
             <argument type="collection">
@@ -55,7 +49,6 @@
                 -->
             </argument>
             <argument type="service" id="datagrid.data_mapper.chain" />
-            <argument type="service" id="datagrid.indexing_strategy.entity" />
         </service>
 
         <!-- CoreExtension -->
