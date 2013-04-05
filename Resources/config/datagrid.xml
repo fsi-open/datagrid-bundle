@@ -89,8 +89,8 @@
         <!-- DoctrineExtension -->
 
         <!-- GedmoExtension -->
-        <service id="datagrid.column.gedmo.tree" class="FSi\Component\DataGrid\Extension\Gedmo\ColumnType\Tree">
-            <tag name="datagrid.column" alias="gedmo.tree" />
+        <service id="datagrid.column.gedmo_tree" class="FSi\Component\DataGrid\Extension\Gedmo\ColumnType\Tree">
+            <tag name="datagrid.column" alias="gedmo_tree" />
             <argument type="service" id="doctrine"/>
         </service>
         <!-- GedmoExtension -->
