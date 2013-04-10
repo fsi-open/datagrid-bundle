@@ -3,7 +3,11 @@
     <td>
         <div>
             {% for action_name, action in cell.value %}
-                <a href="{{ action.url }}">{{ action_name|trans({}, translation_domain)|raw }}</a>
+                {% spaceless %}
+                <a {% for attrname, attrvalue in action.url_attr %}{% if attrname == 'title' %}{{ attrname }}="{{ attrvalue|trans({}, translation_domain) }}" {% else %}{{ attrname }}="{{ attrvalue }}" {% endif %}{% endfor %}>
+                    {{ action.content|trans({}, translation_domain)|raw }}
+                </a>
+                {% endspaceless %}
             {% endfor %}
         </div>
     </td>
