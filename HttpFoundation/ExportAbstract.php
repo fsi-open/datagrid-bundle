@@ -30,7 +30,7 @@ abstract class ExportAbstract extends Response
     /**
      * @var Symfony\Bundle\FrameworkBundle\Translation\Translator|null
      */
-
+    protected $translator;
 
     /**
      * @param DataGridViewInterface $datagrid
