@@ -82,7 +82,9 @@ class CSVExport extends ExportAbstract
         $columns = array();
 
         foreach ($dataGrid->getColumns() as $column) {
-            $columns[] = $column->getLabel();
+            $columns[] = isset($this->translator)
+                ? $this->translator->trans($column->getLabel(), array(), $column->getAttribute('translation_domain'))
+                : $column->getLabel();
         }
 
         fputcsv($fp, $columns, $this->delimiter, $this->enclosure);

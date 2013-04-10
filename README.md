@@ -360,7 +360,7 @@ To export DataGrid data you need to create special ResponseObject and set it as 
 ```
 public function exportAction()
 {
-    return new \FSi\Bundle\DataGridBundle\HttpFoundation\CSVExport($dataGrid->createView(), 'export_file');
+    return new \FSi\Bundle\DataGridBundle\HttpFoundation\CSVExport($datagrid->createView(), date('Y_m_d_His'), 200, array(), $this->get('translator'))
 }
 ```
 

@@ -41,7 +41,11 @@ class ExcelExport extends ExportAbstract
         $colNum = 0;
 
         foreach ($dataGrid->getColumns() as $header) {
-            $PHPExcel->getActiveSheet()->setCellValueByColumnAndRow($colNum, $rowNum, (string) $header->getLabel());
+            $label =  isset($this->translator)
+                ? $this->translator->trans($header->getLabel(), array(), $header->getAttribute('translation_domain'))
+                : $header->getLabel();
+
+            $PHPExcel->getActiveSheet()->setCellValueByColumnAndRow($colNum, $rowNum, $label);
             $colNum++;
         }
 
