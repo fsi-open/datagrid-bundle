@@ -58,7 +58,7 @@ class ColumnViewOptionsExtension extends ColumnAbstractTypeExtension
     public function initOptions(ColumnTypeInterface $column)
     {
         $column->getOptionsResolver()->setDefaults(array(
-            'translation_domain' => null,
+            'translation_domain' => 'messages',
         ));
 
         $column->getOptionsResolver()->setAllowedTypes(array(
