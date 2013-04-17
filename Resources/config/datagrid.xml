@@ -52,6 +52,9 @@
         </service>
 
         <!-- CoreExtension -->
+        <service id="datagrid.column.batch" class="FSi\Component\DataGrid\Extension\Core\ColumnType\Batch">
+            <tag name="datagrid.column" alias="batch" />
+        </service>
         <service id="datagrid.column.boolean" class="FSi\Component\DataGrid\Extension\Core\ColumnType\Boolean">
             <tag name="datagrid.column" alias="boolean" />
         </service>
