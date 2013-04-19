@@ -21,8 +21,7 @@
         "psr-0": { "FSi\\Bundle\\DataGridBundle\\": "" }
     },
     "suggest": {
-        "phpoffice/phpexcel" : "Allows export data to xls format.",
-        "fsi/fsi-extension-datagrid": "Allows more advanced usage of datagrid. You should search this in fsi private repositories."
+        "phpoffice/phpexcel" : "Allows export data to xls format."
     },
     "target-dir" : "FSi/Bundle/DataGridBundle",
     "extra": {
