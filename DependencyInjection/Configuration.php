@@ -34,18 +34,6 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('template')->defaultValue('datagrid.html.twig')->end()
                     ->end()
                 ->end()
-                ->arrayNode('extension')
-                    ->children()
-                        ->arrayNode('metadata')
-                            ->treatFalseLike(array('enabled' => false))
-                            ->treatTrueLike(array('enabled' => true))
-                            ->treatNullLike(array('enabled' => true))
-                            ->children()
-                                ->booleanNode('enabled')->defaultTrue()->end()
-                                ->scalarNode('cache_service')->end()
-                            ->end()
-                        ->end()
-                    ->end()
             ->end()
         ->end();
 
