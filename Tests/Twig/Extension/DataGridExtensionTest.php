@@ -1,0 +1,501 @@
+<?php
+
+/**
+ * (c) Fabryka Stron Internetowych sp. z o.o <info@fsi.pl>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace FSi\Bundle\DataGridBundle\Tests\Twig\Extension;
+
+use FSi\Bundle\DataGridBundle\Twig\Extension\DataGridExtension;
+use FSi\Component\DataGrid\DataGridViewInterface;
+use Symfony\Bridge\Twig\Form\TwigRenderer;
+use Symfony\Bridge\Twig\Form\TwigRendererEngine;
+use Symfony\Bridge\Twig\Extension\FormExtension;
+use Symfony\Bridge\Twig\Extension\TranslationExtension;
+use Symfony\Bridge\Twig\Tests\Extension\Fixtures\StubTranslator;
+
+/**
+ * @author Norbert Orzechowicz <norbert@fsi.pl>
+ */
+class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
+{
+    /**
+     * @var \Twig_Environment
+     */
+    protected $twig;
+
+    /**
+     * @var DataGridExtension
+     */
+    protected $extension;
+
+
+    public function setUp()
+    {
+        $loader = new \Twig_Loader_Filesystem(array(
+            __DIR__ . '/../../../vendor/symfony/twig-bridge/Symfony/Bridge/Twig/Resources/views/Form',
+            __DIR__ . '/../../../Resources/views', // datagrid base theme
+            __DIR__ . '/../../Resources/views', // templates used in tests
+        ));
+
+        $rendererEngine = new TwigRendererEngine(array(
+            'form_div_layout.html.twig',
+        ));
+        $renderer = new TwigRenderer($rendererEngine);
+
+
+        $twig = new \Twig_Environment($loader);
+        $twig->addExtension(new TranslationExtension(new StubTranslator()));
+        $twig->addExtension(new FormExtension($renderer));
+        $this->twig = $twig;
+
+        $this->extension = new DataGridExtension('datagrid.html.twig');
+    }
+
+    /**
+     * @expectedException \Twig_Error_Loader
+     * @expectedExceptionMessage Unable to find template "this_is_not_valid_path.html.twig"
+     */
+    public function testInitRuntimeShouldThrowExceptionBecauseNotExistingTheme()
+    {
+        $this->twig->addExtension(new DataGridExtension('this_is_not_valid_path.html.twig'));
+        $this->twig->initRuntime();
+    }
+
+    public function testInitRuntimeWithValidPathToTheme()
+    {
+        $this->twig->addExtension($this->extension);
+        $this->twig->initRuntime();
+    }
+
+    public function testRenderDataGridWidget()
+    {
+        $this->twig->addExtension($this->extension);
+        $this->twig->initRuntime();
+
+        $datagridView = $this->getDataGridView('grid');
+        $datagridView->expects($this->any())
+            ->method('getColumns')
+            ->will($this->returnValue(
+                array(
+                    'title' => $this->getColumnHeaderView($datagridView, 'text', 'title', 'Title')
+                )
+            ));
+
+        $datagridWithThemeView = $this->getDataGridView('grid_with_theme');
+        $datagridWithThemeView->expects($this->any())
+            ->method('getColumns')
+            ->will($this->returnValue(
+                array(
+                    'title' => $this->getColumnHeaderView($datagridWithThemeView, 'text', 'title', 'Title')
+                )
+            ));
+
+        $html = $this->twig->render('datagrid/datagrid_widget_test.html.twig', array(
+            'datagrid' => $datagridView,
+            'datagrid_with_theme' => $datagridWithThemeView,
+        ));
+
+        $this->assertSame(
+            $html,
+            $this->getExpectedHtml('datagrid/datagrid_widget_result.html')
+        );
+    }
+
+    public function testRenderColumnHeaderWidget()
+    {
+        $this->twig->addExtension($this->extension);
+        $this->twig->initRuntime();
+
+        $datagridView = $this->getDataGridView('grid');
+        $datagridWithThemeView = $this->getDataGridView('grid_with_header_theme');
+
+        $headerView = $this->getColumnHeaderView($datagridView, 'text', 'title', 'Title');
+        $headerWithThemeView = $this->getColumnHeaderView($datagridWithThemeView, 'text', 'title' ,'Title');
+
+        $html = $this->twig->render('datagrid/header_widget_test.html.twig', array(
+            'grid_with_header_theme' => $datagridWithThemeView,
+            'header' => $headerView,
+            'header_with_theme' => $headerWithThemeView,
+        ));
+
+        $this->assertSame(
+            $html,
+            $this->getExpectedHtml('datagrid/datagrid_header_widget_result.html')
+        );
+    }
+
+    public function testRenderCellWidget()
+    {
+        $this->twig->addExtension($this->extension);
+        $this->twig->initRuntime();
+
+        $datagridView = $this->getDataGridView('grid');
+        $datagridWithThemeView = $this->getDataGridView('grid_with_header_theme');
+
+        $cellView = $this->getColumnCellView($datagridView, 'text', 'title', 'This is value 1');
+        $cellWithThemeView = $this->getColumnCellView($datagridWithThemeView, 'text', 'title' ,'This is value 2');
+
+        $html = $this->twig->render('datagrid/cell_widget_test.html.twig', array(
+            'grid_with_header_theme' => $datagridWithThemeView,
+            'cell' => $cellView,
+            'cell_with_theme' => $cellWithThemeView,
+        ));
+
+        $this->assertSame(
+            $html,
+            $this->getExpectedHtml('datagrid/datagrid_cell_widget_result.html')
+        );
+    }
+
+    public function testDataGridRenderBlock()
+    {
+        $this->twig->addExtension($this->extension);
+        $this->twig->initRuntime();
+        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock'));
+
+        $template->expects($this->at(0))
+            ->method('hasBlock')
+            ->with('datagrid_grid')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(1))
+            ->method('hasBlock')
+            ->with('datagrid')
+            ->will($this->returnValue(true));
+
+        $this->extension->setBaseTheme($template);
+        $datagridView = $this->getDataGridView('grid');
+
+        $template->expects($this->at(2))
+            ->method('displayBlock')
+            ->with('datagrid', array(
+                'datagrid' => $datagridView,
+                'vars' => array()
+            ))
+            ->will($this->returnValue(true));
+
+        $this->extension->datagrid($datagridView);
+    }
+
+    public function testDataGridHeaderRenderBlock()
+    {
+        $this->twig->addExtension($this->extension);
+        $this->twig->initRuntime();
+        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock'));
+
+        $template->expects($this->at(0))
+            ->method('hasBlock')
+            ->with('datagrid_grid_header')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(1))
+            ->method('hasBlock')
+            ->with('datagrid_header')
+            ->will($this->returnValue(true));
+
+        $this->extension->setBaseTheme($template);
+        $datagridView = $this->getDataGridView('grid');
+
+        $datagridView->expects($this->any())
+            ->method('getColumns')
+            ->will($this->returnValue(array()));
+
+        $template->expects($this->at(2))
+            ->method('displayBlock')
+            ->with('datagrid_header', array(
+                'headers' => array(),
+                'vars' => array()
+            ))
+            ->will($this->returnValue(true));
+
+        $this->extension->datagridHeader($datagridView);
+    }
+
+    public function testDataGridColumnHeaderRenderBlock()
+    {
+        $this->twig->addExtension($this->extension);
+        $this->twig->initRuntime();
+        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock'));
+
+        $template->expects($this->at(0))
+            ->method('hasBlock')
+            ->with('datagrid_grid_column_name_title_header')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(1))
+            ->method('hasBlock')
+            ->with('datagrid_grid_column_type_text_header')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(2))
+            ->method('hasBlock')
+            ->with('datagrid_column_name_title_header')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(3))
+            ->method('hasBlock')
+            ->with('datagrid_column_type_text_header')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(4))
+            ->method('hasBlock')
+            ->with('datagrid_grid_column_header')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(5))
+            ->method('hasBlock')
+            ->with('datagrid_column_header')
+            ->will($this->returnValue(true));
+
+        $this->extension->setBaseTheme($template);
+        $datagridView = $this->getDataGridView('grid');
+        $headerView = $this->getColumnHeaderView($datagridView, 'text', 'title', 'Title');
+
+        $headerView->expects($this->any())
+            ->method('getAttribute')
+            ->with('translation_domain')
+            ->will($this->returnValue(null));
+
+        $template->expects($this->at(6))
+            ->method('displayBlock')
+            ->with('datagrid_column_header', array(
+                'header' => $headerView,
+                'translation_domain' => null,
+                'vars' => array()
+            ))
+            ->will($this->returnValue(true));
+
+        $this->extension->datagridColumnHeader($headerView);
+    }
+
+    public function testDataGridRowsetRenderBlock()
+    {
+        $this->twig->addExtension($this->extension);
+        $this->twig->initRuntime();
+        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock'));
+
+        $template->expects($this->at(0))
+            ->method('hasBlock')
+            ->with('datagrid_grid_rowset')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(1))
+            ->method('hasBlock')
+            ->with('datagrid_rowset')
+            ->will($this->returnValue(true));
+
+        $this->extension->setBaseTheme($template);
+        $datagridView = $this->getDataGridView('grid');
+
+        $template->expects($this->at(2))
+            ->method('displayBlock')
+            ->with('datagrid_rowset', array(
+                'datagrid' => $datagridView,
+                'vars' => array()
+            ))
+            ->will($this->returnValue(true));
+
+        $this->extension->datagridRowset($datagridView);
+    }
+
+    public function testDataGridColumnCellRenderBlock()
+    {
+        $this->twig->addExtension($this->extension);
+        $this->twig->initRuntime();
+        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock'));
+
+        $template->expects($this->at(0))
+            ->method('hasBlock')
+            ->with('datagrid_grid_column_name_title_cell')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(1))
+            ->method('hasBlock')
+            ->with('datagrid_grid_column_type_text_cell')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(2))
+            ->method('hasBlock')
+            ->with('datagrid_column_name_title_cell')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(3))
+            ->method('hasBlock')
+            ->with('datagrid_column_type_text_cell')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(4))
+            ->method('hasBlock')
+            ->with('datagrid_grid_column_cell')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(5))
+            ->method('hasBlock')
+            ->with('datagrid_column_cell')
+            ->will($this->returnValue(true));
+
+        $this->extension->setBaseTheme($template);
+        $datagridView = $this->getDataGridView('grid');
+        $cellView = $this->getColumnCellView($datagridView, 'text', 'title', 'Value 1');
+
+        $cellView->expects($this->any())
+            ->method('getAttribute')
+            ->will($this->returnCallback(function($key) {
+                switch ($key) {
+                    case 'row':
+                        return 0;
+                        break;
+                }
+
+                return null;
+            }));
+
+        $template->expects($this->at(6))
+            ->method('displayBlock')
+            ->with('datagrid_column_cell', array(
+                'cell' => $cellView,
+                'row_index' => 0,
+                'datagrid_name' => 'grid',
+                'translation_domain' => null,
+                'vars' => array()
+            ))
+            ->will($this->returnValue(true));
+
+        $this->extension->datagridColumnCell($cellView);
+    }
+
+    public function testDataGridColumnCellFormRenderBlock()
+    {
+        $this->twig->addExtension($this->extension);
+        $this->twig->initRuntime();
+        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock'));
+
+        $template->expects($this->at(0))
+            ->method('hasBlock')
+            ->with('datagrid_grid_column_name_title_cell_form')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(1))
+            ->method('hasBlock')
+            ->with('datagrid_grid_column_type_text_cell_form')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(2))
+            ->method('hasBlock')
+            ->with('datagrid_column_name_title_cell_form')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(3))
+            ->method('hasBlock')
+            ->with('datagrid_column_type_text_cell_form')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(4))
+            ->method('hasBlock')
+            ->with('datagrid_grid_column_cell_form')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(5))
+            ->method('hasBlock')
+            ->with('datagrid_column_cell_form')
+            ->will($this->returnValue(true));
+
+        $this->extension->setBaseTheme($template);
+        $datagridView = $this->getDataGridView('grid');
+        $cellView = $this->getColumnCellView($datagridView, 'text', 'title', 'Value 1');
+
+        $cellView->expects($this->any())
+            ->method('hasAttribute')
+            ->with('form')
+            ->will($this->returnValue(true));
+
+        $cellView->expects($this->any())
+            ->method('getAttribute')
+            ->with('form')
+            ->will($this->returnValue('form'));
+
+        $template->expects($this->at(6))
+            ->method('displayBlock')
+            ->with('datagrid_column_cell_form', array(
+                'form' => 'form',
+                'vars' => array()
+            ))
+            ->will($this->returnValue(true));
+
+        $this->extension->datagridColumnCellForm($cellView);
+    }
+
+    private function getDataGridView($name)
+    {
+        $datagridView = $this->getMockBuilder('FSi\Component\DataGrid\DataGridViewInterface')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $datagridView->expects($this->any())
+            ->method('getName')
+            ->will($this->returnValue($name));
+
+        return $datagridView;
+    }
+
+    private function getColumnHeaderView(DataGridViewInterface $datagridView, $type, $name, $label)
+    {
+        $column = $this->getMock('FSi\Component\DataGrid\Column\HeaderViewInterface');
+
+        $column->expects($this->any())
+            ->method('getType')
+            ->will($this->returnValue($type));
+
+        $column->expects($this->any())
+            ->method('getLabel')
+            ->will($this->returnValue($label));
+
+        $column->expects($this->any())
+            ->method('getName')
+            ->will($this->returnValue($name));
+
+
+        $column->expects($this->any())
+            ->method('getDataGridView')
+            ->will($this->returnValue($datagridView));
+
+        return $column;
+    }
+
+    private function getColumnCellView(DataGridViewInterface $datagridView, $type, $name, $value)
+    {
+        $column = $this->getMock('FSi\Component\DataGrid\Column\CellViewInterface');
+
+        $column->expects($this->any())
+            ->method('getType')
+            ->will($this->returnValue($type));
+
+        $column->expects($this->any())
+            ->method('getValue')
+            ->will($this->returnValue($value));
+
+        $column->expects($this->any())
+            ->method('getName')
+            ->will($this->returnValue($name));
+
+        $column->expects($this->any())
+            ->method('getDataGridView')
+            ->will($this->returnValue($datagridView));
+
+        return $column;
+    }
+
+    private function getExpectedHtml($filename)
+    {
+        $path = __DIR__ . '/../../Resources/views/expected/' . $filename;
+        if (!file_exists($path)) {
+            throw new \RuntimeException(sprintf('Invalid expected html file path "%s"', $path));
+        }
+
+        return file_get_contents($path);
+    }
+}

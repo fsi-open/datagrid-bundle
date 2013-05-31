@@ -26,9 +26,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->arrayNode('twig')
-                    ->treatFalseLike(array('enabled' => false))
-                    ->treatTrueLike(array('enabled' => true))
-                    ->treatNullLike(array('enabled' => true))
+                    ->addDefaultsIfNotSet()
                     ->children()
                         ->booleanNode('enabled')->defaultTrue()->end()
                         ->scalarNode('template')->defaultValue('datagrid.html.twig')->end()
