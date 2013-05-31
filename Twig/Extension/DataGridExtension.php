@@ -110,7 +110,20 @@ class DataGridExtension extends \Twig_Extension
         $this->themes[$dataGrid->getName()] = ($theme instanceof \Twig_TemplateInterface)
             ? $theme
             : $this->environment->loadTemplate($theme);
+
         $this->themesVars[$dataGrid->getName()] = $vars;
+    }
+
+    /**
+     * Set base theme.
+     *
+     * @param $theme
+     */
+    public function setBaseTheme($theme)
+    {
+        $this->themes[self::DEFAULT_THEME] = ($theme instanceof \Twig_TemplateInterface)
+            ? $theme
+            : $this->environment->loadTemplate($theme);
     }
 
     /**
@@ -306,7 +319,7 @@ class DataGridExtension extends \Twig_Extension
     public function datagridColumnCellForm(CellViewInterface $view, array $vars = array())
     {
         if (!$view->hasAttribute('form')) {
-            return;
+            return ;
         }
 
         $dataGridView = $view->getDataGridView();
@@ -397,5 +410,31 @@ class DataGridExtension extends \Twig_Extension
         }
 
         return array();
+    }
+
+    /**
+     *
+     * @param DataGridViewInterface $datagridView
+     * @param array $contextVars
+     * @param $availableBlocks
+     * @return string
+     */
+    private function renderTheme(DataGridViewInterface $datagridView, array $contextVars = array(), $availableBlocks)
+    {
+        $templates = $this->getTemplates($datagridView);
+
+        ob_start();
+
+        foreach ($availableBlocks as $blockName) {
+            foreach ($templates as $template) {
+                if ($template->hasBlock($blockName)) {
+                    $template->displayBlock($blockName, $contextVars);
+
+                    return ob_get_clean();
+                }
+            }
+        }
+
+        return ob_get_clean();
     }
 }

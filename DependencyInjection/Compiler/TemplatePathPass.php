@@ -33,6 +33,6 @@ class TemplatePathPass implements CompilerPassInterface
 
         $refl = new \ReflectionClass('FSi\Bundle\DataGridBundle\DataGridBundle');
         $path = dirname($refl->getFileName()).'/Resources/views';
-        $loaderDefinition->addMethodCall('addPath', array($path));
+        $loaderDefinition->addMethodCall('addPath', array($path, 'FSiDataGrid'));
     }
 }

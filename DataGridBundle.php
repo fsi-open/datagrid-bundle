@@ -16,6 +16,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use FSi\Bundle\DataGridBundle\DependencyInjection\Compiler\DataGridPass;
 use FSi\Bundle\DataGridBundle\DependencyInjection\Compiler\TemplatePathPass;
 use FSi\Bundle\DataGridBundle\DependencyInjection\FSIDataGridExtension;
+
 /**
  * FSiDataGridBundle.
  *
