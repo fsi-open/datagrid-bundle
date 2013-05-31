@@ -151,6 +151,29 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testRenderCellActionWidget()
+    {
+        $this->twig->addExtension($this->extension);
+        $this->twig->initRuntime();
+
+        $datagridView = $this->getDataGridView('grid');
+        $datagridWithThemeView = $this->getDataGridView('grid_with_header_theme');
+
+        $cellView = $this->getColumnCellView($datagridView, 'actions', 'action', array());
+        $cellWithThemeView = $this->getColumnCellView($datagridWithThemeView, 'actions', 'action', array());
+
+        $html = $this->twig->render('datagrid/action_cell_action_widget_test.html.twig', array(
+            'grid_with_header_theme' => $datagridWithThemeView,
+            'cell' => $cellView,
+            'cell_with_theme' => $cellWithThemeView,
+        ));
+
+        $this->assertSame(
+            $html,
+            $this->getExpectedHtml('datagrid/action_cell_action_widget_result.html')
+        );
+    }
+
     public function testDataGridRenderBlock()
     {
         $this->twig->addExtension($this->extension);
@@ -427,6 +450,55 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(true));
 
         $this->extension->datagridColumnCellForm($cellView);
+    }
+
+
+    public function testDataGridColumnActionCellActionRenderBlock()
+    {
+        $this->twig->addExtension($this->extension);
+        $this->twig->initRuntime();
+        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock'));
+
+        $template->expects($this->at(0))
+            ->method('hasBlock')
+            ->with('datagrid_grid_column_type_action_cell_action_edit')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(1))
+            ->method('hasBlock')
+            ->with('datagrid_column_type_action_cell_action_edit')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(2))
+            ->method('hasBlock')
+            ->with('datagrid_grid_column_type_action_cell_action')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(3))
+            ->method('hasBlock')
+            ->with('datagrid_column_type_action_cell_action')
+            ->will($this->returnValue(true));
+
+        $this->extension->setBaseTheme($template);
+        $datagridView = $this->getDataGridView('grid');
+        $cellView = $this->getColumnCellView($datagridView, 'action', 'actions', array());
+
+        $cellView->expects($this->any())
+            ->method('getAttribute')
+            ->with('translation_domain')
+            ->will($this->returnValue(null));
+
+        $template->expects($this->at(4))
+            ->method('displayBlock')
+            ->with('datagrid_column_type_action_cell_action', array(
+                'content' => 'content',
+                'attr' => array(),
+                'translation_domain' => null,
+                'field_mapping_values' => array()
+            ))
+            ->will($this->returnValue(true));
+
+        $this->extension->datagridColumnActionCellActionWidget($cellView, 'edit', 'content');
     }
 
     private function getDataGridView($name)

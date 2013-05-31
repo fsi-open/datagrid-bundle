@@ -82,6 +82,7 @@ class DataGridExtension extends \Twig_Extension
             'datagrid_column_header_widget' =>  new \Twig_Function_Method($this, 'datagridColumnHeader', array('is_safe' => array('html'))),
             'datagrid_column_cell_widget' =>  new \Twig_Function_Method($this, 'datagridColumnCell', array('is_safe' => array('html'))),
             'datagrid_column_cell_form_widget' =>  new \Twig_Function_Method($this, 'datagridColumnCellForm', array('is_safe' => array('html'))),
+            'datagrid_column_type_action_cell_action_widget' =>  new \Twig_Function_Method($this, 'datagridColumnActionCellActionWidget', array('is_safe' => array('html'))),
             'datagrid_attributes_widget' =>  new \Twig_Function_Method($this, 'datagridAttributes', array('is_safe' => array('html')))
         );
     }
@@ -288,6 +289,34 @@ class DataGridExtension extends \Twig_Extension
                 $this->getVars($view->getDataGridView()),
                 $vars
             )
+        );
+
+        return $this->renderTheme($dataGridView, $context, $blockNames);
+    }
+
+    /**
+     * @param CellViewInterface $view
+     * @param $action
+     * @param $content
+     * @param array $urlAttrs
+     * @param array $fieldMappingValues
+     * @return string
+     */
+    public function datagridColumnActionCellActionWidget(CellViewInterface $view, $action, $content, $urlAttrs = array(), $fieldMappingValues = array())
+    {
+        $dataGridView = $view->getDataGridView();
+        $blockNames = array(
+            'datagrid_' . $dataGridView->getName() . '_column_type_action_cell_action_' . $action,
+            'datagrid_column_type_action_cell_action_' . $action ,
+            'datagrid_' . $dataGridView->getName() . '_column_type_action_cell_action',
+            'datagrid_column_type_action_cell_action',
+        );
+
+        $context = array(
+            'content' => $content,
+            'attr' => $urlAttrs,
+            'translation_domain' => $view->getAttribute('translation_domain'),
+            'field_mapping_values' => $fieldMappingValues
         );
 
         return $this->renderTheme($dataGridView, $context, $blockNames);
