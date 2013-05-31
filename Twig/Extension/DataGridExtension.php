@@ -128,32 +128,21 @@ class DataGridExtension extends \Twig_Extension
 
     /**
      * @param DataGridViewInterface $view
-     * @param array $options
+     * @return string
      */
     public function datagrid(DataGridViewInterface $view)
     {
-        $templates = $this->getTemplates($view);
         $blockNames = array(
             'datagrid_' . $view->getName(),
             'datagrid',
         );
 
-        ob_start();
+        $context = array(
+            'datagrid' => $view,
+            'vars' => $this->getVars($view)
+        );
 
-        foreach ($blockNames as $blockName) {
-            foreach ($templates as $template) {
-                if ($template->hasBlock($blockName)) {
-                    $template->displayBlock($blockName, array(
-                        'datagrid' => $view,
-                        'vars' => $this->getVars($view)
-                    ));
-
-                    return ob_get_clean();
-                }
-            }
-        }
-
-        return ob_get_clean();
+        return $this->renderTheme($view, $context, $blockNames);
     }
 
     /**
@@ -161,47 +150,36 @@ class DataGridExtension extends \Twig_Extension
      *
      * @param DataGridViewInterface $view
      * @param array $vars
+     * @return string
      */
     public function datagridHeader(DataGridViewInterface $view, array $vars = array())
     {
-        $templates = $this->getTemplates($view);
         $blockNames = array(
             'datagrid_' . $view->getName() . '_header',
             'datagrid_header',
         );
 
-        ob_start();
+        $context = array(
+            'headers' => $view->getColumns(),
+            'vars' => array_merge(
+                $this->getVars($view),
+                $vars
+            )
+        );
 
-        foreach ($blockNames as $blockName) {
-            foreach ($templates as $template) {
-                if ($template->hasBlock($blockName)) {
-                    $template->displayBlock($blockName, array(
-                        'headers' => $view->getColumns(),
-                        'vars' => array_merge(
-                            $this->getVars($view),
-                            $vars
-                        )
-                    ));
-
-                    return ob_get_clean();
-                }
-            }
-        }
-
-        return ob_get_clean();
+        return $this->renderTheme($view, $context, $blockNames);
     }
 
     /**
      * Render column header.
      *
      * @param HeaderViewInterface $view
-     * @param array $vars - additional values passed to block rendering context
-     * under 'vars' key.
+     * @param array $vars
+     * @return string
      */
     public function datagridColumnHeader(HeaderViewInterface $view, array $vars = array())
     {
         $dataGridView = $view->getDataGridView();
-        $templates = $this->getTemplates($dataGridView);
         $blockNames = array(
             'datagrid_' . $dataGridView->getName() . '_column_name_' . $view->getName() . '_header',
             'datagrid_' . $dataGridView->getName() . '_column_type_' . $view->getType() . '_header',
@@ -211,26 +189,16 @@ class DataGridExtension extends \Twig_Extension
             'datagrid_column_header',
         );
 
-        ob_start();
+        $context = array(
+            'header' => $view,
+            'translation_domain' => $view->getAttribute('translation_domain'),
+            'vars' => array_merge(
+                $this->getVars($view->getDataGridView()),
+                $vars
+            )
+        );
 
-        foreach ($blockNames as $blockName) {
-            foreach ($templates as $template) {
-                if ($template->hasBlock($blockName)) {
-                    $template->displayBlock($blockName, array(
-                        'header' => $view,
-                        'translation_domain' => $view->getAttribute('translation_domain'),
-                        'vars' => array_merge(
-                            $this->getVars($view->getDataGridView()),
-                            $vars
-                        )
-                    ));
-
-                    return ob_get_clean();
-                }
-            }
-        }
-
-        return ob_get_clean();
+        return $this->renderTheme($dataGridView, $context, $blockNames);
     }
 
     /**
@@ -238,45 +206,36 @@ class DataGridExtension extends \Twig_Extension
      *
      * @param DataGridViewInterface $view
      * @param array $vars
+     * @return string
      */
     public function datagridRowset(DataGridViewInterface $view, array $vars = array())
     {
-        $templates = $this->getTemplates($view);
         $blockNames = array(
             'datagrid_' . $view->getName() . '_rowset',
             'datagrid_rowset',
         );
 
-        ob_start();
+        $context = array(
+            'datagrid' => $view,
+            'vars' => array_merge(
+                $this->getVars($view),
+                $vars
+            )
+        );
 
-        foreach ($blockNames as $blockName) {
-            foreach ($templates as $template) {
-                if ($template->hasBlock($blockName)) {
-                    $template->displayBlock($blockName, array(
-                        'datagrid' => $view,
-                        'vars' => array_merge(
-                            $this->getVars($view),
-                            $vars
-                        )
-                    ));
-
-                    return ob_get_clean();
-                }
-            }
-        }
-
-        return ob_get_clean();
+        return $this->renderTheme($view, $context, $blockNames);
     }
 
     /**
      * Render column cell.
      *
      * @param CellViewInterface $view
+     * @param array $vars
+     * @return string
      */
     public function datagridColumnCell(CellViewInterface $view, array $vars = array())
     {
         $dataGridView = $view->getDataGridView();
-        $templates = $this->getTemplates($dataGridView);
         $blockNames = array(
             'datagrid_' . $dataGridView->getName() . '_column_name_' . $view->getName() . '_cell',
             'datagrid_' . $dataGridView->getName() . '_column_type_' . $view->getType() . '_cell',
@@ -286,28 +245,18 @@ class DataGridExtension extends \Twig_Extension
             'datagrid_column_cell',
         );
 
-        ob_start();
+        $context = array(
+            'cell' => $view,
+            'row_index' => $view->getAttribute('row'),
+            'datagrid_name' => $dataGridView->getName(),
+            'translation_domain' => $view->getAttribute('translation_domain'),
+            'vars' => array_merge(
+                $this->getVars($dataGridView),
+                $vars
+            )
+        );
 
-        foreach ($blockNames as $blockName) {
-            foreach ($templates as $template) {
-                if ($template->hasBlock($blockName)) {
-                    $template->displayBlock($blockName, array(
-                        'cell' => $view,
-                        'row_index' => $view->getAttribute('row'),
-                        'datagrid_name' => $dataGridView->getName(),
-                        'translation_domain' => $view->getAttribute('translation_domain'),
-                        'vars' => array_merge(
-                            $this->getVars($dataGridView),
-                            $vars
-                        )
-                    ));
-
-                    return ob_get_clean();
-                }
-            }
-        }
-
-        return ob_get_clean();
+        return $this->renderTheme($dataGridView, $context, $blockNames);
     }
 
     /**
@@ -315,6 +264,7 @@ class DataGridExtension extends \Twig_Extension
      *
      * @param CellViewInterface $view
      * @param array $vars
+     * @return string
      */
     public function datagridColumnCellForm(CellViewInterface $view, array $vars = array())
     {
@@ -323,7 +273,6 @@ class DataGridExtension extends \Twig_Extension
         }
 
         $dataGridView = $view->getDataGridView();
-        $templates = $this->getTemplates($dataGridView);
         $blockNames = array(
             'datagrid_' . $dataGridView->getName() . '_column_name_' . $view->getName() . '_cell_form',
             'datagrid_' . $dataGridView->getName() . '_column_type_' . $view->getType() . '_cell_form',
@@ -333,25 +282,15 @@ class DataGridExtension extends \Twig_Extension
             'datagrid_column_cell_form',
         );
 
-        ob_start();
+        $context = array(
+            'form' => $view->getAttribute('form'),
+            'vars' => array_merge(
+                $this->getVars($view->getDataGridView()),
+                $vars
+            )
+        );
 
-        foreach ($blockNames as $blockName) {
-            foreach ($templates as $template) {
-                if ($template->hasBlock($blockName)) {
-                    $template->displayBlock($blockName, array(
-                        'form' => $view->getAttribute('form'),
-                        'vars' => array_merge(
-                            $this->getVars($view->getDataGridView()),
-                            $vars
-                        )
-                    ));
-
-                    return ob_get_clean();
-                }
-            }
-        }
-
-        return ob_get_clean();
+        return $this->renderTheme($dataGridView, $context, $blockNames);
     }
 
     /**
@@ -359,7 +298,8 @@ class DataGridExtension extends \Twig_Extension
      * This function is only for internal use.
      *
      * @param array $attributes
-     * @param string $translationDomain
+     * @param null $translationDomain
+     * @return string
      */
     public function datagridAttributes(array $attributes, $translationDomain = null)
     {
@@ -413,13 +353,12 @@ class DataGridExtension extends \Twig_Extension
     }
 
     /**
-     *
      * @param DataGridViewInterface $datagridView
      * @param array $contextVars
      * @param $availableBlocks
      * @return string
      */
-    private function renderTheme(DataGridViewInterface $datagridView, array $contextVars = array(), $availableBlocks)
+    private function renderTheme(DataGridViewInterface $datagridView, array $contextVars = array(), $availableBlocks = array())
     {
         $templates = $this->getTemplates($datagridView);
 
