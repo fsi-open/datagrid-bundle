@@ -16,6 +16,10 @@
         "symfony/framework-bundle" : "~2.2",
         "fsi/datagrid": "1.0.*"
     },
+    "require-dev": {
+        "symfony/form" : "2.2.*",
+        "symfony/twig-bridge" : "2.2.*"
+    },
     "autoload": {
         "psr-0": { "FSi\\Bundle\\DataGridBundle\\": "" }
     },

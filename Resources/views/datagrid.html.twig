@@ -63,27 +63,24 @@
 {% endblock %}
 
 {% block datagrid_column_cell_form %}
-{% spaceless %}
-    <div>
-    {% for child in form.children %}
-        {% for subchild in child.children %}
-            {{ form_label(subchild) }}
-            {{ form_errors(subchild) }}
-            {{ form_widget(subchild) }}
-        {% endfor %}
+<div>
+{% for child in form.children %}
+    {% for subchild in child.children %}
+        {{ form_label(subchild) }}
+        {{ form_errors(subchild) }}
+        {{ form_widget(subchild) }}
     {% endfor %}
-    </div>
-{% endspaceless %}
+{% endfor %}
+</div>
 {% endblock %}
 
 {% block datagrid_column_cell %}
 {% spaceless %}
-    <td>
-        <div>
-            {{ cell.value|raw }}
-            {{ datagrid_column_cell_form_widget(cell) }}
-        </div>
-    </td>
+<td>
+    <div>
+        {% endspaceless %}{{ cell.value|raw }}{{ datagrid_column_cell_form_widget(cell) }}{% spaceless %}
+    </div>
+</td>
 {% endspaceless %}
 {% endblock %}
 
