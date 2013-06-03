@@ -343,6 +343,12 @@ Example:
 * datagrid_{grid_name}_column_cell_form
 * datagrid_column_cell_form
 
+``datagrid_column_type_action_cell_action_widget``
+* datagrid_{grid_name}_column_type_action_cell_action_{action_name}
+* datagrid_column_type_action_cell_action_{action_name}
+* datagrid_{grid_name}_column_type_action_cell_action
+* datagrid_column_type_action_cell_action
+
 As you can see there are many ways to overwrite default block even for specific column in specific grid.
 
 # Exports #

@@ -28,16 +28,16 @@
 {% endspaceless %}
 {% endblock %}
 
+{% block datagrid_column_type_action_cell_action %}
+<a {% for attrname, attrvalue in attr %}{% if attrname == 'title' %}{{ attrname }}="{{ attrvalue|trans({}, translation_domain) }}" {% else %}{{ attrname }}="{{ attrvalue }}" {% endif %}{% endfor %}>{{ content|trans({}, translation_domain)|raw }}</a>
+{% endblock %}
+
 {% block datagrid_column_type_action_cell %}
 {% spaceless %}
     <td>
         <div>
             {% for action_name, action in cell.value %}
-                {% spaceless %}
-                <a {% for attrname, attrvalue in action.url_attr %}{% if attrname == 'title' %}{{ attrname }}="{{ attrvalue|trans({}, translation_domain) }}" {% else %}{{ attrname }}="{{ attrvalue }}" {% endif %}{% endfor %}>
-                    {{ action.content|trans({}, translation_domain)|raw }}
-                </a>
-                {% endspaceless %}
+                {{ datagrid_column_type_action_cell_action_widget(cell, action_name, action.content, action.url_attr|merge({'href' : action.url}, action.field_mapping_values)) }}
             {% endfor %}
         </div>
     </td>
