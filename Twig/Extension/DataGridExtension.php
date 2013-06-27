@@ -395,7 +395,7 @@ class DataGridExtension extends \Twig_Extension
 
         foreach ($availableBlocks as $blockName) {
             foreach ($templates as $template) {
-                if ($template->hasBlock($blockName)) {
+                if (false !== ($template = $this->findTemplateWithBlock($template, $blockName))) {
                     $template->displayBlock($blockName, $contextVars);
 
                     return ob_get_clean();
@@ -404,5 +404,23 @@ class DataGridExtension extends \Twig_Extension
         }
 
         return ob_get_clean();
+    }
+
+    /**
+     * @param \Twig_TemplateInterface $template
+     * @param string $blockName
+     * @return \Twig_TemplateInterface|bool
+     */
+    private function findTemplateWithBlock(\Twig_TemplateInterface $template, $blockName) {
+        if ($template->hasBlock($blockName)) {
+            return $template;
+        }
+
+        // Check parents
+        if (false !== ($parent = $template->getParent(array()))) {
+            return $this->findTemplateWithBlock($parent, $blockName);
+        }
+
+        return false;
     }
 }
