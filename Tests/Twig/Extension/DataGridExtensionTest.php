@@ -178,7 +178,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
     {
         $this->twig->addExtension($this->extension);
         $this->twig->initRuntime();
-        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock'));
+        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent'));
 
         $template->expects($this->at(0))
             ->method('hasBlock')
@@ -186,6 +186,11 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(false));
 
         $template->expects($this->at(1))
+            ->method('getParent')
+            ->with(array())
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(2))
             ->method('hasBlock')
             ->with('datagrid')
             ->will($this->returnValue(true));
@@ -193,7 +198,54 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
         $this->extension->setBaseTheme($template);
         $datagridView = $this->getDataGridView('grid');
 
+        $template->expects($this->at(3))
+            ->method('displayBlock')
+            ->with('datagrid', array(
+                'datagrid' => $datagridView,
+                'vars' => array()
+            ))
+            ->will($this->returnValue(true));
+
+        $this->extension->datagrid($datagridView);
+    }
+
+    public function testDataGridRenderBlockFromParent()
+    {
+        $this->twig->addExtension($this->extension);
+        $this->twig->initRuntime();
+
+        $parent = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent'));
+        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent'));
+
+        $template->expects($this->at(0))
+            ->method('hasBlock')
+            ->with('datagrid_grid')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(1))
+            ->method('getParent')
+            ->with(array())
+            ->will($this->returnValue(false));
+
         $template->expects($this->at(2))
+            ->method('hasBlock')
+            ->with('datagrid')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(3))
+            ->method('getParent')
+            ->with(array())
+            ->will($this->returnValue($parent));
+
+        $parent->expects($this->at(0))
+            ->method('hasBlock')
+            ->with('datagrid')
+            ->will($this->returnValue(true));
+
+        $this->extension->setBaseTheme($template);
+        $datagridView = $this->getDataGridView('grid');
+
+        $parent->expects($this->at(1))
             ->method('displayBlock')
             ->with('datagrid', array(
                 'datagrid' => $datagridView,
@@ -208,7 +260,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
     {
         $this->twig->addExtension($this->extension);
         $this->twig->initRuntime();
-        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock'));
+        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent'));
 
         $template->expects($this->at(0))
             ->method('hasBlock')
@@ -216,6 +268,11 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(false));
 
         $template->expects($this->at(1))
+            ->method('getParent')
+            ->with(array())
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(2))
             ->method('hasBlock')
             ->with('datagrid_header')
             ->will($this->returnValue(true));
@@ -227,7 +284,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
             ->method('getColumns')
             ->will($this->returnValue(array()));
 
-        $template->expects($this->at(2))
+        $template->expects($this->at(3))
             ->method('displayBlock')
             ->with('datagrid_header', array(
                 'headers' => array(),
@@ -242,7 +299,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
     {
         $this->twig->addExtension($this->extension);
         $this->twig->initRuntime();
-        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock'));
+        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent'));
 
         $template->expects($this->at(0))
             ->method('hasBlock')
@@ -250,26 +307,51 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(false));
 
         $template->expects($this->at(1))
-            ->method('hasBlock')
-            ->with('datagrid_grid_column_type_text_header')
+            ->method('getParent')
+            ->with(array())
             ->will($this->returnValue(false));
 
         $template->expects($this->at(2))
             ->method('hasBlock')
-            ->with('datagrid_column_name_title_header')
+            ->with('datagrid_grid_column_type_text_header')
             ->will($this->returnValue(false));
 
         $template->expects($this->at(3))
-            ->method('hasBlock')
-            ->with('datagrid_column_type_text_header')
+            ->method('getParent')
+            ->with(array())
             ->will($this->returnValue(false));
 
         $template->expects($this->at(4))
             ->method('hasBlock')
-            ->with('datagrid_grid_column_header')
+            ->with('datagrid_column_name_title_header')
             ->will($this->returnValue(false));
 
         $template->expects($this->at(5))
+            ->method('getParent')
+            ->with(array())
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(6))
+            ->method('hasBlock')
+            ->with('datagrid_column_type_text_header')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(7))
+            ->method('getParent')
+            ->with(array())
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(8))
+            ->method('hasBlock')
+            ->with('datagrid_grid_column_header')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(9))
+            ->method('getParent')
+            ->with(array())
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(10))
             ->method('hasBlock')
             ->with('datagrid_column_header')
             ->will($this->returnValue(true));
@@ -283,7 +365,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
             ->with('translation_domain')
             ->will($this->returnValue(null));
 
-        $template->expects($this->at(6))
+        $template->expects($this->at(11))
             ->method('displayBlock')
             ->with('datagrid_column_header', array(
                 'header' => $headerView,
@@ -299,7 +381,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
     {
         $this->twig->addExtension($this->extension);
         $this->twig->initRuntime();
-        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock'));
+        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent'));
 
         $template->expects($this->at(0))
             ->method('hasBlock')
@@ -307,6 +389,11 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(false));
 
         $template->expects($this->at(1))
+            ->method('getParent')
+            ->with(array())
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(2))
             ->method('hasBlock')
             ->with('datagrid_rowset')
             ->will($this->returnValue(true));
@@ -314,7 +401,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
         $this->extension->setBaseTheme($template);
         $datagridView = $this->getDataGridView('grid');
 
-        $template->expects($this->at(2))
+        $template->expects($this->at(3))
             ->method('displayBlock')
             ->with('datagrid_rowset', array(
                 'datagrid' => $datagridView,
@@ -329,7 +416,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
     {
         $this->twig->addExtension($this->extension);
         $this->twig->initRuntime();
-        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock'));
+        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent'));
 
         $template->expects($this->at(0))
             ->method('hasBlock')
@@ -337,26 +424,51 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(false));
 
         $template->expects($this->at(1))
-            ->method('hasBlock')
-            ->with('datagrid_grid_column_type_text_cell')
+            ->method('getParent')
+            ->with(array())
             ->will($this->returnValue(false));
 
         $template->expects($this->at(2))
             ->method('hasBlock')
-            ->with('datagrid_column_name_title_cell')
+            ->with('datagrid_grid_column_type_text_cell')
             ->will($this->returnValue(false));
 
         $template->expects($this->at(3))
-            ->method('hasBlock')
-            ->with('datagrid_column_type_text_cell')
+            ->method('getParent')
+            ->with(array())
             ->will($this->returnValue(false));
 
         $template->expects($this->at(4))
             ->method('hasBlock')
-            ->with('datagrid_grid_column_cell')
+            ->with('datagrid_column_name_title_cell')
             ->will($this->returnValue(false));
 
         $template->expects($this->at(5))
+            ->method('getParent')
+            ->with(array())
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(6))
+            ->method('hasBlock')
+            ->with('datagrid_column_type_text_cell')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(7))
+            ->method('getParent')
+            ->with(array())
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(8))
+            ->method('hasBlock')
+            ->with('datagrid_grid_column_cell')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(9))
+            ->method('getParent')
+            ->with(array())
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(10))
             ->method('hasBlock')
             ->with('datagrid_column_cell')
             ->will($this->returnValue(true));
@@ -377,7 +489,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
                 return null;
             }));
 
-        $template->expects($this->at(6))
+        $template->expects($this->at(11))
             ->method('displayBlock')
             ->with('datagrid_column_cell', array(
                 'cell' => $cellView,
@@ -395,7 +507,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
     {
         $this->twig->addExtension($this->extension);
         $this->twig->initRuntime();
-        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock'));
+        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent'));
 
         $template->expects($this->at(0))
             ->method('hasBlock')
@@ -403,26 +515,51 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(false));
 
         $template->expects($this->at(1))
-            ->method('hasBlock')
-            ->with('datagrid_grid_column_type_text_cell_form')
+            ->method('getParent')
+            ->with(array())
             ->will($this->returnValue(false));
 
         $template->expects($this->at(2))
             ->method('hasBlock')
-            ->with('datagrid_column_name_title_cell_form')
+            ->with('datagrid_grid_column_type_text_cell_form')
             ->will($this->returnValue(false));
 
         $template->expects($this->at(3))
-            ->method('hasBlock')
-            ->with('datagrid_column_type_text_cell_form')
+            ->method('getParent')
+            ->with(array())
             ->will($this->returnValue(false));
 
         $template->expects($this->at(4))
             ->method('hasBlock')
-            ->with('datagrid_grid_column_cell_form')
+            ->with('datagrid_column_name_title_cell_form')
             ->will($this->returnValue(false));
 
         $template->expects($this->at(5))
+            ->method('getParent')
+            ->with(array())
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(6))
+            ->method('hasBlock')
+            ->with('datagrid_column_type_text_cell_form')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(7))
+            ->method('getParent')
+            ->with(array())
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(8))
+            ->method('hasBlock')
+            ->with('datagrid_grid_column_cell_form')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(9))
+            ->method('getParent')
+            ->with(array())
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(10))
             ->method('hasBlock')
             ->with('datagrid_column_cell_form')
             ->will($this->returnValue(true));
@@ -441,7 +578,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
             ->with('form')
             ->will($this->returnValue('form'));
 
-        $template->expects($this->at(6))
+        $template->expects($this->at(11))
             ->method('displayBlock')
             ->with('datagrid_column_cell_form', array(
                 'form' => 'form',
@@ -457,7 +594,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
     {
         $this->twig->addExtension($this->extension);
         $this->twig->initRuntime();
-        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock'));
+        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent'));
 
         $template->expects($this->at(0))
             ->method('hasBlock')
@@ -465,16 +602,31 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(false));
 
         $template->expects($this->at(1))
-            ->method('hasBlock')
-            ->with('datagrid_column_type_action_cell_action_edit')
+            ->method('getParent')
+            ->with(array())
             ->will($this->returnValue(false));
 
         $template->expects($this->at(2))
             ->method('hasBlock')
-            ->with('datagrid_grid_column_type_action_cell_action')
+            ->with('datagrid_column_type_action_cell_action_edit')
             ->will($this->returnValue(false));
 
         $template->expects($this->at(3))
+            ->method('getParent')
+            ->with(array())
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(4))
+            ->method('hasBlock')
+            ->with('datagrid_grid_column_type_action_cell_action')
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(5))
+            ->method('getParent')
+            ->with(array())
+            ->will($this->returnValue(false));
+
+        $template->expects($this->at(6))
             ->method('hasBlock')
             ->with('datagrid_column_type_action_cell_action')
             ->will($this->returnValue(true));
@@ -488,7 +640,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
             ->with('translation_domain')
             ->will($this->returnValue(null));
 
-        $template->expects($this->at(4))
+        $template->expects($this->at(7))
             ->method('displayBlock')
             ->with('datagrid_column_type_action_cell_action', array(
                 'content' => 'content',
