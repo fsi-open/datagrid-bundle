@@ -110,6 +110,10 @@
         <service id="datagrid.subscriber.symfony.bindrequest" class="FSi\Component\DataGrid\Extension\Symfony\EventSubscriber\BindRequest">
             <tag name="datagrid.subscriber" alias="symfony.form.bindrequest"/>
         </service>
+        <service id="datagrid.column_extension.symfony.column.boolean" class="FSi\Bundle\DataGridBundle\DataGrid\Extension\View\ColumnTypeExtension\BooleanColumnExtension">
+            <tag name="datagrid.column_extension" alias="symfony.column.boolean"/>
+            <argument type="service" id="translator" />
+        </service>
         <!-- SymfonyExtension -->
 
         <service id="datagrid.column_extension.view" class="FSi\Bundle\DataGridBundle\DataGrid\Extension\View\ColumnTypeExtension\ColumnViewOptionsExtension">
