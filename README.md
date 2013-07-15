@@ -38,15 +38,6 @@ public function registerBundles()
 
 ```
 
-### Step3: Configure the DataGridBundle in config.yaml ###
-
-Add to config.yaml
-
-```
-fsi_data_grid:
-    twig: ~
-```
-
 # Usage #
 
 Basic DataGrid usage.
