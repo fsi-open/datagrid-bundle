@@ -16,7 +16,7 @@ Add to composer.json
 ```
 
 "require": {
-    "fsi/datagrid-bundle": "0.9.*
+    "fsi/datagrid-bundle": "1.0.*
 }
 
 ```
