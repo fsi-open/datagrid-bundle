@@ -31,6 +31,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
     public static function getBundleDefaultOptions()
     {
         return array(
+            'yaml_configuration' => true,
             'twig' => array(
                 'enabled' => true,
                 'template' => 'datagrid.html.twig'
