@@ -45,16 +45,19 @@ class ConfigurationBuilder implements EventSubscriberInterface
     public function readConfiguration(DataGridEventInterface $event)
     {
         $dataGrid = $event->getDataGrid();
-        $configuration = null;
+        $dataGridConfiguration = array();
         foreach ($this->kernel->getBundles() as $bundle) {
             if ($this->hasDataGridConfiguration($bundle->getPath(), $dataGrid->getName())) {
                 $configuration = $this->getDataGridConfiguration($bundle->getPath(), $dataGrid->getName());
-                break;
+
+                if (is_array($configuration)) {
+                    $dataGridConfiguration = array_merge($dataGridConfiguration, $configuration);
+                }
             }
         }
 
-        if (isset($configuration)) {
-            $this->buildConfiguration($dataGrid, $configuration);
+        if (count($dataGridConfiguration)) {
+            $this->buildConfiguration($dataGrid, $dataGridConfiguration);
         }
     }
 
