@@ -28,7 +28,11 @@ class FSIDataGridExtension extends Extension
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('datagrid.xml');
 
-        if(isset($config['twig']['enabled']) && $config['twig']['enabled']) {
+        if (isset($config['yaml_configuration']) && $config['yaml_configuration']) {
+            $loader->load('datagrid_yaml_configuration.xml');
+        }
+
+        if (isset($config['twig']['enabled']) && $config['twig']['enabled']) {
             $this->registerTwigConfiguration($config['twig'], $container, $loader);
         }
     }

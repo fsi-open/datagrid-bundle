@@ -23,6 +23,7 @@ class Configuration implements ConfigurationInterface
         $rootNode = $tb->root('fsi_data_grid');
         $rootNode
             ->children()
+                ->booleanNode('yaml_configuration')->defaultTrue()->end()
                 ->arrayNode('twig')
                     ->addDefaultsIfNotSet()
                     ->children()
