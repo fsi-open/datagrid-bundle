@@ -1,7 +1,7 @@
 # FSi DataGrid Bundle #
 
-Main purpose of this bundle is to integrate [FSi DataGrid Component](https://github.com/fsi-open/datagrid)
-with any Symfony2 based application.  
+Main purpose of this bundle is to integrate [FSi DataGrid Component](https://github.com/fsi-open/datagrid) with any Symfony2 based application.
+
 Build Status:  
 [![Build Status](https://travis-ci.org/fsi-open/datagrid-bundle.png?branch=master)](https://travis-ci.org/fsi-open/datagrid-bundle) - Master  
 [![Build Status](https://travis-ci.org/fsi-open/datagrid-bundle.png?branch=1.0)](https://travis-ci.org/fsi-open/datagrid-bundle) - 1.0  

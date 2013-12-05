@@ -1,4 +1,4 @@
-# Basic DataGrid usage.
+# Basic usage.
 
 ## Configure DataGrid fields in .yml file
 

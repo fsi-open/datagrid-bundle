@@ -1,7 +1,6 @@
 # Templating
 
-Default DataGrid block used to render each parts of DataGrid are very simple, but in most cases you will
-need to overwrite them.
+Default DataGrid block used to render each parts of DataGrid are very simple, but in most cases you will need to overwrite them.
 This can be easily done with theming mechanism.
 Theme is nothing else than a twig template that contains specific blocks.
 
@@ -106,5 +105,5 @@ There are few more twig functions used to render datagrid.
 * datagrid_{grid_name}_column_type_action_cell_action
 * datagrid_column_type_action_cell_action
 
-As you can see you can even create named block that will be used only to render
-datagrid/column that match name/type used in block name.
+As you can see you can even create named block that will be used only to render datagrid/column that match name/type
+used in block name.
