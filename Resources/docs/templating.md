@@ -100,10 +100,10 @@ There are few more twig functions used to render datagrid.
 * ``datagrid_column_cell_form``
 
 ``datagrid_column_type_action_cell_action_widget``
-* datagrid_{grid_name}_column_type_action_cell_action_{action_name}
-* datagrid_column_type_action_cell_action_{action_name}
-* datagrid_{grid_name}_column_type_action_cell_action
-* datagrid_column_type_action_cell_action
+* ``datagrid_{grid_name}_column_type_action_cell_action_{action_name}``
+* ``datagrid_column_type_action_cell_action_{action_name}``
+* ``datagrid_{grid_name}_column_type_action_cell_action``
+* ``datagrid_column_type_action_cell_action``
 
 As you can see you can even create named block that will be used only to render datagrid/column that match name/type
 used in block name.
