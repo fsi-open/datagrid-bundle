@@ -11,12 +11,15 @@ namespace FSi\Bundle\DataGridBundle\Tests\DataGrid\Extension\View\ColumnTypeExte
 
 use FSi\Component\DataGrid\Extension\Core\ColumnType\Boolean;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\View\ColumnTypeExtension\BooleanColumnExtension;
+use FSi\Component\DataGrid\Extension\Symfony\ColumnTypeExtension\FormExtension;
 
 class BooleanColumnExtensionTest extends \PHPUnit_Framework_TestCase
 {
     public function testColumnOptions()
     {
         $column = new Boolean();
+        $formExtension = new FormExtension($this->getFormFactory());
+        $formExtension->initOptions($column);
         $extension = new BooleanColumnExtension($this->getTranslator());
         $extension->initOptions($column);
         $options = $column->getOptionsResolver()->resolve();
@@ -40,5 +43,10 @@ class BooleanColumnExtensionTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue('NO'));
 
         return $translator;
+    }
+
+    private function getFormFactory()
+    {
+        return $this->getMock('Symfony\Component\Form\FormFactoryInterface');
     }
 }
