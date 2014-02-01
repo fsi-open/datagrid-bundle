@@ -11,6 +11,7 @@ namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\View\ColumnTypeExtension;
 
 use FSi\Component\DataGrid\Column\ColumnTypeInterface;
 use FSi\Component\DataGrid\Column\ColumnAbstractTypeExtension;
+use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\Translation\TranslatorInterface;
 
 class BooleanColumnExtension extends ColumnAbstractTypeExtension
@@ -46,6 +47,42 @@ class BooleanColumnExtension extends ColumnAbstractTypeExtension
         $column->getOptionsResolver()->setDefaults(array(
             'true_value' => $this->translator->trans('datagrid.boolean.yes', array(), 'DataGridBundle'),
             'false_value' => $this->translator->trans('datagrid.boolean.no', array(), 'DataGridBundle')
+        ));
+
+        $translator = $this->translator;
+        $column->getOptionsResolver()->setNormalizers(array(
+            'form_options' => function(Options $options, $value) use ($translator) {
+                    if ($options['editable'] && count($options['field_mapping']) == 1) {
+                        $field = $options['field_mapping'][0];
+
+                        return array_merge(
+                            array(
+                                $field => array(
+                                    'choices' => array(
+                                        0 => $translator->trans('datagrid.boolean.no', array(), 'DataGridBundle'),
+                                        1 => $translator->trans('datagrid.boolean.yes', array(), 'DataGridBundle')
+                                    )
+                                )
+                            ),
+                            $value
+                        );
+                    }
+
+                    return $value;
+                },
+            'form_type' => function(Options $options, $value) {
+                    if ($options['editable'] && count($options['field_mapping']) == 1) {
+
+                        $field = $options['field_mapping'][0];
+
+                        return array_merge(
+                            array($field => 'choice'),
+                            $value
+                        );
+                    }
+
+                    return $value;
+                }
         ));
     }
 }
