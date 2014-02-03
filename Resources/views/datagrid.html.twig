@@ -1,6 +1,32 @@
+{% block header_attributes -%}
+    {% spaceless %}
+        {%- for attrname, attrvalue in header.attribute('header_attr') -%}
+            {{- " " -}}
+            {%- if attrvalue is sameas(true) -%}
+                {{- attrname }}="{{ attrname }}"
+            {%- elseif attrvalue is not sameas(false) -%}
+                {{- attrname }}="{{ attrvalue }}"
+            {%- endif -%}
+        {%- endfor -%}
+    {% endspaceless %}
+{% endblock header_attributes -%}
+
+{% block cell_attributes -%}
+    {% spaceless %}
+        {%- for attrname, attrvalue in cell.attribute('attr') -%}
+            {{- " " -}}
+            {%- if attrvalue is sameas(true) -%}
+                {{- attrname }}="{{ attrname }}"
+            {%- elseif attrvalue is not sameas(false) -%}
+                {{- attrname }}="{{ attrvalue }}"
+            {%- endif -%}
+        {%- endfor -%}
+    {% endspaceless %}
+{% endblock cell_attributes %}
+
 {% block datagrid_column_type_batch_header %}
     {% spaceless %}
-        <th>
+        <th {{ block('header_attributes') }}>
             <input type="checkbox" id="{{ header.attribute('datagrid_name') }}_{{ header.type }}"/>
             <script type="text/javascript">
                 (function (w) {
@@ -22,7 +48,7 @@
 
 {% block datagrid_column_type_batch_cell %}
 {% spaceless %}
-    <td>
+    <td {{ block('cell_attributes') }}>
         <input type="checkbox" name="{{ cell.attribute('datagrid_name') }}_{{ cell.type }}[]" value="{{ cell.value }}" class="{{ cell.attribute('datagrid_name') }}_{{ cell.type }}" />
     </td>
 {% endspaceless %}
@@ -34,7 +60,7 @@
 
 {% block datagrid_column_type_action_cell %}
 {% spaceless %}
-    <td>
+    <td {{ block('cell_attributes') }}>
         <div>
             {% for action_name, action in cell.value %}
                 {{ datagrid_column_type_action_cell_action_widget(cell, action_name, action.content, action.url_attr|merge({'href' : action.url}, action.field_mapping_values)) }}
@@ -46,7 +72,7 @@
 
 {% block datagrid_column_header %}
 {% spaceless %}
-    <th>
+    <th {{ block('header_attributes') }}>
         <span>{{ header.label|trans({}, translation_domain) }}</span>
     </th>
 {% endspaceless %}
@@ -76,7 +102,7 @@
 
 {% block datagrid_column_cell %}
 {% spaceless %}
-<td>
+<td {{ block('cell_attributes') }}>
     <div>
         {% endspaceless %}{{ cell.value|raw }}{{ datagrid_column_cell_form_widget(cell) }}{% spaceless %}
     </div>

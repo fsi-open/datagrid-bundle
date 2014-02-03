@@ -14,7 +14,7 @@
         "php": ">=5.3.3",
         "twig/twig": "~1.2",
         "symfony/framework-bundle" : "~2.2",
-        "fsi/datagrid": "1.0.*"
+        "fsi/datagrid": "dev-master"
     },
     "require-dev": {
         "symfony/form" : "2.2.*",
