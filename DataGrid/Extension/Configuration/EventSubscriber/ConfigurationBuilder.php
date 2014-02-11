@@ -51,7 +51,7 @@ class ConfigurationBuilder implements EventSubscriberInterface
                 $configuration = $this->getDataGridConfiguration($bundle->getPath(), $dataGrid->getName());
 
                 if (is_array($configuration)) {
-                    $dataGridConfiguration = array_merge($dataGridConfiguration, $configuration);
+                    $dataGridConfiguration = $configuration;
                 }
             }
         }
