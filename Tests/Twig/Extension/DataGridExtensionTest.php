@@ -113,8 +113,8 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
         $datagridView = $this->getDataGridView('grid');
         $datagridWithThemeView = $this->getDataGridView('grid_with_header_theme');
 
-        $headerView = $this->getColumnHeaderView($datagridView, 'text', 'title', 'Title');
-        $headerWithThemeView = $this->getColumnHeaderView($datagridWithThemeView, 'text', 'title' ,'Title');
+        $headerView = $this->getColumnHeaderView($datagridView, 'text', 'title', 'title');
+        $headerWithThemeView = $this->getColumnHeaderView($datagridWithThemeView, 'text', 'title' ,'title');
 
         $html = $this->twig->render('datagrid/header_widget_test.html.twig', array(
             'grid_with_header_theme' => $datagridWithThemeView,
@@ -666,7 +666,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
         return $datagridView;
     }
 
-    private function getColumnHeaderView(DataGridViewInterface $datagridView, $type, $name, $label)
+    private function getColumnHeaderView(DataGridViewInterface $datagridView, $type, $name, $label = null)
     {
         $column = $this->getMock('FSi\Component\DataGrid\Column\HeaderViewInterface');
 

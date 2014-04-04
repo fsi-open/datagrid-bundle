@@ -46,8 +46,13 @@
 
 {% block datagrid_column_header %}
 {% spaceless %}
+{% if header.label == header.name %}
+    {% set label =  header.label|humanize|trans({}, translation_domain)  %}
+{% else %}
+    {% set label =  header.label|trans({}, translation_domain)  %}
+{% endif %}
     <th>
-        <span>{{ header.label|trans({}, translation_domain) }}</span>
+        <span>{{ label }}</span>
     </th>
 {% endspaceless %}
 {% endblock %}
