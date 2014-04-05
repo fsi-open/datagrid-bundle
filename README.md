@@ -13,5 +13,5 @@ Documentation:
 
 * [Installation](Resources/docs/installation.md)
 * [Basic Usage](Resources/docs/basic_usage.md)
+* [Column Types](Resources/docs/columns.md)
 * [Templating](Resources/docs/templating.md)
-* [Available column types and options](https://github.com/fsi-open/datagrid#built-in-available-columns-options)

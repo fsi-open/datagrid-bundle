@@ -110,6 +110,8 @@ class DefaultController extends Controller
 }
 ```
 
+You can read more about available column types [here](columns.md).
+
 ## Display DataGrid in twig template
 
 ```
