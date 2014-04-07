@@ -58,6 +58,9 @@
         <service id="datagrid.column.boolean" class="FSi\Component\DataGrid\Extension\Core\ColumnType\Boolean">
             <tag name="datagrid.column" alias="boolean" />
         </service>
+        <service id="datagrid.column.collection" class="FSi\Component\DataGrid\Extension\Core\ColumnType\Collection">
+            <tag name="datagrid.column" alias="collection" />
+        </service>
         <service id="datagrid.column.number" class="FSi\Component\DataGrid\Extension\Core\ColumnType\Number">
             <tag name="datagrid.column" alias="number" />
         </service>
