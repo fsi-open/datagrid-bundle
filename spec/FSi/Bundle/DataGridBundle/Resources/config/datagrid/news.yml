@@ -1,0 +1,15 @@
+columns:
+  title:
+    type: text
+    options:
+      label: admin.news.datagrid.title
+  actions:
+    type: action
+    options:
+      label: admin.news.datagrid.actions
+      field_mapping: [ id ]
+      actions:
+        edit:
+          route_name: fsi_admin_crud_edit
+          additional_parameters: { element: news }
+          parameters_field_mapping: { id: id }

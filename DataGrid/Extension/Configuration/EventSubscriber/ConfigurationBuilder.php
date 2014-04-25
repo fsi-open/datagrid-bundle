@@ -12,9 +12,11 @@ namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\EventSubscr
 use FSi\Component\DataGrid\DataGridEventInterface;
 use FSi\Component\DataGrid\DataGridEvents;
 use FSi\Component\DataGrid\DataGridInterface;
+use Symfony\Component\Config\FileLocator;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Yaml\Parser;
+use Symfony\Component\Yaml\Yaml;
 
 class ConfigurationBuilder implements EventSubscriberInterface
 {
@@ -47,6 +49,7 @@ class ConfigurationBuilder implements EventSubscriberInterface
         $dataGrid = $event->getDataGrid();
         $dataGridConfiguration = array();
         foreach ($this->kernel->getBundles() as $bundle) {
+
             if ($this->hasDataGridConfiguration($bundle->getPath(), $dataGrid->getName())) {
                 $configuration = $this->getDataGridConfiguration($bundle->getPath(), $dataGrid->getName());
 
@@ -78,8 +81,13 @@ class ConfigurationBuilder implements EventSubscriberInterface
      */
     protected function getDataGridConfiguration($bundlePath, $dataGridName)
     {
-        $yamlParser = new Parser();
-        return $yamlParser->parse(file_get_contents(sprintf($bundlePath . '/Resources/config/datagrid/%s.yml', $dataGridName)));
+        $conf = Yaml::parse(sprintf($bundlePath . '/Resources/config/datagrid/%s.yml', $dataGridName));
+
+        if(isset($conf['imports']) && $conf['imports']) {
+            $conf = $this->importResources($conf,$bundlePath);
+        }
+
+        return $conf;
     }
 
     /**
@@ -88,6 +96,7 @@ class ConfigurationBuilder implements EventSubscriberInterface
      */
     protected function buildConfiguration(DataGridInterface $dataGrid, array $configuration)
     {
+
         foreach ($configuration['columns'] as $name => $column) {
             $type = array_key_exists('type', $column)
                 ? $column['type']
@@ -98,5 +107,34 @@ class ConfigurationBuilder implements EventSubscriberInterface
 
             $dataGrid->addColumn($name, $type, $options);
         }
+
+    }
+
+    /**
+     * @param $configuration
+     * @return array
+     */
+    protected function importResources($configuration, $bundlePath)
+    {
+
+        foreach($configuration['imports'] as $config) {
+
+            if(preg_match('/^\//',$config['resource']) || preg_match('/^@/',$config['resource'])) {
+                $resource = $this->kernel->locateResource($config['resource']);
+            } else {
+                $resource = $bundlePath."/Resources/config/datagrid/{$config['resource']}";
+            }
+
+            if($tempConfig = Yaml::parse($resource)) {
+                if(isset($tempConfig['imports']) && $tempConfig['imports']) {
+                    $tempConfig = array_merge_recursive($tempConfig, $this->importResources($tempConfig, $bundlePath));
+                }
+                $configuration = array_merge_recursive($tempConfig,$configuration) ;
+            }
+
+        }
+
+        unset($configuration['imports']);
+        return $configuration;
     }
 }
