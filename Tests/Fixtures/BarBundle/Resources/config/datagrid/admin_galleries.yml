@@ -1,0 +1,5 @@
+columns:
+  description:
+    type: text
+    options:
+      label: Description

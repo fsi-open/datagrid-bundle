@@ -1,0 +1,5 @@
+columns:
+  title:
+    type: text
+    options:
+      label: Title

@@ -12,7 +12,8 @@ matrix:
 before_script:
     - composer update --prefer-source
 
-script: bin/phpunit
+script:
+    - bin/phpunit
 
 notifications:
   irc: "irc.freenode.org#fsi-open" 
