@@ -1,0 +1,5 @@
+admin:
+    news:
+        datagrid:
+        title: Title
+        actions: Actions
