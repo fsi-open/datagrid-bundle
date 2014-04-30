@@ -99,8 +99,6 @@ class ConfigurationBuilder implements EventSubscriberInterface
     protected function buildConfiguration(DataGridInterface $dataGrid, array $configuration)
     {
 
-//        echo PHP_EOL.json_encode($configuration).PHP_EOL;
-
         foreach ($configuration['columns'] as $name => $column) {
             $type = array_key_exists('type', $column)
                 ? $column['type']
@@ -132,7 +130,6 @@ class ConfigurationBuilder implements EventSubscriberInterface
                     $this->kernel->getRootDir(),
                     $config['resource']
                 ));
-//                echo PHP_EOL.'locate resources'.PHP_EOL;
 
             } elseif( preg_match('/:/',$config['resource'])) { //Load from bundle
 
@@ -140,7 +137,6 @@ class ConfigurationBuilder implements EventSubscriberInterface
                 try {
                     if(count($bundle) == 2) {
                         $resource = $this->kernel->locateResource(sprintf('@%s:Resources/config/datagrid/%s',$bundle[0],$bundle[1]));
-//                        echo PHP_EOL.'locate resources'.PHP_EOL;
                     } else {
                         throw Exception('Invalide config path. It should looks like DemoBundle:config.yml');
                     }
@@ -153,8 +149,6 @@ class ConfigurationBuilder implements EventSubscriberInterface
 
                 $resource = sprintf("%s/Resources/config/datagrid/%s", $bundlePath, $config['resource']);
             }
-//            echo PHP_EOL.'import-resources'.PHP_EOL;
-//            echo PHP_EOL.$resource.PHP_EOL;
 
             if($tempConfig = Yaml::parse($resource)) {
 
