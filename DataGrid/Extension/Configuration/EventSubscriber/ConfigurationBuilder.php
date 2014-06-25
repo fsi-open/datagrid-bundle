@@ -116,7 +116,6 @@ class ConfigurationBuilder implements EventSubscriberInterface
      */
     protected function importExternalResources($configuration, $bundlePath)
     {
-
         $resource = new ResourceLoader($configuration, $bundlePath, $this->kernel);
         return $resource->getConfig();
     }

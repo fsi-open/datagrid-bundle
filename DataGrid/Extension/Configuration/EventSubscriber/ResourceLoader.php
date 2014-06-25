@@ -76,6 +76,7 @@ class ResourceLoader
                     $resourceLoader->getConfig()
                 );
             }
+            return $configuration;
         }
         return array();
     }
