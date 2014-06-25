@@ -9,13 +9,10 @@
 
 namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\EventSubscriber;
 
+use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationLoader;
 use FSi\Component\DataGrid\DataGridEventInterface;
 use FSi\Component\DataGrid\DataGridEvents;
 use FSi\Component\DataGrid\DataGridInterface;
-use Symfony\Component\Config\Definition\Exception\Exception;
-use Symfony\Component\Config\FileLocator;
-use Symfony\Component\Config\Loader\FileLoader;
-use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Yaml\Yaml;
@@ -28,18 +25,18 @@ class ConfigurationBuilder implements EventSubscriberInterface
     protected $kernel;
 
     /**
-     * @var ResourceLoader
+     * @var \FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationLoader
      */
-    protected $resourceLoader;
+    protected $configurationLoader;
 
     /**
      * @param KernelInterface $kernel
-     * @param ResourceLoader $resourceLoader
+     * @param \FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationLoader $configurationLoader
      */
-    function __construct(KernelInterface $kernel, ResourceLoader $resourceLoader)
+    function __construct(KernelInterface $kernel, ConfigurationLoader $configurationLoader)
     {
         $this->kernel = $kernel;
-        $this->resourceLoader = $resourceLoader;
+        $this->configurationLoader = $configurationLoader;
     }
 
     /**
@@ -61,7 +58,6 @@ class ConfigurationBuilder implements EventSubscriberInterface
         foreach ($this->kernel->getBundles() as $bundle) {
             if ($this->hasDataGridConfiguration($bundle->getPath(), $dataGrid->getName())) {
                 $configuration = $this->getDataGridConfiguration($bundle->getPath(), $dataGrid->getName());
-
                 if (is_array($configuration)) {
                     $dataGridConfiguration = $configuration;
                 }
@@ -123,8 +119,6 @@ class ConfigurationBuilder implements EventSubscriberInterface
      */
     protected function importExternalResources($configuration, $bundlePath)
     {
-        $resource = new ResourceLoader($this->kernel);
-        return $resource->getConfig($configuration, $bundlePath);
+        return $this->configurationLoader->getConfig($configuration, $bundlePath);
     }
-
 }

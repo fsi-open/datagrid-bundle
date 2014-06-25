@@ -23,9 +23,9 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
     protected $kernel;
 
     /**
-     * @var \FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\EventSubscriber\ResourceLoader
+     * @var \FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationLoader
      */
-    protected $resourceLoader;
+    protected $configurationLoader;
 
     /**
      * @var ConfigurationBuilder
@@ -35,8 +35,17 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->kernel = $this->getMock('Symfony\Component\HttpKernel\KernelInterface');
-        $this->resourceLoader = $this->getMock('FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\EventSubscriber\ResourceLoader', array('__construct'), array($this->kernel));
-        $this->subscriber = new ConfigurationBuilder($this->kernel, $this->resourceLoader);
+        $configurationLocator = $this->getMock(
+            'FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationLocator',
+            array('__construct'),
+            array($this->kernel)
+        );
+        $this->configurationLoader = $this->getMock(
+            'FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationLoader',
+            array('__construct'),
+            array($this->kernel,$configurationLocator)
+        );
+        $this->subscriber = new ConfigurationBuilder($this->kernel, $this->configurationLoader);
     }
 
     public function testSubscribedEvents()

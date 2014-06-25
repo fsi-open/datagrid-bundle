@@ -1,16 +1,11 @@
 <?php
 
-namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\EventSubscriber;
+namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration;
 
 use Symfony\Component\HttpKernel\KernelInterface;
-use Symfony\Component\Config\Definition\Exception\Exception;
-use Symfony\Component\Config\FileLocator;
-use Symfony\Component\Config\Loader\FileLoader;
-use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Yaml\Yaml;
 
-class ResourceLoader
+class ConfigurationLocator
 {
     /**
      * @var \Symfony\Component\HttpKernel\KernelInterface
@@ -27,51 +22,11 @@ class ResourceLoader
     }
 
     /**
-     * @param array $configs
+     * @param array $config
      * @param $bundlePath
      * @return array
      */
-    public function getConfig($configs, $bundlePath)
-    {
-        if (isset($configs['imports'])) {
-            foreach ($configs['imports'] as $k => $config) {
-                $resourcePath = $this->getResourcePath($config, $bundlePath);
-                $configs = array_replace_recursive(
-                    $this->getImportedConfiguration($resourcePath, $bundlePath),
-                    $configs
-                );
-                unset($configs[$k]);
-            }
-        }
-        return $configs;
-    }
-
-    /**
-     * @param string $resourcePath
-     * @param $bundlePath
-     * @return array
-     */
-    private function getImportedConfiguration($resourcePath, $bundlePath)
-    {
-        if ($configuration = Yaml::parse($resourcePath)) {
-
-            if (isset($configuration['imports']) && is_array($configuration['imports'])) {
-                $configuration = array_replace_recursive(
-                    $configuration,
-                    $this->getConfig($configuration, $bundlePath)
-                );
-            }
-            return $configuration;
-        }
-        return array();
-    }
-
-    /**
-     * @param $config
-     * @param $bundlePath
-     * @return string
-     */
-    protected function getResourcePath($config, $bundlePath)
+    public function localize($config, $bundlePath)
     {
         if (preg_match('/^\//', $config['resource'])) { //Load from global app config
             return $this->getGlobalResourcePath($config['resource']);
