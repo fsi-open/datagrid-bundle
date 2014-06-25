@@ -70,10 +70,9 @@ class ResourceLoader
         if ($configuration = Yaml::parse($resourcePath)) {
 
             if (isset($configuration['imports']) && is_array($configuration['imports'])) {
-                $resourceLoader = new ResourceLoader($this->kernel);
                 $configuration = array_replace_recursive(
                     $configuration,
-                    $resourceLoader->getConfig($configuration, $bundlePath)
+                    $this->getConfig($configuration, $bundlePath)
                 );
             }
             return $configuration;
