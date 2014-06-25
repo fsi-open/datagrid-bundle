@@ -33,10 +33,8 @@ class ResourceLoader
      * @param \Symfony\Component\HttpKernel\KernelInterface $kernel
      * @internal param array $imports
      */
-    public function __construct($configs, $bundlePath, KernelInterface $kernel)
+    public function __construct(KernelInterface $kernel)
     {
-        $this->configs = $configs;
-        $this->bundlePath = $bundlePath;
         $this->kernel = $kernel;
     }
 
@@ -45,8 +43,10 @@ class ResourceLoader
      * @param array $configs
      * @return array
      */
-    public function getConfig($configs = array())
+    public function getConfig($configs, $bundlePath)
     {
+        $this->configs = $configs;
+        $this->bundlePath = $bundlePath;
         if (isset($this->configs['imports'])) {
             foreach ($this->configs['imports'] as $config) {
                 $resourcePath = $this->getResourcePath($config);
@@ -69,11 +69,10 @@ class ResourceLoader
         if ($configuration = Yaml::parse($resourcePath)) {
 
             if (isset($configuration['imports']) && is_array($configuration['imports'])) {
-                $resourceLoader = new ResourceLoader($configuration, $this->bundlePath, $this->kernel);
-
+                $resourceLoader = new ResourceLoader($this->kernel);
                 $configuration = array_replace_recursive(
                     $configuration,
-                    $resourceLoader->getConfig()
+                    $resourceLoader->getConfig($configuration, $this->bundlePath)
                 );
             }
             return $configuration;

@@ -6,12 +6,17 @@
 
     <parameters>
         <parameter key="datagrid.subscriber.configuration.configuration_builder.class">FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\EventSubscriber\ConfigurationBuilder</parameter>
+        <parameter key="datagrid.subscriber.configuration.resource_loader.class">FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\EventSubscriber\ResourceLoader</parameter>
     </parameters>
 
     <services>
+        <service id="datagrid.subscriber.configuration.resource_loader" class="%datagrid.subscriber.configuration.resource_loader.class%">
+            <argument type="service" id="kernel" />
+        </service>
         <service id="datagrid.subscriber.configuration.configuration_builder" class="%datagrid.subscriber.configuration.configuration_builder.class%">
             <tag name="datagrid.subscriber" alias="configuration.configuration_builder"/>
             <argument type="service" id="kernel" />
+            <argument type="service" id="datagrid.subscriber.configuration.resource_loader" />
         </service>
     </services>
 </container>

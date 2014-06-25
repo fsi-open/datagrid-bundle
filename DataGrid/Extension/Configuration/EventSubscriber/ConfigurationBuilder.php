@@ -28,11 +28,18 @@ class ConfigurationBuilder implements EventSubscriberInterface
     protected $kernel;
 
     /**
-     * @param KernelInterface $kernel
+     * @var ResourceLoader
      */
-    function __construct(KernelInterface $kernel)
+    protected $resourceLoader;
+
+    /**
+     * @param KernelInterface $kernel
+     * @param ResourceLoader $resourceLoader
+     */
+    function __construct(KernelInterface $kernel, ResourceLoader $resourceLoader)
     {
         $this->kernel = $kernel;
+        $this->resourceLoader = $resourceLoader;
     }
 
     /**
@@ -116,8 +123,8 @@ class ConfigurationBuilder implements EventSubscriberInterface
      */
     protected function importExternalResources($configuration, $bundlePath)
     {
-        $resource = new ResourceLoader($configuration, $bundlePath, $this->kernel);
-        return $resource->getConfig();
+        $resource = new ResourceLoader($this->kernel);
+        return $resource->getConfig($configuration, $bundlePath);
     }
 
 }
