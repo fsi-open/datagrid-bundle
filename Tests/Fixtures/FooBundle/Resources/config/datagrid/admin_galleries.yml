@@ -1,8 +1,8 @@
 columns:
-  title:
+  author:
     type: text
     options:
-      label: Title
+      label: Author
   actions:
     type: action
     options:

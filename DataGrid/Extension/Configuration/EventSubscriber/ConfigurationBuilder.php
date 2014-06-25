@@ -50,8 +50,8 @@ class ConfigurationBuilder implements EventSubscriberInterface
     {
         $dataGrid = $event->getDataGrid();
         $dataGridConfiguration = array();
-        foreach ($this->kernel->getBundles() as $bundle) {
 
+        foreach ($this->kernel->getBundles() as $bundle) {
             if ($this->hasDataGridConfiguration($bundle->getPath(), $dataGrid->getName())) {
                 $configuration = $this->getDataGridConfiguration($bundle->getPath(), $dataGrid->getName());
 
@@ -83,13 +83,11 @@ class ConfigurationBuilder implements EventSubscriberInterface
      */
     protected function getDataGridConfiguration($bundlePath, $dataGridName)
     {
-        $conf = Yaml::parse(sprintf('%s/Resources/config/datagrid/%s.yml', $bundlePath, $dataGridName));
-
-        if(isset($conf['imports']) && $conf['imports']) {
-            $conf = $this->importResources($conf,$bundlePath);
+        $config = Yaml::parse(sprintf('%s/Resources/config/datagrid/%s.yml', $bundlePath, $dataGridName));
+        if (isset($config['imports']) && $config['imports']) {
+            $config = $this->importExternalResources($config, $bundlePath);
         }
-
-        return $conf;
+        return $config;
     }
 
     /**
@@ -98,7 +96,6 @@ class ConfigurationBuilder implements EventSubscriberInterface
      */
     protected function buildConfiguration(DataGridInterface $dataGrid, array $configuration)
     {
-
         foreach ($configuration['columns'] as $name => $column) {
             $type = array_key_exists('type', $column)
                 ? $column['type']
@@ -109,7 +106,6 @@ class ConfigurationBuilder implements EventSubscriberInterface
 
             $dataGrid->addColumn($name, $type, $options);
         }
-
     }
 
     /**
@@ -118,54 +114,11 @@ class ConfigurationBuilder implements EventSubscriberInterface
      * @throws
      * @return array
      */
-    protected function importResources($configuration, $bundlePath)
+    protected function importExternalResources($configuration, $bundlePath)
     {
 
-        foreach($configuration['imports'] as $config) {
-
-            if(preg_match('/^\//',$config['resource'])) { //Load from global app config
-
-                $resource = $this->kernel->locateResource(sprintf(
-                    '%s%s',
-                    $this->kernel->getRootDir(),
-                    $config['resource']
-                ));
-
-            } elseif( preg_match('/:/',$config['resource'])) { //Load from bundle
-
-                $bundle = explode(':',$config['resource']);
-                try {
-                    if(count($bundle) == 2) {
-                        $resource = $this->kernel->locateResource(sprintf('@%s:Resources/config/datagrid/%s',$bundle[0],$bundle[1]));
-                    } else {
-                        throw Exception('Invalide config path. It should looks like DemoBundle:config.yml');
-                    }
-                } catch (Exception $e) {
-                    throw $e;
-                }
-
-
-            } else { //Load from current brunch
-
-                $resource = sprintf("%s/Resources/config/datagrid/%s", $bundlePath, $config['resource']);
-            }
-
-            if($tempConfig = Yaml::parse($resource)) {
-
-                if(!is_array($tempConfig)) continue;
-
-                if(isset($tempConfig['imports']) && is_array($tempConfig['imports'])) {
-                    $tempConfig = array_replace_recursive($tempConfig, $this->importResources($tempConfig, $bundlePath));
-                }
-
-                $configuration = array_replace_recursive($tempConfig, $configuration);
-
-            }
-
-        }
-
-        unset($configuration['imports']);
-        return $configuration;
+        $resource = new ResourceLoader($configuration, $bundlePath, $this->kernel);
+        return $resource->getConfig();
     }
 
 }
