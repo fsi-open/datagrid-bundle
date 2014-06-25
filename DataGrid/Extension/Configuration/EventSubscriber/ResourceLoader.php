@@ -41,30 +41,31 @@ class ResourceLoader
 
     /**
      * @param array $configs
+     * @param $bundlePath
      * @return array
      */
     public function getConfig($configs, $bundlePath)
     {
-        $this->configs = $configs;
-        $this->bundlePath = $bundlePath;
-        if (isset($this->configs['imports'])) {
-            foreach ($this->configs['imports'] as $config) {
-                $resourcePath = $this->getResourcePath($config);
-                $this->configs = array_replace_recursive(
-                    $this->getImportedConfiguration($resourcePath),
-                    $this->configs
+        if (isset($configs['imports'])) {
+            foreach ($configs['imports'] as $k => $config) {
+                $resourcePath = $this->getResourcePath($config, $bundlePath);
+                $configs = array_replace_recursive(
+                    $this->getImportedConfiguration($resourcePath, $bundlePath),
+                    $configs
                 );
+                unset($configs[$k]);
             }
         }
-        return $this->configs;
+        return $configs;
 
     }
 
     /**
      * @param string $resourcePath
+     * @param $bundlePath
      * @return array
      */
-    private function getImportedConfiguration($resourcePath)
+    private function getImportedConfiguration($resourcePath, $bundlePath)
     {
         if ($configuration = Yaml::parse($resourcePath)) {
 
@@ -72,7 +73,7 @@ class ResourceLoader
                 $resourceLoader = new ResourceLoader($this->kernel);
                 $configuration = array_replace_recursive(
                     $configuration,
-                    $resourceLoader->getConfig($configuration, $this->bundlePath)
+                    $resourceLoader->getConfig($configuration, $bundlePath)
                 );
             }
             return $configuration;
@@ -82,16 +83,17 @@ class ResourceLoader
 
     /**
      * @param $config
+     * @param $bundlePath
      * @return string
      */
-    protected function getResourcePath($config)
+    protected function getResourcePath($config, $bundlePath)
     {
         if (preg_match('/^\//', $config['resource'])) { //Load from global app config
             return $this->getGlobalResourcePath($config['resource']);
         } elseif (preg_match('/:/', $config['resource'])) { //Load from bundle
             return $this->getBundleResourcePath($config['resource']);
         } else {
-            return $this->getInlineResourcePath($config['resource']);
+            return $this->getInlineResourcePath($config['resource'], $bundlePath);
         }
     }
 
@@ -129,11 +131,12 @@ class ResourceLoader
 
     /**
      * @param $config
+     * @param $bundlePath
      * @return string
      */
-    protected function getInlineResourcePath($config)
+    protected function getInlineResourcePath($config, $bundlePath)
     {
-        return sprintf("%s/Resources/config/datagrid/%s", $this->bundlePath, $config);
+        return sprintf("%s/Resources/config/datagrid/%s", $bundlePath, $config);
     }
 
 
