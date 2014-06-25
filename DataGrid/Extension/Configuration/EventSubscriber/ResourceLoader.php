@@ -13,23 +13,11 @@ use Symfony\Component\Yaml\Yaml;
 class ResourceLoader
 {
     /**
-     * @var array
-     */
-    protected $configs = array();
-
-    /**
-     * @var string
-     */
-    protected $bundlePath = '';
-
-    /**
      * @var \Symfony\Component\HttpKernel\KernelInterface
      */
     protected $kernel;
 
     /**
-     * @param array $configs
-     * @param string $bundlePath
      * @param \Symfony\Component\HttpKernel\KernelInterface $kernel
      * @internal param array $imports
      */
@@ -37,7 +25,6 @@ class ResourceLoader
     {
         $this->kernel = $kernel;
     }
-
 
     /**
      * @param array $configs
@@ -57,7 +44,6 @@ class ResourceLoader
             }
         }
         return $configs;
-
     }
 
     /**
@@ -137,6 +123,4 @@ class ResourceLoader
     {
         return sprintf("%s/Resources/config/datagrid/%s", $bundlePath, $config);
     }
-
-
 }
