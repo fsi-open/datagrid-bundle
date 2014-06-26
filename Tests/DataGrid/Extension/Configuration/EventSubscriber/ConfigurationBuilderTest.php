@@ -154,7 +154,7 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
             ->method('getName')
             ->will($this->returnValue('another_bundle'));
 
-        $dataGrid->expects($this->at(3))
+        $dataGrid->expects($this->at(2))
             ->method('addColumn')
             ->with(
                 $this->equalTo('actions'),
@@ -177,7 +177,7 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
                 )
             );
 
-        $dataGrid->expects($this->at(2))
+        $dataGrid->expects($this->at(4))
             ->method('addColumn')
             ->with(
                 $this->equalTo('description'),
@@ -191,7 +191,7 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
                 $this->equalTo('text'),
                 $this->equalTo(array('label' => 'Author')));
 
-        $dataGrid->expects($this->at(4))
+        $dataGrid->expects($this->at(3))
             ->method('addColumn')
             ->with(
                 $this->equalTo('active'),

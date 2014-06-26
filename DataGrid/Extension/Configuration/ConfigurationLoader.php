@@ -31,9 +31,10 @@ class ConfigurationLoader
     }
 
     /**
-     * @param array $configs
-     * @param \Symfony\Component\HttpKernel\Bundle\BundleInterface $bundle
+     * @param $configs
+     * @param BundleInterface $bundle
      * @return array
+     * @throws \Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException
      */
     public function load($configs, BundleInterface $bundle)
     {
@@ -41,35 +42,25 @@ class ConfigurationLoader
             foreach ($configs['imports'] as $k => $config) {
                 $contextBundle = $this->configurationLocator->getBundle($config['resource'], $bundle);
                 $resourcePath = $this->configurationLocator->locate($config['resource'], $contextBundle);
-                $configs = array_replace_recursive(
-                    $this->getImportedConfiguration($resourcePath, $contextBundle),
-                    $configs
-                );
+                $configuration = Yaml::parse($resourcePath);
+                if (is_array($configuration)) {
+                    if (isset($configuration['imports']) && is_array($configuration['imports'])) {
+                        $configuration = $this->load($configuration, $contextBundle);
+                    }
+                    $configs = array_replace_recursive(
+                        $configuration,
+                        $configs
+                    );
+                } else {
+                    throw new FileNotFoundException($resourcePath);
+                }
+
             }
         }
         unset($configs['imports']);
         return $configs;
     }
 
-    /**
-     * @param string $resourcePath
-     * @param $bundlePath
-     * @throws \Exception
-     * @return array
-     */
-    private function getImportedConfiguration($resourcePath, $bundlePath)
-    {
-        $configuration = Yaml::parse($resourcePath);
-        if (is_array($configuration)) {
-            if (isset($configuration['imports']) && is_array($configuration['imports'])) {
-                $configuration = array_replace_recursive(
-                    $configuration,
-                    $this->load($configuration, $bundlePath)
-                );
-            }
-            return $configuration;
-        } else {
-            throw new FileNotFoundException($resourcePath);
-        }
-    }
+
+
 }
