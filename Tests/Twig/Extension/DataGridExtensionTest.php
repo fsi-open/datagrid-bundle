@@ -50,6 +50,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
         $twig = new \Twig_Environment($loader);
         $twig->addExtension(new TranslationExtension(new StubTranslator()));
         $twig->addExtension(new FormExtension($renderer));
+        $twig->addGlobal('global_var', 'global_value');
         $this->twig = $twig;
 
         $this->extension = new DataGridExtension('datagrid.html.twig');
@@ -202,7 +203,8 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
             ->method('displayBlock')
             ->with('datagrid', array(
                 'datagrid' => $datagridView,
-                'vars' => array()
+                'vars' => array(),
+                'global_var' => 'global_value'
             ))
             ->will($this->returnValue(true));
 
@@ -249,7 +251,8 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
             ->method('displayBlock')
             ->with('datagrid', array(
                 'datagrid' => $datagridView,
-                'vars' => array()
+                'vars' => array(),
+                'global_var' => 'global_value'
             ))
             ->will($this->returnValue(true));
 
@@ -288,7 +291,8 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
             ->method('displayBlock')
             ->with('datagrid_header', array(
                 'headers' => array(),
-                'vars' => array()
+                'vars' => array(),
+                'global_var' => 'global_value'
             ))
             ->will($this->returnValue(true));
 
@@ -370,7 +374,8 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
             ->with('datagrid_column_header', array(
                 'header' => $headerView,
                 'translation_domain' => null,
-                'vars' => array()
+                'vars' => array(),
+                'global_var' => 'global_value'
             ))
             ->will($this->returnValue(true));
 
@@ -405,7 +410,8 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
             ->method('displayBlock')
             ->with('datagrid_rowset', array(
                 'datagrid' => $datagridView,
-                'vars' => array()
+                'vars' => array(),
+                'global_var' => 'global_value'
             ))
             ->will($this->returnValue(true));
 
@@ -496,7 +502,8 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
                 'row_index' => 0,
                 'datagrid_name' => 'grid',
                 'translation_domain' => null,
-                'vars' => array()
+                'vars' => array(),
+                'global_var' => 'global_value'
             ))
             ->will($this->returnValue(true));
 
@@ -582,7 +589,8 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
             ->method('displayBlock')
             ->with('datagrid_column_cell_form', array(
                 'form' => 'form',
-                'vars' => array()
+                'vars' => array(),
+                'global_var' => 'global_value'
             ))
             ->will($this->returnValue(true));
 
@@ -646,7 +654,8 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
                 'content' => 'content',
                 'attr' => array(),
                 'translation_domain' => null,
-                'field_mapping_values' => array()
+                'field_mapping_values' => array(),
+                'global_var' => 'global_value'
             ))
             ->will($this->returnValue(true));
 
