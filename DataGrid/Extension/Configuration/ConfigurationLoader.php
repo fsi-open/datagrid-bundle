@@ -69,9 +69,10 @@ class ConfigurationLoader
             $configuration['columns']
         );
 
+        $importedConfigs = $this->load($configuration, $contextBundle);
         $configs['columns'] = array_replace_recursive(
             $configs['columns'],
-            $this->load($configuration, $contextBundle)['columns']);
+            $importedConfigs['columns']);
         return $configs;
     }
 }
