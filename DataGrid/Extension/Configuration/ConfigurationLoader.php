@@ -45,7 +45,6 @@ class ConfigurationLoader
             }
         }
         unset($configs['imports']);
-
         return $configs;
     }
 

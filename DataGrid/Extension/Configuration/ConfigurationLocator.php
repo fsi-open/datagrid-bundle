@@ -30,16 +30,17 @@ class ConfigurationLocator
      */
     public function locate($config, BundleInterface $bundle)
     {
-        if (preg_match('/^\//', $config)) { //Load from global app config
+        if ($this->isGlobalConfig($config)) {
             return $this->getGlobalResourcePath($config);
-        } elseif (preg_match('/:/', $config)) { //Load from bundle
+        }
+
+        if ($this->isAnotherBundle($config)) {
             $bundleName = explode(':', $config);
             $fileName = end($bundleName);
-
             return $this->getBundleResourcePath($fileName, $bundle);
-        } else {
-            return $this->getBundleResourcePath($config, $bundle);
         }
+
+        return $this->getBundleResourcePath($config, $bundle);
     }
 
     /**
@@ -51,17 +52,13 @@ class ConfigurationLocator
      */
     public function getBundle($config, BundleInterface $contextBundle)
     {
-        if (preg_match('/:/', $config)) {
-            $configName = explode(':', $config);
-            $bundleName = reset($configName);
-            if ($bundle = $this->kernel->getBundle($bundleName)) {
-                return $bundle;
-            } else {
-                throw new \Exception(sprintf('%s cannot be found.', $bundleName));
-            }
-        } else {
+        if (!$this->isAnotherBundle($config)) {
             return $contextBundle;
         }
+
+        $configName = explode(':', $config);
+        $bundleName = reset($configName);
+        return $this->loadBundle($bundleName);
     }
 
     /**
@@ -94,5 +91,37 @@ class ConfigurationLocator
         } else {
             throw new FileNotFoundException($filePath);
         }
+    }
+
+    /**
+     * @param $bundleName
+     * @return BundleInterface
+     * @throws \Exception
+     */
+    private function loadBundle($bundleName)
+    {
+        if ($bundle = $this->kernel->getBundle($bundleName)) {
+            return $bundle;
+        } else {
+            throw new \Exception(sprintf('%s cannot be found.', $bundleName));
+        }
+    }
+
+    /**
+     * @param $config
+     * @return bool
+     */
+    private function isGlobalConfig($config)
+    {
+        return (boolean) preg_match('/^\//', $config);
+    }
+
+    /**
+     * @param $config
+     * @return bool
+     */
+    private function isAnotherBundle($config)
+    {
+        return (boolean) preg_match('/:/', $config);
     }
 }
