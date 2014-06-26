@@ -35,6 +35,7 @@ class ConfigurationLocator
         } elseif (preg_match('/:/', $config)) { //Load from bundle
             $bundleName = explode(':', $config);
             $fileName = end($bundleName);
+
             return $this->getBundleResourcePath($fileName, $bundle);
         } else {
             return $this->getBundleResourcePath($config, $bundle);
@@ -53,7 +54,7 @@ class ConfigurationLocator
         if (preg_match('/:/', $config)) {
             $configName = explode(':', $config);
             $bundleName = reset($configName);
-            if($bundle = $this->kernel->getBundle($bundleName)) {
+            if ($bundle = $this->kernel->getBundle($bundleName)) {
                 return $bundle;
             } else {
                 throw new \Exception(sprintf('%s cannot be found.', $bundleName));
@@ -88,7 +89,7 @@ class ConfigurationLocator
     protected function getBundleResourcePath($config, BundleInterface $bundle)
     {
         $filePath = sprintf("%s/Resources/config/datagrid/%s", $bundle->getPath(), $config);
-        if(is_file($filePath)) {
+        if (is_file($filePath)) {
             return $filePath;
         } else {
             throw new FileNotFoundException($filePath);

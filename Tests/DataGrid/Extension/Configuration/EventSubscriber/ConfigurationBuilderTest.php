@@ -182,21 +182,24 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
             ->with(
                 $this->equalTo('description'),
                 $this->equalTo('text'),
-                $this->equalTo(array('label' => 'Description')));
+                $this->equalTo(array('label' => 'Description'))
+            );
 
         $dataGrid->expects($this->at(2))
             ->method('addColumn')
             ->with(
                 $this->equalTo('author'),
                 $this->equalTo('text'),
-                $this->equalTo(array('label' => 'Author')));
+                $this->equalTo(array('label' => 'Author'))
+            );
 
         $dataGrid->expects($this->at(5))
             ->method('addColumn')
             ->with(
                 $this->equalTo('active'),
                 $this->equalTo('boolean'),
-                $this->equalTo(array('label' => 'Active')));
+                $this->equalTo(array('label' => 'Active'))
+            );
 
         $event = new DataGridEvent($dataGrid, array());
 
@@ -236,14 +239,16 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
             ->with(
                 $this->equalTo('id'),
                 $this->equalTo('number'),
-                $this->equalTo(array('label' => 'Identity')));
+                $this->equalTo(array('label' => 'Identity'))
+            );
 
         $dataGrid->expects($this->at(2))
             ->method('addColumn')
             ->with(
                 $this->equalTo('author'),
                 $this->equalTo('text'),
-                $this->equalTo(array('label' => 'Author')));
+                $this->equalTo(array('label' => 'Author'))
+            );
 
 
         $dataGrid->expects($this->at(3))
@@ -356,5 +361,4 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
 
         $this->subscriber->readConfiguration($event);
     }
-
 }

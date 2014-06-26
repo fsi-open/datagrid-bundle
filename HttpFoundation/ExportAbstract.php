@@ -69,5 +69,5 @@ abstract class ExportAbstract extends Response
     /**
      * @return ExportAbstract
      */
-    public abstract function setData();
+    abstract public function setData();
 }

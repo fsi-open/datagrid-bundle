@@ -31,12 +31,12 @@ class ConfigurationLoader
     }
 
     /**
-     * @param $configs
+     * @param array $configs
      * @param BundleInterface $bundle
      * @return array
      * @throws \Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException
      */
-    public function load($configs, BundleInterface $bundle)
+    public function load(array $configs, BundleInterface $bundle)
     {
         if (isset($configs['imports']) && is_array($configs['imports'])) {
             foreach ($configs['imports'] as $config) {
@@ -45,17 +45,18 @@ class ConfigurationLoader
             }
         }
         unset($configs['imports']);
+
         return $configs;
     }
 
     /**
-     * @param $configs
-     * @param $config
-     * @param $contextBundle
-     * @return mixed
+     * @param array $configs
+     * @param string $config
+     * @param BundleInterface $contextBundle
+     * @return array
      * @throws \Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException
      */
-    private function mergeConfigs($configs, $config, $contextBundle)
+    private function mergeConfigs($configs, $config, BundleInterface $contextBundle)
     {
         $resourcePath = $this->configurationLocator->locate($config['resource'], $contextBundle);
         $configuration = Yaml::parse($resourcePath);
@@ -69,10 +70,12 @@ class ConfigurationLoader
             $configuration['columns']
         );
 
-        $importedConfigs = $this->load($configuration, $contextBundle);
+        $importedConfiguration = $this->load($configuration, $contextBundle);
         $configs['columns'] = array_replace_recursive(
             $configs['columns'],
-            $importedConfigs['columns']);
+            $importedConfiguration['columns']
+        );
+
         return $configs;
     }
 }

@@ -34,7 +34,7 @@ class ConfigurationBuilder implements EventSubscriberInterface
      * @param KernelInterface $kernel
      * @param \FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationLoader $configurationLoader
      */
-    function __construct(KernelInterface $kernel, ConfigurationLoader $configurationLoader)
+    public function __construct(KernelInterface $kernel, ConfigurationLoader $configurationLoader)
     {
         $this->kernel = $kernel;
         $this->configurationLoader = $configurationLoader;
@@ -77,20 +77,31 @@ class ConfigurationBuilder implements EventSubscriberInterface
      */
     protected function hasDataGridConfiguration($bundlePath, $dataGridName)
     {
-        return file_exists(sprintf('%s/Resources/config/datagrid/%s.yml', $bundlePath, $dataGridName));
+        return file_exists(sprintf(
+            '%s/Resources/config/datagrid/%s.yml',
+            $bundlePath,
+            $dataGridName
+        ));
     }
 
     /**
-     * @param string $bundlePath
+     * @param \Symfony\Component\HttpKernel\Bundle\BundleInterface $bundle
      * @param string $dataGridName
+     * @internal param string $bundlePath
      * @return mixed
      */
     protected function getDataGridConfiguration(BundleInterface $bundle, $dataGridName)
     {
-        $config = Yaml::parse(sprintf('%s/Resources/config/datagrid/%s.yml', $bundle->getPath(), $dataGridName));
+        $config = Yaml::parse(sprintf(
+            '%s/Resources/config/datagrid/%s.yml',
+            $bundle->getPath(),
+            $dataGridName
+        ));
+
         if (isset($config['imports']) && $config['imports']) {
             $config = $this->configurationLoader->load($config, $bundle);
         }
+
         return $config;
     }
 
