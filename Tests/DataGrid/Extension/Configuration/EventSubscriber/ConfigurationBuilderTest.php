@@ -92,7 +92,7 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
             ->with($kernel->getRootDir() . '/app/config/datagrid/galleries.yml')
             ->will($this->returnValue($kernel->getRootDir() . '/app/config/datagrid/galleries.yml'));
 
-        $dataGrid->expects($this->at(2))
+        $dataGrid->expects($this->at(3))
             ->method('addColumn')
             ->with(
                 $this->equalTo('title'),
@@ -100,7 +100,7 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
                 $this->equalTo(array('label' => 'Title'))
             );
 
-        $dataGrid->expects($this->at(3))
+        $dataGrid->expects($this->at(2))
             ->method('addColumn')
             ->with(
                 $this->equalTo('author'),
@@ -154,7 +154,7 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
             ->method('getName')
             ->will($this->returnValue('another_bundle'));
 
-        $dataGrid->expects($this->at(2))
+        $dataGrid->expects($this->at(3))
             ->method('addColumn')
             ->with(
                 $this->equalTo('actions'),
@@ -184,25 +184,23 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
                 $this->equalTo('text'),
                 $this->equalTo(array('label' => 'Description')));
 
-        $dataGrid->expects($this->at(5))
+        $dataGrid->expects($this->at(2))
             ->method('addColumn')
             ->with(
                 $this->equalTo('author'),
                 $this->equalTo('text'),
                 $this->equalTo(array('label' => 'Author')));
 
-        $dataGrid->expects($this->at(3))
+        $dataGrid->expects($this->at(5))
             ->method('addColumn')
             ->with(
                 $this->equalTo('active'),
                 $this->equalTo('boolean'),
                 $this->equalTo(array('label' => 'Active')));
 
-
         $event = new DataGridEvent($dataGrid, array());
 
         $this->subscriber->readConfiguration($event);
-
     }
 
     public function testImportFromSameDirectory()
@@ -233,14 +231,14 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
             ->method('getName')
             ->will($this->returnValue('same_bundle'));
 
-        $dataGrid->expects($this->at(2))
+        $dataGrid->expects($this->at(4))
             ->method('addColumn')
             ->with(
                 $this->equalTo('id'),
                 $this->equalTo('number'),
                 $this->equalTo(array('label' => 'Identity')));
 
-        $dataGrid->expects($this->at(4))
+        $dataGrid->expects($this->at(2))
             ->method('addColumn')
             ->with(
                 $this->equalTo('author'),

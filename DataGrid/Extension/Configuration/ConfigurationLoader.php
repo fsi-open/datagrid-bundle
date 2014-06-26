@@ -38,29 +38,40 @@ class ConfigurationLoader
      */
     public function load($configs, BundleInterface $bundle)
     {
-        if (isset($configs['imports'])) {
-            foreach ($configs['imports'] as $k => $config) {
+        if (isset($configs['imports']) && is_array($configs['imports'])) {
+            foreach ($configs['imports'] as $config) {
                 $contextBundle = $this->configurationLocator->getBundle($config['resource'], $bundle);
-                $resourcePath = $this->configurationLocator->locate($config['resource'], $contextBundle);
-                $configuration = Yaml::parse($resourcePath);
-                if (is_array($configuration)) {
-                    if (isset($configuration['imports']) && is_array($configuration['imports'])) {
-                        $configuration = $this->load($configuration, $contextBundle);
-                    }
-                    $configs = array_replace_recursive(
-                        $configuration,
-                        $configs
-                    );
-                } else {
-                    throw new FileNotFoundException($resourcePath);
-                }
-
+                $configs = $this->mergeConfigs($configs, $config, $contextBundle);
             }
         }
         unset($configs['imports']);
         return $configs;
     }
 
+    /**
+     * @param $configs
+     * @param $config
+     * @param $contextBundle
+     * @return mixed
+     * @throws \Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException
+     */
+    private function mergeConfigs($configs, $config, $contextBundle)
+    {
+        $resourcePath = $this->configurationLocator->locate($config['resource'], $contextBundle);
+        $configuration = Yaml::parse($resourcePath);
 
+        if (!is_array($configuration)) {
+            throw new FileNotFoundException($resourcePath);
+        }
 
+        $configs['columns'] = array_replace_recursive(
+            $configs['columns'],
+            $configuration['columns']
+        );
+
+        $configs['columns'] = array_replace_recursive(
+            $configs['columns'],
+            $this->load($configuration, $contextBundle)['columns']);
+        return $configs;
+    }
 }

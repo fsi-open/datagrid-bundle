@@ -44,6 +44,7 @@ class ConfigurationLoaderTest extends \PHPUnit_Framework_TestCase
     {
 
         $configs = array(
+            'columns' => array(),
             'imports' => array(
                 array ('resource' => 'galleries.yml')
             )
