@@ -72,7 +72,7 @@ class ConfigurationLocatorTest extends \PHPUnit_Framework_TestCase
 
 
         $resourcePath = $this->configurationLocator->locate($configPath, $bundle);
-        $expectedPath = sprintf('%s/Resources/config/datagrid/%s', $bundle->getPath(), end(explode(":",$configPath)));
+        $expectedPath = sprintf('%s/Resources/config/datagrid/%s', $bundle->getPath(), 'galleries.yml');
 
         $this->assertEquals($expectedPath, $resourcePath);
     }

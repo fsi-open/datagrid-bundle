@@ -33,7 +33,8 @@ class ConfigurationLocator
         if (preg_match('/^\//', $config)) { //Load from global app config
             return $this->getGlobalResourcePath($config);
         } elseif (preg_match('/:/', $config)) { //Load from bundle
-            $fileName = end(explode(':', $config));
+            $bundleName = explode(':', $config);
+            $fileName = end($bundleName);
             return $this->getBundleResourcePath($fileName, $bundle);
         } else {
             return $this->getBundleResourcePath($config, $bundle);
@@ -50,7 +51,8 @@ class ConfigurationLocator
     public function getBundle($config, BundleInterface $contextBundle)
     {
         if (preg_match('/:/', $config)) {
-            $bundleName = reset(explode(':', $config));
+            $configName = explode(':', $config);
+            $bundleName = reset($configName);
             if($bundle = $this->kernel->getBundle($bundleName)) {
                 return $bundle;
             } else {
