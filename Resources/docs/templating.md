@@ -31,6 +31,16 @@ Of course you can use ``_self`` value as a theme file.
 ```
 From now datagrid_widget function will load themes for datagrid parts from current twig file.
 
+You can pass some additional variables that will available in context of each template block.
+
+```
+{% block body %}
+    {% datagrid_theme datagrid _self with {'user': app.user} %}
+
+    {# ... #}
+{% endblock %}
+```
+
 Ok so now simple example how to add header above datagrid, you need to know that datagrid
 is rendered as a table by default.
 
