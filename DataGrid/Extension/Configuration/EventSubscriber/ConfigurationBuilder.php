@@ -14,6 +14,7 @@ use FSi\Component\DataGrid\DataGridEventInterface;
 use FSi\Component\DataGrid\DataGridEvents;
 use FSi\Component\DataGrid\DataGridInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Yaml\Yaml;
 
@@ -57,7 +58,7 @@ class ConfigurationBuilder implements EventSubscriberInterface
 
         foreach ($this->kernel->getBundles() as $bundle) {
             if ($this->hasDataGridConfiguration($bundle->getPath(), $dataGrid->getName())) {
-                $configuration = $this->getDataGridConfiguration($bundle->getPath(), $dataGrid->getName());
+                $configuration = $this->getDataGridConfiguration($bundle, $dataGrid->getName());
                 if (is_array($configuration)) {
                     $dataGridConfiguration = $configuration;
                 }
@@ -84,11 +85,11 @@ class ConfigurationBuilder implements EventSubscriberInterface
      * @param string $dataGridName
      * @return mixed
      */
-    protected function getDataGridConfiguration($bundlePath, $dataGridName)
+    protected function getDataGridConfiguration(BundleInterface $bundle, $dataGridName)
     {
-        $config = Yaml::parse(sprintf('%s/Resources/config/datagrid/%s.yml', $bundlePath, $dataGridName));
+        $config = Yaml::parse(sprintf('%s/Resources/config/datagrid/%s.yml', $bundle->getPath(), $dataGridName));
         if (isset($config['imports']) && $config['imports']) {
-            $config = $this->importExternalResources($config, $bundlePath);
+            $config = $this->configurationLoader->load($config, $bundle);
         }
         return $config;
     }
@@ -109,16 +110,5 @@ class ConfigurationBuilder implements EventSubscriberInterface
 
             $dataGrid->addColumn($name, $type, $options);
         }
-    }
-
-    /**
-     * @param $configuration
-     * @param $bundlePath
-     * @throws
-     * @return array
-     */
-    protected function importExternalResources($configuration, $bundlePath)
-    {
-        return $this->configurationLoader->getConfig($configuration, $bundlePath);
     }
 }

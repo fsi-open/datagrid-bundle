@@ -1,15 +1,18 @@
 columns:
+  author:
+    type: text
+    options:
+      label: Author
   actions:
     type: action
     options:
       label: admin.gallery.datagrid.actions
       field_mapping: [ id ]
       actions:
-        activate:
-          route_name: fsi_admin_crud_edit
+        delete:
+          route_name: fsi_admin_crud_delete
           additional_parameters: { element: gallery }
           parameters_field_mapping: { id: id }
-  active:
-    type: boolean
-    options:
-      label: Active
+
+imports:
+  - { resource: galleries.yml }

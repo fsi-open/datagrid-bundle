@@ -40,11 +40,13 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
             array('__construct'),
             array($this->kernel)
         );
+
         $this->configurationLoader = $this->getMock(
             'FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationLoader',
             array('__construct'),
             array($this->kernel,$configurationLocator)
         );
+
         $this->subscriber = new ConfigurationBuilder($this->kernel, $this->configurationLoader);
     }
 
@@ -83,10 +85,9 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
 
         $dataGrid->expects($this->any())
             ->method('getName')
-            ->will($this->returnValue('admin_galleries'));
+            ->will($this->returnValue('global'));
 
-
-        $kernel->expects($this->at(6))
+        $kernel->expects($this->at(4))
             ->method('locateResource')
             ->with($kernel->getRootDir() . '/app/config/datagrid/galleries.yml')
             ->will($this->returnValue($kernel->getRootDir() . '/app/config/datagrid/galleries.yml'));
@@ -99,72 +100,14 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
                 $this->equalTo(array('label' => 'Title'))
             );
 
-        $event = new DataGridEvent($dataGrid, array());
-
-        $this->subscriber->readConfiguration($event);
-
-    }
-
-    public function testSecondImportFromAnotherBundle()
-    {
-        $self = $this;
-
-        $this->kernel->expects($this->once())
-            ->method('getBundles')
-            ->will($this->returnCallback(function () use ($self) {
-                $bundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
-                $bundle->expects($self->any())
-                    ->method('getPath')
-                    ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/FooBundle'));
-                return array($bundle);
-            }));
-
-        $kernel = $this->kernel;
-
-        $kernel->expects($this->any())
-            ->method('getRootDir')
-            ->will($this->returnValue(__DIR__ . '/../../../../Fixtures'));
-
-        $dataGrid = $this->getMockBuilder('FSi\Component\DataGrid\DataGrid')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $dataGrid->expects($this->any())
-            ->method('getName')
-            ->will($this->returnValue('admin_galleries'));
-
-        $kernel->expects($this->at(2))
-            ->method('locateResource')
-            ->with('@BarBundle:Resources/config/datagrid/galleries.yml')
-            ->will($this->returnValue($kernel->getRootDir() . '/BarBundle/Resources/config/datagrid/galleries.yml'));
-
-        $dataGrid->expects($this->at(2))
+        $dataGrid->expects($this->at(3))
             ->method('addColumn')
             ->with(
-                $this->equalTo('actions'),
-                $this->equalTo('action'),
-                array(
-                    'label' => 'admin.gallery.datagrid.actions',
-                    'field_mapping' => array('id'),
-                    'actions' => array(
-                        'edit' => array(
-                            'route_name' => 'fsi_admin_crud_edit',
-                            'additional_parameters' => array('element' => 'gallery'),
-                            'parameters_field_mapping' => array('id' => 'id')
-                        ),
-                        'delete' => array(
-                            'route_name' => 'fsi_admin_crud_delete',
-                            'additional_parameters' => array('element' => 'gallery'),
-                            'parameters_field_mapping' => array('id' => 'id')
-                        ),
-                        'activate' => array(
-                            'route_name' => 'fsi_admin_crud_edit',
-                            'additional_parameters' => array('element' => 'gallery'),
-                            'parameters_field_mapping' => array('id' => 'id')
-                        )
-                    )
-                )
+                $this->equalTo('author'),
+                $this->equalTo('text'),
+                $this->equalTo(array('label' => 'Author'))
             );
+
 
         $event = new DataGridEvent($dataGrid, array());
 
@@ -179,11 +122,12 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
         $this->kernel->expects($this->once())
             ->method('getBundles')
             ->will($this->returnCallback(function () use ($self) {
-                $bundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
-                $bundle->expects($self->any())
+                $fooBundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
+                $fooBundle->expects($self->any())
                     ->method('getPath')
                     ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/FooBundle'));
-                return array($bundle);
+
+                return array($fooBundle);
             }));
 
         $kernel = $this->kernel;
@@ -192,20 +136,25 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
             ->method('getRootDir')
             ->will($this->returnValue(__DIR__ . '/../../../../Fixtures'));
 
+        $barBundle = $this->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
+        $barBundle->expects($this->any())
+            ->method('getPath')
+            ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/BarBundle'));
+
+        $kernel->expects($this->once())
+            ->method('getBundle')
+            ->with('BarBundle')
+            ->will($this->returnValue($barBundle));
+
         $dataGrid = $this->getMockBuilder('FSi\Component\DataGrid\DataGrid')
             ->disableOriginalConstructor()
             ->getMock();
 
         $dataGrid->expects($this->any())
             ->method('getName')
-            ->will($this->returnValue('admin_galleries'));
+            ->will($this->returnValue('another_bundle'));
 
-        $kernel->expects($this->at(3))
-            ->method('locateResource')
-            ->with('@BarBundle:Resources/config/datagrid/admin_galleries.yml')
-            ->will($this->returnValue($kernel->getRootDir() . '/BarBundle/Resources/config/datagrid/admin_galleries.yml'));
-
-        $dataGrid->expects($this->at(4))
+        $dataGrid->expects($this->at(3))
             ->method('addColumn')
             ->with(
                 $this->equalTo('actions'),
@@ -214,7 +163,7 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
                     'label' => 'admin.gallery.datagrid.actions',
                     'field_mapping' => array('id'),
                     'actions' => array(
-                        'edit' => array(
+                        'activate' => array(
                             'route_name' => 'fsi_admin_crud_edit',
                             'additional_parameters' => array('element' => 'gallery'),
                             'parameters_field_mapping' => array('id' => 'id')
@@ -228,6 +177,27 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
                 )
             );
 
+        $dataGrid->expects($this->at(2))
+            ->method('addColumn')
+            ->with(
+                $this->equalTo('description'),
+                $this->equalTo('text'),
+                $this->equalTo(array('label' => 'Description')));
+
+        $dataGrid->expects($this->at(5))
+            ->method('addColumn')
+            ->with(
+                $this->equalTo('author'),
+                $this->equalTo('text'),
+                $this->equalTo(array('label' => 'Author')));
+
+        $dataGrid->expects($this->at(4))
+            ->method('addColumn')
+            ->with(
+                $this->equalTo('active'),
+                $this->equalTo('boolean'),
+                $this->equalTo(array('label' => 'Active')));
+
 
         $event = new DataGridEvent($dataGrid, array());
 
@@ -235,7 +205,7 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
 
     }
 
-    public function testImportFromInlineDirectory()
+    public function testImportFromSameDirectory()
     {
         $self = $this;
 
@@ -261,12 +231,7 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
 
         $dataGrid->expects($this->any())
             ->method('getName')
-            ->will($this->returnValue('galleries'));
-
-        $kernel->expects($this->any())
-            ->method('locateResource')
-            ->with(sprintf('%s/FooBundle/Resources/config/datagrid/galleries.yml', $kernel->getRootDir()))
-            ->will($this->returnValue($kernel->getRootDir() . '/FooBundle/Resources/config/datagrid/galleries.yml'));
+            ->will($this->returnValue('same_bundle'));
 
         $dataGrid->expects($this->at(2))
             ->method('addColumn')
@@ -274,6 +239,14 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
                 $this->equalTo('id'),
                 $this->equalTo('number'),
                 $this->equalTo(array('label' => 'Identity')));
+
+        $dataGrid->expects($this->at(4))
+            ->method('addColumn')
+            ->with(
+                $this->equalTo('author'),
+                $this->equalTo('text'),
+                $this->equalTo(array('label' => 'Author')));
+
 
         $dataGrid->expects($this->at(3))
             ->method('addColumn')
@@ -286,6 +259,11 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
                     'actions' => array(
                         'edit' => array(
                             'route_name' => 'fsi_admin_crud_edit',
+                            'additional_parameters' => array('element' => 'gallery'),
+                            'parameters_field_mapping' => array('id' => 'id')
+                        ),
+                        'delete' => array(
+                            'route_name' => 'fsi_admin_crud_delete',
                             'additional_parameters' => array('element' => 'gallery'),
                             'parameters_field_mapping' => array('id' => 'id')
                         )

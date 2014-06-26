@@ -2,6 +2,8 @@
 
 namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration;
 
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
+use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Yaml\Yaml;
 
@@ -23,17 +25,39 @@ class ConfigurationLocator
 
     /**
      * @param array $config
-     * @param $bundlePath
+     * @param $bundle
      * @return array
      */
-    public function localize($config, $bundlePath)
+    public function locate($config, BundleInterface $bundle)
     {
-        if (preg_match('/^\//', $config['resource'])) { //Load from global app config
-            return $this->getGlobalResourcePath($config['resource']);
-        } elseif (preg_match('/:/', $config['resource'])) { //Load from bundle
-            return $this->getBundleResourcePath($config['resource']);
+        if (preg_match('/^\//', $config)) { //Load from global app config
+            return $this->getGlobalResourcePath($config);
+        } elseif (preg_match('/:/', $config)) { //Load from bundle
+            $fileName = end(explode(':', $config));
+            return $this->getBundleResourcePath($fileName, $bundle);
         } else {
-            return $this->getInlineResourcePath($config['resource'], $bundlePath);
+            return $this->getBundleResourcePath($config, $bundle);
+        }
+    }
+
+    /**
+     * @param $config
+     * @param \Symfony\Component\HttpKernel\Bundle\BundleInterface $contextBundle
+     * @throws \Exception
+     * @internal param $contextPath
+     * @return string
+     */
+    public function getBundle($config, BundleInterface $contextBundle)
+    {
+        if (preg_match('/:/', $config)) {
+            $bundleName = reset(explode(':', $config));
+            if($bundle = $this->kernel->getBundle($bundleName)) {
+                return $bundle;
+            } else {
+                throw new \Exception(sprintf('%s cannot be found.', $bundleName));
+            }
+        } else {
+            return $contextBundle;
         }
     }
 
@@ -54,28 +78,18 @@ class ConfigurationLocator
 
     /**
      * @param $config
-     * @return array|string
-     * @throws
-     */
-    protected function getBundleResourcePath($config)
-    {
-        $bundle = explode(':', $config);
-        if (count($bundle) == 2) {
-            return $this->kernel->locateResource(
-                sprintf('@%s:Resources/config/datagrid/%s', $bundle[0], $bundle[1])
-            );
-        } else {
-            throw Exception('Invalid config path. It should looks like DemoBundle:config.yml');
-        }
-    }
-
-    /**
-     * @param $config
-     * @param $bundlePath
+     * @param \Symfony\Component\HttpKernel\Bundle\BundleInterface $bundle
+     * @throws \Symfony\Component\Filesystem\Exception\FileNotFoundException
+     * @internal param $bundlePath
      * @return string
      */
-    protected function getInlineResourcePath($config, $bundlePath)
+    protected function getBundleResourcePath($config, BundleInterface $bundle)
     {
-        return sprintf("%s/Resources/config/datagrid/%s", $bundlePath, $config);
+        $filePath = sprintf("%s/Resources/config/datagrid/%s", $bundle->getPath(), $config);
+        if(is_file($filePath)) {
+            return $filePath;
+        } else {
+            throw new FileNotFoundException($filePath);
+        }
     }
 }

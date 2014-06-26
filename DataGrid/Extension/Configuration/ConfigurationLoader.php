@@ -2,6 +2,8 @@
 
 namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration;
 
+use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
+use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Yaml\Yaml;
 
@@ -30,41 +32,44 @@ class ConfigurationLoader
 
     /**
      * @param array $configs
-     * @param $bundlePath
+     * @param \Symfony\Component\HttpKernel\Bundle\BundleInterface $bundle
      * @return array
      */
-    public function getConfig($configs, $bundlePath)
+    public function load($configs, BundleInterface $bundle)
     {
-
         if (isset($configs['imports'])) {
             foreach ($configs['imports'] as $k => $config) {
-                $resourcePath = $this->configurationLocator->localize($config, $bundlePath);
+                $contextBundle = $this->configurationLocator->getBundle($config['resource'], $bundle);
+                $resourcePath = $this->configurationLocator->locate($config['resource'], $contextBundle);
                 $configs = array_replace_recursive(
-                    $this->getImportedConfiguration($resourcePath, $bundlePath),
+                    $this->getImportedConfiguration($resourcePath, $contextBundle),
                     $configs
                 );
-                unset($configs[$k]);
             }
         }
+        unset($configs['imports']);
         return $configs;
     }
 
     /**
      * @param string $resourcePath
      * @param $bundlePath
+     * @throws \Exception
      * @return array
      */
     private function getImportedConfiguration($resourcePath, $bundlePath)
     {
-        if ($configuration = Yaml::parse($resourcePath)) {
+        $configuration = Yaml::parse($resourcePath);
+        if (is_array($configuration)) {
             if (isset($configuration['imports']) && is_array($configuration['imports'])) {
                 $configuration = array_replace_recursive(
                     $configuration,
-                    $this->getConfig($configuration, $bundlePath)
+                    $this->load($configuration, $bundlePath)
                 );
             }
             return $configuration;
+        } else {
+            throw new FileNotFoundException($resourcePath);
         }
-        return array();
     }
 }

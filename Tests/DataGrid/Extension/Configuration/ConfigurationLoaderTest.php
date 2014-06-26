@@ -42,15 +42,42 @@ class ConfigurationLoaderTest extends \PHPUnit_Framework_TestCase
 
     public function testImportConfig()
     {
-        $dataGrid = $this->getMockBuilder('FSi\Component\DataGrid\DataGrid')
-            ->disableOriginalConstructor()
-            ->getMock();
 
-        $dataGrid->expects($this->any())
-            ->method('getName')
-            ->will($this->returnValue('admin_galleries'));
+        $configs = array(
+            'imports' => array(
+                array ('resource' => 'galleries.yml')
+            )
+        );
 
-        $configs = array();
-        $this->configurationLoader->getConfig(array(),'');
+        $bundle = $this->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
+        $bundle->expects($this->any())
+            ->method('getPath')
+            ->will($this->returnValue(__DIR__ . '/../../../Fixtures/FooBundle'));
+
+        $configLoaded = $this->configurationLoader->load($configs, $bundle);
+        $expected = array(
+            'columns' => array(
+                'id' => array(
+                    'type' => 'number',
+                    'options' => array('label' => 'Identity')
+                ),
+                'actions' => array(
+                    'type' => 'action',
+                    'options' => array(
+                        'label' => 'admin.gallery.datagrid.actions',
+                        'field_mapping' => array('id'),
+                        'actions' => array(
+                            'edit' => array(
+                                'route_name' => 'fsi_admin_crud_edit',
+                                'additional_parameters' => array('element' => 'gallery'),
+                                'parameters_field_mapping' => array('id' => 'id')
+                            )
+                        )
+                    )
+                )
+            )
+        );
+
+        $this->assertEquals($expected, $configLoaded);
     }
 }

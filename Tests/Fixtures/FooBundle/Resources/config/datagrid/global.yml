@@ -1,0 +1,8 @@
+columns:
+  author:
+    type: text
+    options:
+      label: Author
+
+imports:
+  - { resource: "/app/config/datagrid/galleries.yml" }

@@ -15,7 +15,4 @@ columns:
           parameters_field_mapping: { id: id }
 
 imports:
-  - { resource: galleries.yml }
-  - { resource: "BarBundle:galleries.yml" }
   - { resource: "BarBundle:admin_galleries.yml" }
-  - { resource: "/app/config/datagrid/galleries.yml" }

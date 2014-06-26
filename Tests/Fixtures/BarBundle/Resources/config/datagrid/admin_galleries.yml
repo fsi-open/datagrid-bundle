@@ -3,3 +3,6 @@ columns:
     type: text
     options:
       label: Description
+
+imports:
+  - { resource: galleries.yml }

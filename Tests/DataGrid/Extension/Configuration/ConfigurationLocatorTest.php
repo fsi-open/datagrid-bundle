@@ -42,8 +42,53 @@ class ConfigurationLocatorTest extends \PHPUnit_Framework_TestCase
         $this->configurationLoader = new ConfigurationLoader($this->kernel, $this->configurationLocator);
     }
 
-    public function testLocalizeGlobalResource()
+    public function testLocateGlobalResource()
     {
-        $self = $this;
+        $this->kernel->expects($this->once())
+            ->method('locateResource')
+            ->with($this->kernel->getRootDir() . '/app/config/datagrid/galleries.yml')
+            ->will($this->returnValue($this->kernel->getRootDir() . '/app/config/datagrid/galleries.yml'));
+
+        $configPath = '/app/config/datagrid/galleries.yml';
+        $bundle = $this->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
+        $bundle->expects($this->any())
+            ->method('getPath')
+            ->will($this->returnValue(__DIR__ . '/../../../Fixtures/FooBundle'));
+
+        $resourcePath = $this->configurationLocator->locate($configPath, $bundle);
+        $globalPath = $this->kernel->getRootDir() . '/app/config/datagrid/galleries.yml';
+
+        $this->assertEquals($globalPath, $resourcePath);
+    }
+
+    public function testLocateBundleResource()
+    {
+        $configPath = 'BarBundle:galleries.yml';
+
+        $bundle = $this->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
+        $bundle->expects($this->any())
+            ->method('getPath')
+            ->will($this->returnValue(__DIR__ . '/../../../Fixtures/BarBundle'));
+
+
+        $resourcePath = $this->configurationLocator->locate($configPath, $bundle);
+        $expectedPath = sprintf('%s/Resources/config/datagrid/%s', $bundle->getPath(), end(explode(":",$configPath)));
+
+        $this->assertEquals($expectedPath, $resourcePath);
+    }
+
+    public function testLocateInlineResource()
+    {
+        $configPath = 'galleries.yml';
+
+        $bundle = $this->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
+        $bundle->expects($this->any())
+            ->method('getPath')
+            ->will($this->returnValue(__DIR__ . '/../../../Fixtures/FooBundle'));
+
+        $resourcePath = $this->configurationLocator->locate($configPath, $bundle);
+        $expectedPath = sprintf('%s/Resources/config/datagrid/%s', $bundle->getPath(), $configPath);
+
+        $this->assertEquals($expectedPath, $resourcePath);
     }
 }
