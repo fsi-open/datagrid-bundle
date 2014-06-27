@@ -27,7 +27,7 @@ class ConfigurationLocatorTest extends \PHPUnit_Framework_TestCase
      */
     protected $configurationLocator;
 
-    private function initConfigurationLoader($bundles = array())
+    private function initConfigurationLocator($bundles = array())
     {
         $this->kernel = new StubKernel($bundles);
         $this->configurationLocator = $this->getMock(
@@ -39,12 +39,12 @@ class ConfigurationLocatorTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->initConfigurationLoader(array('FooBundle','BarBundle'));
+        $this->initConfigurationLocator(array('FooBundle','BarBundle'));
     }
 
     public function testLocateGlobalResource()
     {
-        $this->initConfigurationLoader(array('FooBundle'));
+        $this->initConfigurationLocator(array('FooBundle'));
 
         $configPath = '/app/config/datagrid/galleries.yml';
         $bundle = $this->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
@@ -60,7 +60,7 @@ class ConfigurationLocatorTest extends \PHPUnit_Framework_TestCase
 
     public function testLocateBundleResource()
     {
-        $this->initConfigurationLoader(array('BarBundle'));
+        $this->initConfigurationLocator(array('BarBundle'));
 
         $configPath = 'BarBundle:galleries.yml';
 
@@ -78,7 +78,7 @@ class ConfigurationLocatorTest extends \PHPUnit_Framework_TestCase
 
     public function testLocateInlineResource()
     {
-        $this->initConfigurationLoader(array('FooBundle'));
+        $this->initConfigurationLocator(array('FooBundle'));
 
         $configPath = 'galleries.yml';
 
