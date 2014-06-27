@@ -129,7 +129,9 @@ $datagrid->addColumn('roles', 'collection');
 **Input**
 ```php
 $user = new User();
-$user->roles = array('admin','user','moderator');
+$user->addRole('admin');
+$user->addRole('moderator');
+$user->addRole('user');
 ```
 
 **Output**
