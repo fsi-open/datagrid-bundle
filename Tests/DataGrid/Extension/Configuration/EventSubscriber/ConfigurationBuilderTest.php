@@ -9,6 +9,7 @@
 
 namespace FSi\Bundle\DataGridBundle\Tests\DataGrid\Extension\Configuration\EventSubscriber;
 
+use FSi\Bundle\DataGridBundle\Tests\Double\StubKernel;
 use FSi\Component\DataGrid\DataGridEvent;
 use FSi\Component\DataGrid\DataGridEvents;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -32,9 +33,8 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
      */
     protected $subscriber;
 
-    public function setUp()
+    private function initConfigurationBuilder()
     {
-        $this->kernel = $this->getMock('Symfony\Component\HttpKernel\KernelInterface');
         $configurationLocator = $this->getMock(
             'FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationLocator',
             array('__construct'),
@@ -50,6 +50,12 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
         $this->subscriber = new ConfigurationBuilder($this->kernel, $this->configurationLoader);
     }
 
+    public function setUp()
+    {
+        $this->kernel = new StubKernel(array('FooBundle','BarBundle'));
+        $this->initConfigurationBuilder();
+    }
+
     public function testSubscribedEvents()
     {
         $this->assertEquals(
@@ -60,24 +66,6 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testImportFromGlobalConfig()
     {
-        $self = $this;
-
-        $this->kernel->expects($this->once())
-            ->method('getBundles')
-            ->will($this->returnCallback(function () use ($self) {
-                $bundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
-                $bundle->expects($self->any())
-                    ->method('getPath')
-                    ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/FooBundle'));
-                return array($bundle);
-            }));
-
-
-        $kernel = $this->kernel;
-
-        $kernel->expects($this->any())
-            ->method('getRootDir')
-            ->will($this->returnValue(__DIR__ . '/../../../../Fixtures'));
 
         $dataGrid = $this->getMockBuilder('FSi\Component\DataGrid\DataGrid')
             ->disableOriginalConstructor()
@@ -87,12 +75,7 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
             ->method('getName')
             ->will($this->returnValue('global'));
 
-        $kernel->expects($this->at(4))
-            ->method('locateResource')
-            ->with($kernel->getRootDir() . '/app/config/datagrid/galleries.yml')
-            ->will($this->returnValue($kernel->getRootDir() . '/app/config/datagrid/galleries.yml'));
-
-        $dataGrid->expects($this->at(3))
+        $dataGrid->expects($this->at(4))
             ->method('addColumn')
             ->with(
                 $this->equalTo('title'),
@@ -100,14 +83,13 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
                 $this->equalTo(array('label' => 'Title'))
             );
 
-        $dataGrid->expects($this->at(2))
+        $dataGrid->expects($this->at(3))
             ->method('addColumn')
             ->with(
                 $this->equalTo('author'),
                 $this->equalTo('text'),
                 $this->equalTo(array('label' => 'Author'))
             );
-
 
         $event = new DataGridEvent($dataGrid, array());
 
@@ -117,35 +99,6 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testImportFromAnotherBundle()
     {
-        $self = $this;
-
-        $this->kernel->expects($this->once())
-            ->method('getBundles')
-            ->will($this->returnCallback(function () use ($self) {
-                $fooBundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
-                $fooBundle->expects($self->any())
-                    ->method('getPath')
-                    ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/FooBundle'));
-
-                return array($fooBundle);
-            }));
-
-        $kernel = $this->kernel;
-
-        $kernel->expects($this->any())
-            ->method('getRootDir')
-            ->will($this->returnValue(__DIR__ . '/../../../../Fixtures'));
-
-        $barBundle = $this->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
-        $barBundle->expects($this->any())
-            ->method('getPath')
-            ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/BarBundle'));
-
-        $kernel->expects($this->once())
-            ->method('getBundle')
-            ->with('BarBundle')
-            ->will($this->returnValue($barBundle));
-
         $dataGrid = $this->getMockBuilder('FSi\Component\DataGrid\DataGrid')
             ->disableOriginalConstructor()
             ->getMock();
@@ -154,7 +107,7 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
             ->method('getName')
             ->will($this->returnValue('another_bundle'));
 
-        $dataGrid->expects($this->at(3))
+        $dataGrid->expects($this->at(4))
             ->method('addColumn')
             ->with(
                 $this->equalTo('actions'),
@@ -177,7 +130,7 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
                 )
             );
 
-        $dataGrid->expects($this->at(4))
+        $dataGrid->expects($this->at(5))
             ->method('addColumn')
             ->with(
                 $this->equalTo('description'),
@@ -185,7 +138,7 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
                 $this->equalTo(array('label' => 'Description'))
             );
 
-        $dataGrid->expects($this->at(2))
+        $dataGrid->expects($this->at(3))
             ->method('addColumn')
             ->with(
                 $this->equalTo('author'),
@@ -193,7 +146,7 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
                 $this->equalTo(array('label' => 'Author'))
             );
 
-        $dataGrid->expects($this->at(5))
+        $dataGrid->expects($this->at(6))
             ->method('addColumn')
             ->with(
                 $this->equalTo('active'),
@@ -208,23 +161,6 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testImportFromSameDirectory()
     {
-        $self = $this;
-
-        $this->kernel->expects($this->once())
-            ->method('getBundles')
-            ->will($this->returnCallback(function () use ($self) {
-                $bundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
-                $bundle->expects($self->any())
-                    ->method('getPath')
-                    ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/FooBundle'));
-                return array($bundle);
-            }));
-
-        $kernel = $this->kernel;
-
-        $kernel->expects($this->any())
-            ->method('getRootDir')
-            ->will($this->returnValue(__DIR__ . '/../../../../Fixtures'));
 
         $dataGrid = $this->getMockBuilder('FSi\Component\DataGrid\DataGrid')
             ->disableOriginalConstructor()
@@ -234,7 +170,7 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
             ->method('getName')
             ->will($this->returnValue('same_bundle'));
 
-        $dataGrid->expects($this->at(4))
+        $dataGrid->expects($this->at(5))
             ->method('addColumn')
             ->with(
                 $this->equalTo('id'),
@@ -242,7 +178,7 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
                 $this->equalTo(array('label' => 'Identity'))
             );
 
-        $dataGrid->expects($this->at(2))
+        $dataGrid->expects($this->at(3))
             ->method('addColumn')
             ->with(
                 $this->equalTo('author'),
@@ -251,7 +187,7 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
             );
 
 
-        $dataGrid->expects($this->at(3))
+        $dataGrid->expects($this->at(4))
             ->method('addColumn')
             ->with(
                 $this->equalTo('actions'),
@@ -283,17 +219,9 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testReadConfigurationFromOneBundle()
     {
-        $self = $this;
-        $this->kernel->expects($this->once())
-            ->method('getBundles')
-            ->will($this->returnCallback(function () use ($self) {
-                $bundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
-                $bundle->expects($self->any())
-                    ->method('getPath')
-                    ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/FooBundle'));
+        $this->kernel = new StubKernel(array('FooBundle'));
 
-                return array($bundle);
-            }));
+        $this->initConfigurationBuilder();
 
         $dataGrid = $this->getMockBuilder('FSi\Component\DataGrid\DataGrid')
             ->disableOriginalConstructor()
@@ -303,11 +231,9 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
             ->method('getName')
             ->will($this->returnValue('news'));
 
-
         $dataGrid->expects($this->at(2))
             ->method('addColumn')
             ->with('id', 'number', array('label' => 'Identity'));
-
 
         $event = new DataGridEvent($dataGrid, array());
 
@@ -316,25 +242,6 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testReadConfigurationFromManyBundles()
     {
-        $self = $this;
-        $this->kernel->expects($this->once())
-            ->method('getBundles')
-            ->will($this->returnCallback(function () use ($self) {
-                $fooBundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
-                $fooBundle->expects($self->any())
-                    ->method('getPath')
-                    ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/FooBundle'));
-
-                $barBundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
-                $barBundle->expects($self->any())
-                    ->method('getPath')
-                    ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/BarBundle'));
-                return array(
-                    $fooBundle,
-                    $barBundle
-                );
-            }));
-
         $dataGrid = $this->getMockBuilder('FSi\Component\DataGrid\DataGrid')
             ->disableOriginalConstructor()
             ->getMock();

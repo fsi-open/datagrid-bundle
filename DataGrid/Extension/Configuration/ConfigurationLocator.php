@@ -66,13 +66,18 @@ class ConfigurationLocator
      */
     protected function getGlobalResourcePath($config)
     {
-        return $this->kernel->locateResource(
-            sprintf(
-                '%s%s',
-                $this->kernel->getRootDir(),
-                $config
-            )
+        $fileName = sprintf(
+            '%s%s',
+            $this->kernel->getRootDir(),
+            $config
         );
+
+        if(!file_exists($fileName)) {
+            throw new FileNotFoundException($fileName);
+        }
+
+        return $fileName;
+
     }
 
     /**

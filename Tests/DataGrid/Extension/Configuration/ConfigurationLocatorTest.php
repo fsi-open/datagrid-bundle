@@ -10,6 +10,7 @@
 namespace FSi\Bundle\DataGridBundle\Tests\DataGrid\Extension\Configuration;
 
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationLoader;
+use FSi\Bundle\DataGridBundle\Tests\Double\StubKernel;
 use FSi\Component\DataGrid\DataGridEvent;
 use FSi\Component\DataGrid\DataGridEvents;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -26,28 +27,24 @@ class ConfigurationLocatorTest extends \PHPUnit_Framework_TestCase
      */
     protected $configurationLocator;
 
-    /**
-     * @var \FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationLoader
-     */
-    protected $configurationLoader;
-
-    public function setUp()
+    private function initConfigurationLoader($bundles = array())
     {
-        $this->kernel = $this->getMock('Symfony\Component\HttpKernel\KernelInterface');
+        $this->kernel = new StubKernel($bundles);
         $this->configurationLocator = $this->getMock(
             'FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationLocator',
             array('__construct'),
             array($this->kernel)
         );
-        $this->configurationLoader = new ConfigurationLoader($this->kernel, $this->configurationLocator);
+    }
+
+    public function setUp()
+    {
+        $this->initConfigurationLoader(array('FooBundle','BarBundle'));
     }
 
     public function testLocateGlobalResource()
     {
-        $this->kernel->expects($this->once())
-            ->method('locateResource')
-            ->with($this->kernel->getRootDir() . '/app/config/datagrid/galleries.yml')
-            ->will($this->returnValue($this->kernel->getRootDir() . '/app/config/datagrid/galleries.yml'));
+        $this->initConfigurationLoader(array('FooBundle'));
 
         $configPath = '/app/config/datagrid/galleries.yml';
         $bundle = $this->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
@@ -63,6 +60,8 @@ class ConfigurationLocatorTest extends \PHPUnit_Framework_TestCase
 
     public function testLocateBundleResource()
     {
+        $this->initConfigurationLoader(array('BarBundle'));
+
         $configPath = 'BarBundle:galleries.yml';
 
         $bundle = $this->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
@@ -79,6 +78,8 @@ class ConfigurationLocatorTest extends \PHPUnit_Framework_TestCase
 
     public function testLocateInlineResource()
     {
+        $this->initConfigurationLoader(array('FooBundle'));
+
         $configPath = 'galleries.yml';
 
         $bundle = $this->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');

@@ -10,6 +10,7 @@
 namespace FSi\Bundle\DataGridBundle\Tests\DataGrid\Extension\Configuration;
 
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationLoader;
+use FSi\Bundle\DataGridBundle\Tests\Double\StubKernel;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 class ConfigurationLoaderTest extends \PHPUnit_Framework_TestCase
@@ -31,7 +32,7 @@ class ConfigurationLoaderTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->kernel = $this->getMock('Symfony\Component\HttpKernel\KernelInterface');
+        $this->kernel = new StubKernel(array('FooBundle'));
         $this->configurationLocator = $this->getMock(
             'FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationLocator',
             array('__construct'),
@@ -50,12 +51,7 @@ class ConfigurationLoaderTest extends \PHPUnit_Framework_TestCase
             )
         );
 
-        $bundle = $this->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
-        $bundle->expects($this->any())
-            ->method('getPath')
-            ->will($this->returnValue(__DIR__ . '/../../../Fixtures/FooBundle'));
-
-        $configLoaded = $this->configurationLoader->load($configs, $bundle);
+        $configLoaded = $this->configurationLoader->load($configs, $this->kernel->getBundle('FooBundle'));
         $expected = array(
             'columns' => array(
                 'id' => array(
