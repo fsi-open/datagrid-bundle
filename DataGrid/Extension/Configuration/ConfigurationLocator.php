@@ -5,7 +5,6 @@ namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
-use Symfony\Component\Yaml\Yaml;
 
 class ConfigurationLocator
 {
@@ -86,11 +85,12 @@ class ConfigurationLocator
     protected function getBundleResourcePath($config, BundleInterface $bundle)
     {
         $filePath = sprintf("%s/Resources/config/datagrid/%s", $bundle->getPath(), $config);
-        if (is_file($filePath)) {
-            return $filePath;
-        } else {
+
+        if (!is_file($filePath)) {
             throw new FileNotFoundException($filePath);
         }
+
+        return $filePath;
     }
 
     /**
@@ -100,11 +100,11 @@ class ConfigurationLocator
      */
     private function loadBundle($bundleName)
     {
-        if ($bundle = $this->kernel->getBundle($bundleName)) {
-            return $bundle;
-        } else {
+        if (!($bundle = $this->kernel->getBundle($bundleName))) {
             throw new \Exception(sprintf('%s cannot be found.', $bundleName));
         }
+
+        return $bundle;
     }
 
     /**
