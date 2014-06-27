@@ -9,6 +9,7 @@
 
 namespace FSi\Bundle\DataGridBundle\Tests\DataGrid\Extension\Configuration\EventSubscriber;
 
+use FSi\Bundle\DataGridBundle\Tests\Double\KernelStub;
 use FSi\Component\DataGrid\DataGridEvent;
 use FSi\Component\DataGrid\DataGridEvents;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -16,43 +17,21 @@ use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\EventSubscriber\C
 
 class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
 {
-    /**
-     * @var KernelInterface
-     */
-    protected $kernel;
-
-    /**
-     * @var ConfigurationBuilder
-     */
-    protected $subscriber;
-
-    public function setUp()
-    {
-        $this->kernel = $this->getMock('Symfony\Component\HttpKernel\KernelInterface');
-        $this->subscriber = new ConfigurationBuilder($this->kernel);
-    }
-
     public function testSubscribedEvents()
     {
+        $kernel = new KernelStub(array('FooBundle', 'BarBundle'));
+        $subscriber = new ConfigurationBuilder($kernel);
+
         $this->assertEquals(
-            $this->subscriber->getSubscribedEvents(),
+            $subscriber->getSubscribedEvents(),
             array(DataGridEvents::PRE_SET_DATA => array('readConfiguration', 128))
         );
     }
 
     public function testReadConfigurationFromOneBundle()
     {
-        $self = $this;
-        $this->kernel->expects($this->once())
-            ->method('getBundles')
-            ->will($this->returnCallback(function() use ($self) {
-                $bundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
-                $bundle->expects($self->any())
-                    ->method('getPath')
-                    ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/FooBundle'));
-
-                return array($bundle);
-            }));
+        $kernel = new KernelStub(array('FooBundle'));
+        $subscriber = new ConfigurationBuilder($kernel);
 
         $dataGrid = $this->getMockBuilder('FSi\Component\DataGrid\DataGrid')
             ->disableOriginalConstructor()
@@ -68,29 +47,13 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
 
         $event = new DataGridEvent($dataGrid, array());
 
-        $this->subscriber->readConfiguration($event);
+        $subscriber->readConfiguration($event);
     }
 
     public function testReadConfigurationFromManyBundles()
     {
-        $self = $this;
-        $this->kernel->expects($this->once())
-            ->method('getBundles')
-            ->will($this->returnCallback(function() use ($self) {
-                $fooBundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
-                $fooBundle->expects($self->any())
-                    ->method('getPath')
-                    ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/FooBundle'));
-
-                $barBundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
-                $barBundle->expects($self->any())
-                    ->method('getPath')
-                    ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/BarBundle'));
-                return array(
-                    $fooBundle,
-                    $barBundle
-                );
-            }));
+        $kernel = new KernelStub(array('FooBundle', 'BarBundle'));
+        $subscriber = new ConfigurationBuilder($kernel);
 
         $dataGrid = $this->getMockBuilder('FSi\Component\DataGrid\DataGrid')
             ->disableOriginalConstructor()
@@ -115,6 +78,6 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
 
         $event = new DataGridEvent($dataGrid, array());
 
-        $this->subscriber->readConfiguration($event);
+        $subscriber->readConfiguration($event);
     }
 }
