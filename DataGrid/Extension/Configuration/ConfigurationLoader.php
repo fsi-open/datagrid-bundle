@@ -31,50 +31,50 @@ class ConfigurationLoader
     }
 
     /**
-     * @param array $configs
+     * @param array $configuration
      * @param BundleInterface $bundle
      * @return array
      * @throws \Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException
      */
-    public function load(array $configs, BundleInterface $bundle)
+    public function load(array $configuration, BundleInterface $bundle)
     {
-        if (isset($configs['imports']) && is_array($configs['imports'])) {
-            foreach ($configs['imports'] as $config) {
-                $contextBundle = $this->configurationLocator->getBundle($config['resource'], $bundle);
-                $configs = $this->mergeConfigs($configs, $config, $contextBundle);
+        if (isset($configuration['imports']) && is_array($configuration['imports'])) {
+            foreach ($configuration['imports'] as $import) {
+                $contextBundle = $this->configurationLocator->getBundleByResource($import['resource'], $bundle);
+                $configuration = $this->importResource($configuration, $import['resource'], $contextBundle);
             }
         }
-        unset($configs['imports']);
-        return $configs;
+        unset($configuration['imports']);
+        return $configuration;
     }
 
     /**
-     * @param array $configs
-     * @param string $config
+     * @param array $configuration
+     * @param string $resource
      * @param BundleInterface $contextBundle
      * @return array
      * @throws \Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException
      */
-    private function mergeConfigs($configs, $config, BundleInterface $contextBundle)
+    private function importResource($configuration, $resource, BundleInterface $contextBundle)
     {
-        $resourcePath = $this->configurationLocator->locate($config['resource'], $contextBundle);
-        $configuration = Yaml::parse($resourcePath);
+        $resourcePath = $this->configurationLocator->locateConfig($resource, $contextBundle);
+        $importedConfiguration = Yaml::parse($resourcePath);
 
-        if (!is_array($configuration)) {
+        if (!is_array($importedConfiguration)) {
             throw new FileNotFoundException($resourcePath);
         }
 
-        $configs['columns'] = array_replace_recursive(
-            $configs['columns'],
-            $configuration['columns']
-        );
-
-        $importedConfiguration = $this->load($configuration, $contextBundle);
-        $configs['columns'] = array_replace_recursive(
-            $configs['columns'],
+        $configuration['columns'] = array_replace_recursive(
+            $configuration['columns'],
             $importedConfiguration['columns']
         );
 
-        return $configs;
+        $nestedConfiguration = $this->load($importedConfiguration, $contextBundle);
+        $configuration['columns'] = array_replace_recursive(
+            $configuration['columns'],
+            $nestedConfiguration['columns']
+        );
+
+        return $configuration;
     }
 }

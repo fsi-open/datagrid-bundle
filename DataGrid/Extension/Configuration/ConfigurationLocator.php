@@ -23,48 +23,47 @@ class ConfigurationLocator
     }
 
     /**
-     * @param array $config
-     * @param $bundle
-     * @return array
+     * @param string $resource
+     * @param \Symfony\Component\HttpKernel\Bundle\BundleInterface $contextBundle
+     * @return string
      */
-    public function locate($config, BundleInterface $bundle)
+    public function locateConfig($resource, BundleInterface $contextBundle)
     {
-        if ($this->isGlobalConfig($config)) {
-            return $this->getGlobalResourcePath($config);
+        if ($this->isGlobalResource($resource)) {
+            return $this->getGlobalResourcePath($resource);
         }
 
-        if ($this->isAnotherBundle($config)) {
-            $bundleName = explode(':', $config);
+        if ($this->isBundleResource($resource)) {
+            $bundleName = explode(':', $resource);
             $fileName = end($bundleName);
-            return $this->getBundleResourcePath($fileName, $bundle);
+            return $this->getBundleResourcePath($fileName, $contextBundle);
         }
 
-        return $this->getBundleResourcePath($config, $bundle);
+        return $this->getBundleResourcePath($resource, $contextBundle);
     }
 
     /**
-     * @param $config
+     * @param string $resource
      * @param \Symfony\Component\HttpKernel\Bundle\BundleInterface $contextBundle
-     * @throws \Exception
-     * @internal param $contextPath
-     * @return string
+     * @return \Symfony\Component\HttpKernel\Bundle\BundleInterface
      */
-    public function getBundle($config, BundleInterface $contextBundle)
+    public function getBundleByResource($resource, BundleInterface $contextBundle)
     {
-        if (!$this->isAnotherBundle($config)) {
+        if (!$this->isBundleResource($resource)) {
             return $contextBundle;
         }
 
-        $configName = explode(':', $config);
+        $configName = explode(':', $resource);
         $bundleName = reset($configName);
-        return $this->loadBundle($bundleName);
+        return $this->kernel->getBundle($bundleName);
     }
 
     /**
-     * @param $config
-     * @return array|string
+     * @param string $config
+     * @return string
+     * @throws \Symfony\Component\Filesystem\Exception\FileNotFoundException
      */
-    protected function getGlobalResourcePath($config)
+    private function getGlobalResourcePath($config)
     {
         $fileName = sprintf(
             '%s%s',
@@ -77,19 +76,17 @@ class ConfigurationLocator
         }
 
         return $fileName;
-
     }
 
     /**
-     * @param $config
+     * @param string $resource
      * @param \Symfony\Component\HttpKernel\Bundle\BundleInterface $bundle
      * @throws \Symfony\Component\Filesystem\Exception\FileNotFoundException
-     * @internal param $bundlePath
      * @return string
      */
-    protected function getBundleResourcePath($config, BundleInterface $bundle)
+    private function getBundleResourcePath($resource, BundleInterface $bundle)
     {
-        $filePath = sprintf("%s/Resources/config/datagrid/%s", $bundle->getPath(), $config);
+        $filePath = sprintf("%s/Resources/config/datagrid/%s", $bundle->getPath(), $resource);
 
         if (!is_file($filePath)) {
             throw new FileNotFoundException($filePath);
@@ -99,34 +96,20 @@ class ConfigurationLocator
     }
 
     /**
-     * @param $bundleName
-     * @return BundleInterface
-     * @throws \Exception
+     * @param string $resource
+     * @return bool
      */
-    private function loadBundle($bundleName)
+    private function isGlobalResource($resource)
     {
-        if (!($bundle = $this->kernel->getBundle($bundleName))) {
-            throw new \Exception(sprintf('%s cannot be found.', $bundleName));
-        }
-
-        return $bundle;
+        return (boolean) preg_match('/^\//', $resource);
     }
 
     /**
-     * @param $config
+     * @param string $resource
      * @return bool
      */
-    private function isGlobalConfig($config)
+    private function isBundleResource($resource)
     {
-        return (boolean) preg_match('/^\//', $config);
-    }
-
-    /**
-     * @param $config
-     * @return bool
-     */
-    private function isAnotherBundle($config)
-    {
-        return (boolean) preg_match('/:/', $config);
+        return (boolean) preg_match('/:/', $resource);
     }
 }

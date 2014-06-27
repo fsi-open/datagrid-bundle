@@ -52,7 +52,7 @@ class ConfigurationLocatorTest extends \PHPUnit_Framework_TestCase
             ->method('getPath')
             ->will($this->returnValue(__DIR__ . '/../../../Fixtures/FooBundle'));
 
-        $resourcePath = $this->configurationLocator->locate($configPath, $bundle);
+        $resourcePath = $this->configurationLocator->locateConfig($configPath, $bundle);
         $globalPath = $this->kernel->getRootDir() . '/app/config/datagrid/galleries.yml';
 
         $this->assertEquals($globalPath, $resourcePath);
@@ -70,7 +70,7 @@ class ConfigurationLocatorTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(__DIR__ . '/../../../Fixtures/BarBundle'));
 
 
-        $resourcePath = $this->configurationLocator->locate($configPath, $bundle);
+        $resourcePath = $this->configurationLocator->locateConfig($configPath, $bundle);
         $expectedPath = sprintf('%s/Resources/config/datagrid/%s', $bundle->getPath(), 'galleries.yml');
 
         $this->assertEquals($expectedPath, $resourcePath);
@@ -80,15 +80,15 @@ class ConfigurationLocatorTest extends \PHPUnit_Framework_TestCase
     {
         $this->initConfigurationLocator(array('FooBundle'));
 
-        $configPath = 'galleries.yml';
+        $configFileName = 'galleries.yml';
 
         $bundle = $this->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
         $bundle->expects($this->any())
             ->method('getPath')
             ->will($this->returnValue(__DIR__ . '/../../../Fixtures/FooBundle'));
 
-        $resourcePath = $this->configurationLocator->locate($configPath, $bundle);
-        $expectedPath = sprintf('%s/Resources/config/datagrid/%s', $bundle->getPath(), $configPath);
+        $resourcePath = $this->configurationLocator->locateConfig($configFileName, $bundle);
+        $expectedPath = sprintf('%s/Resources/config/datagrid/%s', $bundle->getPath(), $configFileName);
 
         $this->assertEquals($expectedPath, $resourcePath);
     }
