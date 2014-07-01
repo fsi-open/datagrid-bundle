@@ -10,23 +10,29 @@
 namespace FSi\Bundle\DataGridBundle\Tests\Double;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-/**
- *
- * Class StubKernel
- * @package FSi\Bundle\DataGridBundle\Tests\Double
- * @author Michal Szczur <michal.szczur@fsi.pl>
- */
 class StubKernel implements KernelInterface
 {
+    /**
+     * @var array
+     */
     private $bundles;
 
-    public function __construct(array $bundles = array())
+    /**
+     * @var string
+     */
+    private $rootDir;
+
+    public function __construct($rootDir = '/../Fixtures')
     {
-        foreach($bundles as $bundle) {
-            $this->bundles[$bundle] = new StubBundle($bundle);
-        }
+        $this->rootDir = $rootDir;
+    }
+
+    public function injectBundle(BundleInterface $bundle)
+    {
+        $this->bundles[$bundle->getName()] = $bundle;
     }
 
     /**
@@ -42,7 +48,7 @@ class StubKernel implements KernelInterface
      */
     public function getRootDir()
     {
-        return __DIR__ . '/../Fixtures';
+        return $this->rootDir;
     }
 
     /**

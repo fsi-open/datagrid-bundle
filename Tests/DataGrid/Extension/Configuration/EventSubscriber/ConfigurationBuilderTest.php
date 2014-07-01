@@ -9,9 +9,18 @@
 
 namespace FSi\Bundle\DataGridBundle\Tests\DataGrid\Extension\Configuration\EventSubscriber;
 
+use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationLoader;
+use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationLocator;
+use FSi\Bundle\DataGridBundle\Tests\Double\StubBundle;
 use FSi\Bundle\DataGridBundle\Tests\Double\StubKernel;
+use FSi\Component\DataGrid\DataGrid;
 use FSi\Component\DataGrid\DataGridEvent;
 use FSi\Component\DataGrid\DataGridEvents;
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamContent;
+use org\bovigo\vfs\vfsStreamDirectory;
+use org\bovigo\vfs\vfsStreamFile;
+use org\bovigo\vfs\vfsStreamGlobTestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\KernelInterface;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\EventSubscriber\ConfigurationBuilder;
@@ -29,30 +38,29 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
     protected $configurationLoader;
 
     /**
+     * @var \org\bovigo\vfs\vfsStreamDirectory
+     */
+    protected $stream;
+
+    /**
      * @var ConfigurationBuilder
      */
     protected $subscriber;
 
     private function initConfigurationBuilder()
     {
-        $configurationLocator = $this->getMock(
-            'FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationLocator',
-            array('__construct'),
-            array($this->kernel)
-        );
-
-        $this->configurationLoader = $this->getMock(
-            'FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationLoader',
-            array('__construct'),
-            array($this->kernel,$configurationLocator)
-        );
-
+        $configurationLocator = new ConfigurationLocator($this->kernel);
+        $this->configurationLoader = new ConfigurationLoader($this->kernel, $configurationLocator);
         $this->subscriber = new ConfigurationBuilder($this->kernel, $this->configurationLoader);
     }
 
     public function setUp()
     {
-        $this->kernel = new StubKernel(array('FooBundle','BarBundle'));
+        $this->kernel = new StubKernel(sprintf("%s/Fixtures",sys_get_temp_dir()));
+        $this->kernel->injectBundle(new StubBundle('FooBundle', $this->kernel->getRootDir()));
+        $this->kernel->injectBundle(new StubBundle('BarBundle', $this->kernel->getRootDir()));
+        $this->stream = vfsStream::setup($this->kernel->getRootDir());
+
         $this->initConfigurationBuilder();
     }
 
@@ -66,7 +74,28 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testImportFromGlobalConfig()
     {
+        $configFile = <<<YML
+columns:
+  author:
+    type: text
+    options:
+      label: Author
 
+imports:
+  - { resource: "/app/config/datagrid/global.yml" }
+YML;
+        $global = <<<YML
+columns:
+  title:
+    type: text
+    options:
+      label: Title
+YML;
+
+        $bundleConfigPath = $this->createConfigFile('FooBundle/Resources/config/datagrid/bundle.yml', $configFile);
+        $globalConfigPath = $this->createConfigFile('app/config/datagrid/global.yml', $configFile);
+
+        /** @var DataGrid $dataGrid */
         $dataGrid = $this->getMockBuilder('FSi\Component\DataGrid\DataGrid')
             ->disableOriginalConstructor()
             ->getMock();
@@ -268,4 +297,26 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
 
         $this->subscriber->readConfiguration($event);
     }
+
+    private function createConfigFile($fileName, $content)
+    {
+        $path = sprintf("%s/%s", $this->kernel->getRootDir(), $fileName);
+        $dirName = dirname($path);
+
+        if (!$this->stream->hasChild($dirName)) {
+            $this->stream->removeChild($dirName);
+        }
+        $streamD = new vfsStreamDirectory($dirName);
+        $streamD->addChild(new vfsStreamFile($fileName));
+        $this->stream->addChild($streamD);
+
+        return $this->stream->getChild($path);
+    }
+
+
+    private static function thereIsAConfiguration($path, $content)
+    {
+
+    }
+
 }

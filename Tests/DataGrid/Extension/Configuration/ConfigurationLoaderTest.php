@@ -10,6 +10,8 @@
 namespace FSi\Bundle\DataGridBundle\Tests\DataGrid\Extension\Configuration;
 
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationLoader;
+use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationLocator;
+use FSi\Bundle\DataGridBundle\Tests\Double\StubBundle;
 use FSi\Bundle\DataGridBundle\Tests\Double\StubKernel;
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -32,12 +34,9 @@ class ConfigurationLoaderTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->kernel = new StubKernel(array('FooBundle'));
-        $this->configurationLocator = $this->getMock(
-            'FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationLocator',
-            array('__construct'),
-            array($this->kernel)
-        );
+        $this->kernel = new StubKernel(__DIR__.'/../../../Fixtures');
+        $this->kernel->injectBundle(new StubBundle('FooBundle', $this->kernel->getRootDir()));
+        $this->configurationLocator = new ConfigurationLocator($this->kernel);
         $this->configurationLoader = new ConfigurationLoader($this->kernel, $this->configurationLocator);
     }
 

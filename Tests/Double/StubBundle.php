@@ -12,12 +12,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
-/**
- *
- * Class StubKernel
- * @package FSi\Bundle\DataGridBundle\Tests\Double
- * @author Michal Szczur <michal.szczur@fsi.pl>
- */
 class StubBundle implements BundleInterface
 {
 
@@ -27,11 +21,17 @@ class StubBundle implements BundleInterface
     private $name;
 
     /**
+     * @var string
+     */
+    private $path;
+
+    /**
      * @param $name
      */
-    public function __construct($name)
+    public function __construct($name, $path)
     {
         $this->name = $name;
+        $this->path = $path;
     }
 
     /**
@@ -39,7 +39,7 @@ class StubBundle implements BundleInterface
      */
     public function getPath()
     {
-        return sprintf('%s/../Fixtures/%s', __DIR__, $this->name);
+        return sprintf('%s/%s',$this->path, $this->getName());
     }
 
     /**
