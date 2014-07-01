@@ -35,6 +35,16 @@ class StubKernel implements KernelInterface
         $this->bundles[$bundle->getName()] = $bundle;
     }
 
+    public function removeBundle(BundleInterface $bundle)
+    {
+        unset($this->bundles[$bundle->getName()]);
+    }
+
+    public function removeBundles()
+    {
+        $this->bundles = array();
+    }
+
     /**
      * {@inheritdoc}
      */

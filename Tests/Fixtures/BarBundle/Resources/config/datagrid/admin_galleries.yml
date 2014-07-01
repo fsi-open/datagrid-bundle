@@ -1,8 +1,0 @@
-columns:
-  description:
-    type: text
-    options:
-      label: Description
-
-imports:
-  - { resource: galleries.yml }

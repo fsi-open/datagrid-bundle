@@ -59,6 +59,7 @@ class ConfigurationBuilder implements EventSubscriberInterface
         foreach ($this->kernel->getBundles() as $bundle) {
             if ($this->hasDataGridConfiguration($bundle->getPath(), $dataGrid->getName())) {
                 $configuration = $this->getDataGridConfiguration($bundle, $dataGrid->getName());
+
                 if (is_array($configuration)) {
                     $dataGridConfiguration = $configuration;
                 }
@@ -77,7 +78,7 @@ class ConfigurationBuilder implements EventSubscriberInterface
      */
     protected function hasDataGridConfiguration($bundlePath, $dataGridName)
     {
-        return file_exists(sprintf(
+       return file_exists(sprintf(
             '%s/Resources/config/datagrid/%s.yml',
             $bundlePath,
             $dataGridName
@@ -101,6 +102,7 @@ class ConfigurationBuilder implements EventSubscriberInterface
         if (isset($config['imports']) && $config['imports']) {
             $config = $this->configurationLoader->load($config, $bundle);
         }
+
 
         return $config;
     }

@@ -18,10 +18,8 @@ use FSi\Component\DataGrid\DataGridEvent;
 use FSi\Component\DataGrid\DataGridEvents;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamContent;
-use org\bovigo\vfs\vfsStreamDirectory;
 use org\bovigo\vfs\vfsStreamFile;
-use org\bovigo\vfs\vfsStreamGlobTestCase;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
+use org\bovigo\vfs\vfsStreamWrapper;
 use Symfony\Component\HttpKernel\KernelInterface;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\EventSubscriber\ConfigurationBuilder;
 
@@ -56,12 +54,15 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->kernel = new StubKernel(sprintf("%s/Fixtures",sys_get_temp_dir()));
-        $this->kernel->injectBundle(new StubBundle('FooBundle', $this->kernel->getRootDir()));
-        $this->kernel->injectBundle(new StubBundle('BarBundle', $this->kernel->getRootDir()));
-        $this->stream = vfsStream::setup($this->kernel->getRootDir());
+        $this->stream = vfsStream::setup("Fixtures");
+        $this->kernel = new StubKernel($this->stream->url());
 
         $this->initConfigurationBuilder();
+    }
+
+    public function tearDown()
+    {
+        $this->stream = null;
     }
 
     public function testSubscribedEvents()
@@ -84,7 +85,7 @@ columns:
 imports:
   - { resource: "/app/config/datagrid/global.yml" }
 YML;
-        $global = <<<YML
+        $globalFile = <<<YML
 columns:
   title:
     type: text
@@ -92,8 +93,12 @@ columns:
       label: Title
 YML;
 
-        $bundleConfigPath = $this->createConfigFile('FooBundle/Resources/config/datagrid/bundle.yml', $configFile);
-        $globalConfigPath = $this->createConfigFile('app/config/datagrid/global.yml', $configFile);
+        $this->kernel->removeBundles();
+        $this->kernel->injectBundle(new StubBundle('FooBundle', $this->stream->url()));
+        $this->initConfigurationBuilder();
+
+        $this->createConfigFile('FooBundle/Resources/config/datagrid/bundle.yml', $configFile);
+        $this->createConfigFile('app/config/datagrid/global.yml', $globalFile);
 
         /** @var DataGrid $dataGrid */
         $dataGrid = $this->getMockBuilder('FSi\Component\DataGrid\DataGrid')
@@ -102,7 +107,70 @@ YML;
 
         $dataGrid->expects($this->any())
             ->method('getName')
-            ->will($this->returnValue('global'));
+            ->will($this->returnValue('bundle'));
+
+        $dataGrid->expects($this->at(3))
+            ->method('addColumn')
+            ->with(
+                $this->equalTo('title'),
+                $this->equalTo('text'),
+                $this->equalTo(array('label' => 'Title'))
+            );
+
+        $dataGrid->expects($this->at(2))
+            ->method('addColumn')
+            ->with(
+                $this->equalTo('author'),
+                $this->equalTo('text'),
+                $this->equalTo(array('label' => 'Author'))
+            );
+
+
+        $event = new DataGridEvent($dataGrid, array());
+
+        $this->subscriber->readConfiguration($event);
+
+    }
+
+    public function testImportFromAnotherBundle()
+    {
+
+        $fooBundleDatagridConfig = <<<YML
+columns:
+  author:
+    type: text
+    options:
+      label: Author
+
+imports:
+  - { resource: "BarBundle:news.yml" }
+YML;
+        $barBundleDatagridConfig = <<<YML
+columns:
+  title:
+    type: text
+    options:
+      label: Title
+YML;
+
+        $this->kernel->removeBundles();
+        $this->kernel->injectBundle(new StubBundle('FooBundle', $this->stream->url()));
+        $this->kernel->injectBundle(new StubBundle('BarBundle', $this->stream->url()));
+        $this->initConfigurationBuilder();
+
+        $this->createConfigFile('FooBundle/Resources/config/datagrid/news.yml', $fooBundleDatagridConfig);
+        $this->createConfigFile('BarBundle/Resources/config/datagrid/news.yml', $barBundleDatagridConfig);
+
+        $dataGrid = $this->getMockBuilder('FSi\Component\DataGrid\DataGrid')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $dataGrid->expects($this->at(0))
+            ->method('getName')
+            ->will($this->returnValue('news'));
+        $dataGrid->expects($this->at(1))
+            ->method('getName')
+            ->will($this->returnValue('news'));
 
         $dataGrid->expects($this->at(4))
             ->method('addColumn')
@@ -123,175 +191,60 @@ YML;
         $event = new DataGridEvent($dataGrid, array());
 
         $this->subscriber->readConfiguration($event);
-
-    }
-
-    public function testImportFromAnotherBundle()
-    {
-        $dataGrid = $this->getMockBuilder('FSi\Component\DataGrid\DataGrid')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $dataGrid->expects($this->any())
-            ->method('getName')
-            ->will($this->returnValue('another_bundle'));
-
-        $dataGrid->expects($this->at(4))
-            ->method('addColumn')
-            ->with(
-                $this->equalTo('actions'),
-                $this->equalTo('action'),
-                array(
-                    'label' => 'admin.gallery.datagrid.actions',
-                    'field_mapping' => array('id'),
-                    'actions' => array(
-                        'activate' => array(
-                            'route_name' => 'fsi_admin_crud_edit',
-                            'additional_parameters' => array('element' => 'gallery'),
-                            'parameters_field_mapping' => array('id' => 'id')
-                        ),
-                        'delete' => array(
-                            'route_name' => 'fsi_admin_crud_delete',
-                            'additional_parameters' => array('element' => 'gallery'),
-                            'parameters_field_mapping' => array('id' => 'id')
-                        ),
-                    )
-                )
-            );
-
-        $dataGrid->expects($this->at(5))
-            ->method('addColumn')
-            ->with(
-                $this->equalTo('description'),
-                $this->equalTo('text'),
-                $this->equalTo(array('label' => 'Description'))
-            );
-
-        $dataGrid->expects($this->at(3))
-            ->method('addColumn')
-            ->with(
-                $this->equalTo('author'),
-                $this->equalTo('text'),
-                $this->equalTo(array('label' => 'Author'))
-            );
-
-        $dataGrid->expects($this->at(6))
-            ->method('addColumn')
-            ->with(
-                $this->equalTo('active'),
-                $this->equalTo('boolean'),
-                $this->equalTo(array('label' => 'Active'))
-            );
-
-        $event = new DataGridEvent($dataGrid, array());
-
-        $this->subscriber->readConfiguration($event);
     }
 
     public function testImportFromSameDirectory()
     {
 
+        $authorConfig = <<<YML
+columns:
+  author:
+    type: text
+    options:
+      label: Author
+
+imports:
+  - { resource: "news_extended.yml" }
+YML;
+
+        $titleConfig = <<<YML
+columns:
+  title:
+    type: text
+    options:
+      label: Title
+YML;
+
+        $this->kernel->removeBundles();
+        $this->kernel->injectBundle(new StubBundle('FooBundle', $this->stream->url()));
+        $this->initConfigurationBuilder();
+
+        $this->createConfigFile('FooBundle/Resources/config/datagrid/news.yml', $authorConfig);
+        $this->createConfigFile('FooBundle/Resources/config/datagrid/news_extended.yml', $titleConfig);
+
         $dataGrid = $this->getMockBuilder('FSi\Component\DataGrid\DataGrid')
             ->disableOriginalConstructor()
             ->getMock();
 
         $dataGrid->expects($this->any())
             ->method('getName')
-            ->will($this->returnValue('same_bundle'));
-
-        $dataGrid->expects($this->at(5))
-            ->method('addColumn')
-            ->with(
-                $this->equalTo('id'),
-                $this->equalTo('number'),
-                $this->equalTo(array('label' => 'Identity'))
-            );
+            ->will($this->returnValue('news'));
 
         $dataGrid->expects($this->at(3))
+            ->method('addColumn')
+            ->with(
+                $this->equalTo('title'),
+                $this->equalTo('text'),
+                $this->equalTo(array('label' => 'Title'))
+            );
+
+        $dataGrid->expects($this->at(2))
             ->method('addColumn')
             ->with(
                 $this->equalTo('author'),
                 $this->equalTo('text'),
                 $this->equalTo(array('label' => 'Author'))
             );
-
-
-        $dataGrid->expects($this->at(4))
-            ->method('addColumn')
-            ->with(
-                $this->equalTo('actions'),
-                $this->equalTo('action'),
-                array(
-                    'label' => 'admin.gallery.datagrid.actions',
-                    'field_mapping' => array('id'),
-                    'actions' => array(
-                        'edit' => array(
-                            'route_name' => 'fsi_admin_crud_edit',
-                            'additional_parameters' => array('element' => 'gallery'),
-                            'parameters_field_mapping' => array('id' => 'id')
-                        ),
-                        'delete' => array(
-                            'route_name' => 'fsi_admin_crud_delete',
-                            'additional_parameters' => array('element' => 'gallery'),
-                            'parameters_field_mapping' => array('id' => 'id')
-                        )
-                    )
-                )
-            );
-
-
-        $event = new DataGridEvent($dataGrid, array());
-
-        $this->subscriber->readConfiguration($event);
-
-    }
-
-    public function testReadConfigurationFromOneBundle()
-    {
-        $this->kernel = new StubKernel(array('FooBundle'));
-
-        $this->initConfigurationBuilder();
-
-        $dataGrid = $this->getMockBuilder('FSi\Component\DataGrid\DataGrid')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $dataGrid->expects($this->any())
-            ->method('getName')
-            ->will($this->returnValue('news'));
-
-        $dataGrid->expects($this->at(2))
-            ->method('addColumn')
-            ->with('id', 'number', array('label' => 'Identity'));
-
-        $event = new DataGridEvent($dataGrid, array());
-
-        $this->subscriber->readConfiguration($event);
-    }
-
-    public function testReadConfigurationFromManyBundles()
-    {
-        $dataGrid = $this->getMockBuilder('FSi\Component\DataGrid\DataGrid')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $dataGrid->expects($this->any())
-            ->method('getName')
-            ->will($this->returnValue('news'));
-
-        // 0 - 3 getName() is called
-        $dataGrid->expects($this->at(4))
-            ->method('addColumn')
-            ->with('id', 'number', array('label' => 'ID'));
-
-        $dataGrid->expects($this->at(5))
-            ->method('addColumn')
-            ->with('title', 'text', array());
-
-        $dataGrid->expects($this->at(6))
-            ->method('addColumn')
-            ->with('author', 'text', array());
-
 
         $event = new DataGridEvent($dataGrid, array());
 
@@ -303,20 +256,13 @@ YML;
         $path = sprintf("%s/%s", $this->kernel->getRootDir(), $fileName);
         $dirName = dirname($path);
 
-        if (!$this->stream->hasChild($dirName)) {
-            $this->stream->removeChild($dirName);
+        if (!is_dir($dirName)) {
+            mkdir($dirName, 0777, true);
         }
-        $streamD = new vfsStreamDirectory($dirName);
-        $streamD->addChild(new vfsStreamFile($fileName));
-        $this->stream->addChild($streamD);
 
-        return $this->stream->getChild($path);
-    }
+        file_put_contents($path, $content);
 
-
-    private static function thereIsAConfiguration($path, $content)
-    {
-
+        return $path;
     }
 
 }
