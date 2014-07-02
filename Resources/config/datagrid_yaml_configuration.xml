@@ -21,7 +21,7 @@
         <service id="datagrid.subscriber.configuration.configuration_builder" class="%datagrid.subscriber.configuration.configuration_builder.class%">
             <tag name="datagrid.subscriber" alias="configuration.configuration_builder"/>
             <argument type="service" id="kernel" />
-            <argument type="service" id="datagrid.subscriber.configuration.resource_loader" />
+            <argument type="service" id="datagrid.subscriber.configuration.loader" />
         </service>
     </services>
 </container>
