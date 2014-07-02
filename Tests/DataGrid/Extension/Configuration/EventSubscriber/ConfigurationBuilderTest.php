@@ -1,7 +1,7 @@
 <?php
 
 /**
- * (c) Fabryka Stron Internetowych sp. z o.o <info@fsi.pl>
+ * (c) FSi sp. z o.o. <info@fsi.pl>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -109,27 +109,28 @@ YML;
             ->method('getName')
             ->will($this->returnValue('bundle'));
 
-        $dataGrid->expects($this->at(3))
-            ->method('addColumn')
-            ->with(
-                $this->equalTo('title'),
-                $this->equalTo('text'),
-                $this->equalTo(array('label' => 'Title'))
-            );
-
-        $dataGrid->expects($this->at(2))
-            ->method('addColumn')
-            ->with(
-                $this->equalTo('author'),
-                $this->equalTo('text'),
-                $this->equalTo(array('label' => 'Author'))
-            );
-
+        $dataGrid
+            ->expects($spyDataGrid = $this->any())
+            ->method('addColumn');
 
         $event = new DataGridEvent($dataGrid, array());
 
         $this->subscriber->readConfiguration($event);
 
+        $this->assertThereColumnExists($spyDataGrid->getInvocations(), array(
+            'title' => array(
+                'type' => 'text',
+                'options' => array(
+                    'label' => 'Title'
+                )
+            ),
+            'author' => array(
+                'type' => 'text',
+                'options' => array(
+                    'label' => 'Author'
+                )
+            )
+        ));
     }
 
     public function testImportFromAnotherBundle()
@@ -150,7 +151,7 @@ columns:
   title:
     type: text
     options:
-      label: Title
+      label: News Title
 YML;
 
         $this->kernel->removeBundles();
@@ -172,25 +173,28 @@ YML;
             ->method('getName')
             ->will($this->returnValue('news'));
 
-        $dataGrid->expects($this->at(4))
-            ->method('addColumn')
-            ->with(
-                $this->equalTo('title'),
-                $this->equalTo('text'),
-                $this->equalTo(array('label' => 'Title'))
-            );
-
-        $dataGrid->expects($this->at(3))
-            ->method('addColumn')
-            ->with(
-                $this->equalTo('author'),
-                $this->equalTo('text'),
-                $this->equalTo(array('label' => 'Author'))
-            );
+        $dataGrid
+            ->expects($spyDataGrid = $this->any())
+            ->method('addColumn');
 
         $event = new DataGridEvent($dataGrid, array());
 
         $this->subscriber->readConfiguration($event);
+
+        $this->assertThereColumnExists($spyDataGrid->getInvocations(), array(
+            'title' => array(
+                'type' => 'text',
+                'options' => array(
+                    'label' => 'News Title'
+                )
+            ),
+            'author' => array(
+                'type' => 'text',
+                'options' => array(
+                    'label' => 'Author'
+                )
+            )
+        ));
     }
 
     public function testImportFromSameDirectory()
@@ -230,27 +234,35 @@ YML;
             ->method('getName')
             ->will($this->returnValue('news'));
 
-        $dataGrid->expects($this->at(3))
-            ->method('addColumn')
-            ->with(
-                $this->equalTo('title'),
-                $this->equalTo('text'),
-                $this->equalTo(array('label' => 'Title'))
-            );
-
-        $dataGrid->expects($this->at(2))
-            ->method('addColumn')
-            ->with(
-                $this->equalTo('author'),
-                $this->equalTo('text'),
-                $this->equalTo(array('label' => 'Author'))
-            );
+        $dataGrid
+            ->expects($spyDataGrid = $this->any())
+            ->method('addColumn');
 
         $event = new DataGridEvent($dataGrid, array());
 
         $this->subscriber->readConfiguration($event);
+
+        $this->assertThereColumnExists($spyDataGrid->getInvocations(), array(
+            'title' => array(
+                'type' => 'text',
+                'options' => array(
+                    'label' => 'Title'
+                )
+            ),
+            'author' => array(
+                'type' => 'text',
+                'options' => array(
+                    'label' => 'Author'
+                )
+            )
+        ));
     }
 
+    /**
+     * @param string $fileName
+     * @param string $content
+     * @return string
+     */
     private function createConfigFile($fileName, $content)
     {
         $path = sprintf("%s/%s", $this->kernel->getRootDir(), $fileName);
@@ -265,4 +277,53 @@ YML;
         return $path;
     }
 
+    /**
+     * @param array $invocations
+     * @param array $configuration
+     * @throws \PHPUnit_Framework_AssertionFailedError
+     */
+    public static function assertThereColumnExists($invocations, $configuration)
+    {
+        foreach ($configuration as $columnName => $config) {
+            $error = true;
+            foreach ($invocations as $invocation) {
+                $error = self::columnExistInInvocation($invocation, $columnName, $config);
+                if (!$error) {
+                    break;
+                }
+            }
+
+            if ($error) {
+                throw new \PHPUnit_Framework_AssertionFailedError(
+                    sprintf(
+                        'Column %s does not exist.',
+                        $columnName
+                    )
+                );
+            }
+        }
+    }
+
+    /**
+     * @param object $invocation
+     * @param string $columnName
+     * @param array $columnOptions
+     * @return bool
+     */
+    public static function columnExistInInvocation($invocation, $columnName, $columnOptions)
+    {
+        $invocationColumnName = $invocation->parameters[0];
+        $invocationColumnType = $invocation->parameters[1];
+        $invocationColumnOptions = $invocation->parameters[2];
+
+        if (
+            $columnName == $invocationColumnName &&
+            $columnOptions['type'] == $invocationColumnType &&
+            $columnOptions['options'] == $invocationColumnOptions
+        ) {
+           return false;
+        }
+
+        return true;
+    }
 }
