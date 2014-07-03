@@ -9,16 +9,14 @@
 
 namespace FSi\Bundle\DataGridBundle\Tests\DataGrid\Extension\Configuration;
 
+use FSi\Bundle\DataGridBundle\DataGrid\DataGridTest;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationImporter;
-use FSi\Bundle\DataGridBundle\Tests\Double\StubBundle;
 use FSi\Bundle\DataGridBundle\Tests\Double\StubKernel;
-use FSi\Component\DataGrid\DataGridEvent;
-use Symfony\Component\Filesystem\Filesystem;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\EventSubscriber\ConfigurationBuilder;
 
-class ConfigurationImporterTest extends \PHPUnit_Framework_TestCase
+class ConfigurationImporterTest extends DataGridTest
 {
-    const FIXTURE_PATH = '/tmp/DataGridBundle';
+
     /**
      * @var \FSi\Bundle\DataGridBundle\Tests\Double\StubKernel
      */
@@ -86,6 +84,23 @@ class ConfigurationImporterTest extends \PHPUnit_Framework_TestCase
                 )
             )));
 
-        $this->importer->import($config);
+        $importedConfiguration = $this->importer->import($config);
+
+        $this->assertEquals($importedConfiguration, array(
+            'columns' => array(
+                'title' => array(
+                    'type' => 'text',
+                    'options' => array(
+                        'label' => 'Title'
+                    )
+                ),
+                'author' => array(
+                    'type' => 'text',
+                    'options' => array(
+                        'label' => 'Author'
+                    )
+                )
+            ),
+        ));
     }
 }

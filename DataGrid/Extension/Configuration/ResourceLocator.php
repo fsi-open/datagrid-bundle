@@ -52,7 +52,7 @@ class ResourceLocator
      */
     public function isBundleResource($resourceName)
     {
-        return boolval(preg_match("/:/", $resourceName));
+        return preg_match("/:/", $resourceName);
     }
 
     private function getGlobalResourcePath($resourceName)

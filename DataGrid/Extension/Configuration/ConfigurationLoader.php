@@ -57,6 +57,9 @@ class ConfigurationLoader
         return Yaml::parse($resourcePath);
     }
 
+    /**
+     * @param ConfigurationImporter $configurationImporter
+     */
     public function setConfiguratinImporter(ConfigurationImporter $configurationImporter)
     {
         $this->configurationImporter = $configurationImporter;

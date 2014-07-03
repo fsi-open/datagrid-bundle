@@ -9,15 +9,15 @@
 
 namespace FSi\Bundle\DataGridBundle\Tests\DataGrid\Extension\Configuration;
 
+use FSi\Bundle\DataGridBundle\DataGrid\DataGridTest;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationLoader;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationLocator;
 use FSi\Bundle\DataGridBundle\Tests\Double\StubBundle;
 use FSi\Bundle\DataGridBundle\Tests\Double\StubKernel;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-class ConfigurationLoaderTest extends \PHPUnit_Framework_TestCase
+class ConfigurationLoaderTest extends DataGridTest
 {
-    const FIXTURE_PATH = '/tmp/DataGridBundle';
 
     /**
      * @var KernelInterface
@@ -41,15 +41,51 @@ class ConfigurationLoaderTest extends \PHPUnit_Framework_TestCase
         $this->configurationImporter = $this->getMockBuilder('FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationImporter')
             ->disableOriginalConstructor()
             ->getMock();
+
+        $this->prepareFileSystem();
+
         $this->configurationLoader = new ConfigurationLoader($this->configurationImporter);
+    }
+
+    public function tearDown()
+    {
+        $this->destroyFileSystem();
     }
 
     public function testLoadConfig()
     {
-        $this->configurationLoader->load(sprintf(
+        $bundleConfig = <<<YML
+columns:
+  title:
+    type: text
+    options:
+      label: News Title
+YML;
+
+        $this->createConfigurationFile('BarBundle/Resources/config/datagrid/news.yml', $bundleConfig);
+
+        $parsedConfig = array(
+            'columns' => array(
+                'title' => array(
+                    'type' => 'text',
+                    'options' => array(
+                        'label' => 'News Title'
+                    )
+                )
+            )
+        );
+
+        $this->configurationImporter->expects($this->any())
+            ->method('import')
+            ->with($this->equalTo($parsedConfig))
+            ->will($this->returnValue($parsedConfig));
+
+        $loadedConfig = $this->configurationLoader->load(sprintf(
             '%s/BarBundle/Resources/config/datagrid/news.yml',
             $this->kernel->getRootDir()
         ));
+
+        $this->assertEquals($parsedConfig, $loadedConfig);
 
     }
 }

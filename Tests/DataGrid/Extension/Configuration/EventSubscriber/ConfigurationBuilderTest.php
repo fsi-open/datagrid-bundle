@@ -9,6 +9,7 @@
 
 namespace FSi\Bundle\DataGridBundle\Tests\DataGrid\Extension\Configuration\EventSubscriber;
 
+use FSi\Bundle\DataGridBundle\DataGrid\DataGridTest;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationImporter;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationLoader;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ResourceLocator;
@@ -16,22 +17,15 @@ use FSi\Bundle\DataGridBundle\Tests\Double\StubBundle;
 use FSi\Bundle\DataGridBundle\Tests\Double\StubKernel;
 use FSi\Component\DataGrid\DataGridEvent;
 use FSi\Component\DataGrid\DataGridEvents;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\KernelInterface;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\EventSubscriber\ConfigurationBuilder;
 
-class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
+class ConfigurationBuilderTest extends DataGridTest
 {
-    const FIXTURE_PATH = '/tmp/DataGridBundle';
     /**
      * @var KernelInterface
      */
     protected $kernel;
-
-    /**
-     * @var \Symfony\Component\Filesystem\Filesystem
-     */
-    protected $fileSystem;
 
     /**
      * @var ConfigurationBuilder
@@ -49,15 +43,14 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
         $configurationImporter = new ConfigurationImporter($configurationLoader, $resourceLocator);
         $configurationLoader->setConfiguratinImporter($configurationImporter);
 
-        $this->fileSystem = new Filesystem($this->kernel->getRootDir());
-        $this->fileSystem->mkdir($this->kernel->getRootDir());
+        $this->prepareFileSystem();
 
         $this->subscriber = new ConfigurationBuilder($this->kernel, $configurationLoader, $resourceLocator);
     }
 
     public function tearDown()
     {
-        $this->fileSystem->remove($this->kernel->getRootDir());
+        $this->destroyFileSystem();
     }
 
     public function testSubscribedEvents()
@@ -88,8 +81,8 @@ columns:
       label: News Title
 YML;
 
-        $this->createConfigFile('FooBundle/Resources/config/datagrid/news.yml', $fooBundleDatagridConfig);
-        $this->createConfigFile('BarBundle/Resources/config/datagrid/news.yml', $barBundleDatagridConfig);
+        $this->createConfigurationFile('FooBundle/Resources/config/datagrid/news.yml', $fooBundleDatagridConfig);
+        $this->createConfigurationFile('BarBundle/Resources/config/datagrid/news.yml', $barBundleDatagridConfig);
 
         $dataGrid = $this->getMockBuilder('FSi\Component\DataGrid\DataGrid')
             ->disableOriginalConstructor()
@@ -124,7 +117,6 @@ YML;
                 )
             )
         ));
-
     }
 
     public function testReadConfigurationFromGlobalConfig()
@@ -145,10 +137,8 @@ columns:
     options:
       label: News Title
 YML;
-
-
-        $this->createConfigFile('FooBundle/Resources/config/datagrid/foo_news.yml', $fooBundleDataGridConfig);
-        $this->createConfigFile('app/config/datagrid/news.yml', $globalDataGridConfig);
+        $this->createConfigurationFile('FooBundle/Resources/config/datagrid/foo_news.yml', $fooBundleDataGridConfig);
+        $this->createConfigurationFile('app/config/datagrid/news.yml', $globalDataGridConfig);
 
         $dataGrid = $this->getMockBuilder('FSi\Component\DataGrid\DataGrid')
             ->disableOriginalConstructor()
@@ -179,25 +169,6 @@ YML;
                 )
             )
         ));
-    }
-
-    /**
-     * @param string $fileName
-     * @param string $content
-     * @return string
-     */
-    private function createConfigFile($fileName, $content)
-    {
-        $path = sprintf("%s/%s", $this->kernel->getRootDir(), $fileName);
-        $dirName = dirname($path);
-
-        if (!is_dir($dirName)) {
-            mkdir($dirName, 0777, true);
-        }
-
-        file_put_contents($path, $content);
-
-        return $path;
     }
 
     /**
