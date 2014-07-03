@@ -9,17 +9,29 @@
 
 namespace FSi\Bundle\DataGridBundle\Tests\DataGrid\Extension\Configuration\EventSubscriber;
 
+use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationImporter;
+use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationLoader;
+use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ResourceLocator;
+use FSi\Bundle\DataGridBundle\Tests\Double\StubBundle;
+use FSi\Bundle\DataGridBundle\Tests\Double\StubKernel;
 use FSi\Component\DataGrid\DataGridEvent;
 use FSi\Component\DataGrid\DataGridEvents;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\KernelInterface;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\EventSubscriber\ConfigurationBuilder;
 
 class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
 {
+    const FIXTURE_PATH = '/tmp/DataGridBundle';
     /**
      * @var KernelInterface
      */
     protected $kernel;
+
+    /**
+     * @var \Symfony\Component\Filesystem\Filesystem
+     */
+    protected $fileSystem;
 
     /**
      * @var ConfigurationBuilder
@@ -28,8 +40,24 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->kernel = $this->getMock('Symfony\Component\HttpKernel\KernelInterface');
-        $this->subscriber = new ConfigurationBuilder($this->kernel);
+        $this->kernel = new StubKernel(self::FIXTURE_PATH);
+        $this->kernel->injectBundle(new StubBundle('BarBundle', $this->kernel->getRootDir()));
+        $this->kernel->injectBundle(new StubBundle('FooBundle', $this->kernel->getRootDir()));
+
+        $resourceLocator = new ResourceLocator($this->kernel, 'datagrid');
+        $configurationLoader = new ConfigurationLoader();
+        $configurationImporter = new ConfigurationImporter($configurationLoader, $resourceLocator);
+        $configurationLoader->setConfiguratinImporter($configurationImporter);
+
+        $this->fileSystem = new Filesystem($this->kernel->getRootDir());
+        $this->fileSystem->mkdir($this->kernel->getRootDir());
+
+        $this->subscriber = new ConfigurationBuilder($this->kernel, $configurationLoader, $resourceLocator);
+    }
+
+    public function tearDown()
+    {
+        $this->fileSystem->remove($this->kernel->getRootDir());
     }
 
     public function testSubscribedEvents()
@@ -40,81 +68,182 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testReadConfigurationFromOneBundle()
+    public function testReadConfigurationFromBundle()
     {
-        $self = $this;
-        $this->kernel->expects($this->once())
-            ->method('getBundles')
-            ->will($this->returnCallback(function() use ($self) {
-                $bundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
-                $bundle->expects($self->any())
-                    ->method('getPath')
-                    ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/FooBundle'));
+        $fooBundleDatagridConfig = <<<YML
+columns:
+  author:
+    type: text
+    options:
+      label: Author
 
-                return array($bundle);
-            }));
+imports:
+  - { resource: "BarBundle:news.yml" }
+YML;
+        $barBundleDatagridConfig = <<<YML
+columns:
+  title:
+    type: text
+    options:
+      label: News Title
+YML;
+
+        $this->createConfigFile('FooBundle/Resources/config/datagrid/news.yml', $fooBundleDatagridConfig);
+        $this->createConfigFile('BarBundle/Resources/config/datagrid/news.yml', $barBundleDatagridConfig);
 
         $dataGrid = $this->getMockBuilder('FSi\Component\DataGrid\DataGrid')
             ->disableOriginalConstructor()
             ->getMock();
 
-        $dataGrid->expects($this->any())
+        $event = new DataGridEvent($dataGrid, array());
+
+        $dataGrid->expects($this->at(0))
             ->method('getName')
             ->will($this->returnValue('news'));
 
-        $dataGrid->expects($this->once())
-            ->method('addColumn')
-            ->with('id', 'number', array('label' => 'Identity'));
+        $dataGrid->expects($this->at(1))
+            ->method('getName')
+            ->will($this->returnValue('news'));
 
-        $event = new DataGridEvent($dataGrid, array());
+        $dataGrid->expects($dataGridSpy = $this->any())
+            ->method('addColumn');
 
         $this->subscriber->readConfiguration($event);
+
+        $this->assertThereColumnExists($dataGridSpy->getInvocations(), array(
+            'title' => array(
+                'type' => 'text',
+                'options' => array(
+                    'label' => 'News Title'
+                )
+            ),
+            'author' => array(
+                'type' => 'text',
+                'options' => array(
+                    'label' => 'Author'
+                )
+            )
+        ));
+
     }
 
-    public function testReadConfigurationFromManyBundles()
+    public function testReadConfigurationFromGlobalConfig()
     {
-        $self = $this;
-        $this->kernel->expects($this->once())
-            ->method('getBundles')
-            ->will($this->returnCallback(function() use ($self) {
-                $fooBundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
-                $fooBundle->expects($self->any())
-                    ->method('getPath')
-                    ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/FooBundle'));
+        $fooBundleDataGridConfig = <<<YML
+columns:
+  author:
+    type: text
+    options:
+      label: Author
+imports:
+  - { resource: "news.yml" }
+YML;
+        $globalDataGridConfig = <<<YML
+columns:
+  title:
+    type: text
+    options:
+      label: News Title
+YML;
 
-                $barBundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
-                $barBundle->expects($self->any())
-                    ->method('getPath')
-                    ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/BarBundle'));
-                return array(
-                    $fooBundle,
-                    $barBundle
-                );
-            }));
+
+        $this->createConfigFile('FooBundle/Resources/config/datagrid/foo_news.yml', $fooBundleDataGridConfig);
+        $this->createConfigFile('app/config/datagrid/news.yml', $globalDataGridConfig);
 
         $dataGrid = $this->getMockBuilder('FSi\Component\DataGrid\DataGrid')
             ->disableOriginalConstructor()
             ->getMock();
 
-        $dataGrid->expects($this->any())
-            ->method('getName')
-            ->will($this->returnValue('news'));
-
-        // 0 - 3 getName() is called
-        $dataGrid->expects($this->at(4))
-            ->method('addColumn')
-            ->with('id', 'number', array('label' => 'ID'));
-
-        $dataGrid->expects($this->at(5))
-            ->method('addColumn')
-            ->with('title', 'text', array());
-
-        $dataGrid->expects($this->at(6))
-            ->method('addColumn')
-            ->with('author', 'text', array());
-
         $event = new DataGridEvent($dataGrid, array());
 
+        $dataGrid->expects($this->any())
+            ->method('getName')
+            ->will($this->returnValue('foo_news'));
+
+        $dataGrid->expects($dataGridSpy = $this->any())
+            ->method('addColumn');
+
         $this->subscriber->readConfiguration($event);
+
+        $this->assertThereColumnExists($dataGridSpy->getInvocations(), array(
+            'title' => array(
+                'type' => 'text',
+                'options' => array(
+                    'label' => 'News Title'
+                )
+            ),
+            'author' => array(
+                'type' => 'text',
+                'options' => array(
+                    'label' => 'Author'
+                )
+            )
+        ));
+    }
+
+    /**
+     * @param string $fileName
+     * @param string $content
+     * @return string
+     */
+    private function createConfigFile($fileName, $content)
+    {
+        $path = sprintf("%s/%s", $this->kernel->getRootDir(), $fileName);
+        $dirName = dirname($path);
+
+        if (!is_dir($dirName)) {
+            mkdir($dirName, 0777, true);
+        }
+
+        file_put_contents($path, $content);
+
+        return $path;
+    }
+
+    /**
+     * @param array $invocations
+     * @param array $configuration
+     * @throws \PHPUnit_Framework_AssertionFailedError
+     */
+    public static function assertThereColumnExists($invocations, $configuration)
+    {
+        foreach ($configuration as $columnName => $config) {
+            $error = true;
+            foreach ($invocations as $invocation) {
+                if (self::columnExistInInvocation($invocation, $columnName, $config)) {
+                    $error = false;
+                    break;
+                }
+            }
+            if ($error) {
+                throw new \PHPUnit_Framework_AssertionFailedError(
+                    sprintf(
+                        'Column %s does not exist.',
+                        $columnName
+                    )
+                );
+            }
+        }
+    }
+
+    /**
+     * @param object $invocation
+     * @param string $columnName
+     * @param array $columnOptions
+     * @return bool
+     */
+    public static function columnExistInInvocation($invocation, $columnName, $columnOptions)
+    {
+        $invocationColumnName = $invocation->parameters[0];
+        $invocationColumnType = $invocation->parameters[1];
+        $invocationColumnOptions = $invocation->parameters[2];
+
+        if ($columnName == $invocationColumnName ) {
+            self::assertEquals($columnOptions['type'], $invocationColumnType);
+            self::assertEquals($columnOptions['options'], $invocationColumnOptions);
+            return true;
+        }
+
+        return false;
     }
 }
