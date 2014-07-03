@@ -41,6 +41,10 @@ class ConfigurationLoader
         }
         $dataGridConfiguration = $this->parse($resourcePath);
 
+        if (!$this->configurationImporter) {
+            return $dataGridConfiguration;
+        }
+
         return $this->configurationImporter->import($dataGridConfiguration);
     }
 
@@ -55,9 +59,7 @@ class ConfigurationLoader
 
     public function setConfiguratinImporter(ConfigurationImporter $configurationImporter)
     {
-        if (!$this->configurationImporter) {
-            $this->configurationImporter = $configurationImporter;
-        }
+        $this->configurationImporter = $configurationImporter;
     }
 
 }

@@ -75,7 +75,7 @@ class ConfigurationBuilder implements EventSubscriberInterface
      * @param \FSi\Component\DataGrid\DataGridInterface $dataGrid
      * @return string
      */
-    public function getBundleResourcePath(BundleInterface $bundle, DataGridInterface $dataGrid)
+    private function getBundleResourcePath(BundleInterface $bundle, DataGridInterface $dataGrid)
     {
         return sprintf(
             "%s:%s.yml",
