@@ -40,7 +40,6 @@ class ConfigurationLoader
             return array();
         }
         $dataGridConfiguration = $this->parse($resourcePath);
-
         if (!$this->configurationImporter) {
             return $dataGridConfiguration;
         }

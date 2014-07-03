@@ -19,7 +19,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 class ResourceLocatorTest extends \PHPUnit_Framework_TestCase
 {
-    const FIXTURE_PATH = '/tmp/DataGridBundle';
+    const FIXTURE_PATH = '/tmp/DataGridBundle/app';
     /**
      * @var KernelInterface
      */
@@ -44,7 +44,7 @@ class ResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             $resourcePath,
-            sprintf("%s/app/config/datagrid/news.yml", $this->kernel->getRootDir())
+            sprintf("%s/config/datagrid/news.yml", $this->kernel->getRootDir())
         );
     }
 

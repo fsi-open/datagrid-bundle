@@ -64,8 +64,14 @@ class ConfigurationBuilder implements EventSubscriberInterface
         $dataGrid = $event->getDataGrid();
         $dataGridConfiguration = array();
         foreach ($this->kernel->getBundles() as $bundle) {
+
+
             $resourcePath = $this->resourceLocator->locate($this->getBundleResourcePath($bundle, $dataGrid));
-            $dataGridConfiguration = $this->configurationLoader->load($resourcePath);
+            $configuration = $this->configurationLoader->load($resourcePath);
+
+            if(is_array($configuration) && !empty($configuration)) {
+                $dataGridConfiguration = $configuration;
+            }
         }
 
         if (count($dataGridConfiguration)) {

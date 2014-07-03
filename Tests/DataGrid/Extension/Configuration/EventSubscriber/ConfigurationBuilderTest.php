@@ -137,7 +137,7 @@ columns:
       label: News Title
 YML;
         $this->createConfigurationFile('FooBundle/Resources/config/datagrid/foo_news.yml', $fooBundleDataGridConfig);
-        $this->createConfigurationFile('app/config/datagrid/news.yml', $globalDataGridConfig);
+        $this->createConfigurationFile('config/datagrid/news.yml', $globalDataGridConfig);
 
         $dataGrid = $this->getMockBuilder('FSi\Component\DataGrid\DataGrid')
             ->disableOriginalConstructor()

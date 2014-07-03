@@ -58,7 +58,7 @@ class ResourceLocator
     private function getGlobalResourcePath($resourceName)
     {
         return sprintf(
-            "%s/app/config/%s/%s",
+            "%s/config/%s/%s",
             $this->kernel->getRootDir(),
             $this->configPath,
             $resourceName
