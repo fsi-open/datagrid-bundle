@@ -9,6 +9,7 @@
 
 namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\EventSubscriber;
 
+use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationImporter;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationLoader;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ResourceLocator;
 use FSi\Component\DataGrid\DataGridEventInterface;
@@ -38,11 +39,13 @@ class ConfigurationBuilder implements EventSubscriberInterface
     function __construct(
         KernelInterface $kernel,
         ConfigurationLoader $configurationLoader,
+        ConfigurationImporter $configurationImporter,
         ResourceLocator $resourceLocator
     ) {
         $this->kernel = $kernel;
         $this->configurationLoader = $configurationLoader;
         $this->resourceLocator = $resourceLocator;
+        $this->configurationLoader->setConfiguratinImporter($configurationImporter);
     }
 
     /**

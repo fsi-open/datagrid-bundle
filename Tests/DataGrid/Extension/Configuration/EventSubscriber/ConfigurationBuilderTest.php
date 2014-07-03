@@ -42,10 +42,9 @@ class ConfigurationBuilderTest extends DataGridTest
         $configurationLoader = new ConfigurationLoader();
         $configurationImporter = new ConfigurationImporter($configurationLoader, $resourceLocator);
         $configurationLoader->setConfiguratinImporter($configurationImporter);
-
         $this->prepareFileSystem();
 
-        $this->subscriber = new ConfigurationBuilder($this->kernel, $configurationLoader, $resourceLocator);
+        $this->subscriber = new ConfigurationBuilder($this->kernel, $configurationLoader, $configurationImporter, $resourceLocator);
     }
 
     public function tearDown()

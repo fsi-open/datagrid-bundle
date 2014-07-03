@@ -20,13 +20,13 @@
             <argument type="service" id="datagrid.subscriber.configuration.configuration_loader"/>
             <argument type="service" id="datagrid.subscriber.configuration.resource_locator"/>
         </service>
-        <service id="datagrid.subscriber.configuration.configuration_loader" class="%datagrid.subscriber.configuration.configuration_loader.class%">
-            <argument type="service" id="datagrid.subscriber.configuration.configuration_importer"/>
-        </service>
+        <service id="datagrid.subscriber.configuration.configuration_loader" class="%datagrid.subscriber.configuration.configuration_loader.class%"/>
         <service id="datagrid.subscriber.configuration.configuration_builder" class="%datagrid.subscriber.configuration.configuration_builder.class%">
-            <argument type="service" id="datagrid.subscriber.configuration.resource_locator"/>
             <tag name="datagrid.subscriber" alias="configuration.configuration_builder"/>
             <argument type="service" id="kernel" />
+            <argument type="service" id="datagrid.subscriber.configuration.configuration_loader"/>
+            <argument type="service" id="datagrid.subscriber.configuration.configuration_importer"/>
+            <argument type="service" id="datagrid.subscriber.configuration.resource_locator"/>
         </service>
     </services>
 </container>
