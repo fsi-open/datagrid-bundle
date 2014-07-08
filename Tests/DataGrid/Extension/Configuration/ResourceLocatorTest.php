@@ -40,7 +40,7 @@ class ResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
     public function testLocateGlobalResource()
     {
-        $resourcePath = $this->resourceLocator->locate('news.yml');
+        $resourcePath = $this->resourceLocator->locateByResourcePath('news.yml');
 
         $this->assertEquals(
             $resourcePath,
@@ -51,7 +51,11 @@ class ResourceLocatorTest extends \PHPUnit_Framework_TestCase
     public function testLocateBundleResource()
     {
         $this->kernel->injectBundle(new StubBundle('BarBundle', $this->kernel->getRootDir()));
-        $resourcePath = $this->resourceLocator->locate('BarBundle:news.yml');
+
+        $resourcePath = $this->resourceLocator->locateByBundle(
+            $this->kernel->getBundle('BarBundle'),
+            'news.yml'
+        );
 
         $this->assertEquals(
             $resourcePath,

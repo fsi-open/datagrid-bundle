@@ -66,13 +66,13 @@ class ConfigurationImporterTest extends DataGridTest
         );
 
         $this->resourceLocator->expects($this->once())
-            ->method('locate')
+            ->method('locateByResourcePath')
             ->with($this->equalTo('BarBundle:news.yml'))
-            ->will($this->returnValue('/tmp/DataGridBundle/BarBundle/Resources/config/datagrid/news.yml'));
+            ->will($this->returnValue(sprintf('%s/BarBundle/Resources/config/datagrid/news.yml', self::FIXTURE_PATH)));
 
         $this->configurationLoader->expects($this->once())
             ->method('load')
-            ->with($this->equalTo('/tmp/DataGridBundle/BarBundle/Resources/config/datagrid/news.yml'))
+            ->with($this->equalTo(sprintf('%s/BarBundle/Resources/config/datagrid/news.yml', self::FIXTURE_PATH)))
             ->will($this->returnValue(array(
                 'columns' => array(
                     'author' => array(

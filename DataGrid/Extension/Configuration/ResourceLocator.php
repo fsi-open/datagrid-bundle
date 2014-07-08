@@ -2,6 +2,7 @@
 
 namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration;
 
+use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 class ResourceLocator
@@ -26,35 +27,47 @@ class ResourceLocator
         $this->configPath = $configPath;
     }
 
-    public function locate($resourceName)
+    /**
+     * @param string $resourceName
+     * @return string
+     */
+    public function locateByResourcePath($resourceName)
     {
-        if ($this->isGlobal($resourceName)) {
-            return $this->getGlobalResourcePath($resourceName);
-        }
-
         if ($this->isBundleResource($resourceName)) {
             return $this->getBundleResourcePath($resourceName);
         }
+
+        return $this->getGlobalResourcePath($resourceName);
     }
 
     /**
-     * @param string $resourceName
-     * @return bool
+     * @param BundleInterface $bundle
+     * @param string $fileName
+     * @return string
      */
-    public function isGlobal($resourceName)
+    public function locateByBundle(BundleInterface $bundle, $fileName)
     {
-        return !preg_match("/:/", $resourceName);
+        return sprintf(
+            "%s/Resources/config/%s/%s",
+            $bundle->getPath(),
+            $this->configPath,
+            $fileName
+        );
     }
 
-    /**
+        /**
      * @param string $resourceName
      * @return boolean
      */
-    public function isBundleResource($resourceName)
+    private function isBundleResource($resourceName)
     {
         return preg_match("/:/", $resourceName);
     }
 
+    /**
+     * @param string $resourceName
+     * @return string
+     */
     private function getGlobalResourcePath($resourceName)
     {
         return sprintf(
@@ -65,13 +78,15 @@ class ResourceLocator
         );
     }
 
+    /**
+     * @param string $resourceName
+     * @return string
+     */
     private function getBundleResourcePath($resourceName)
     {
         list($bundleName, $fileName) = explode(':', $resourceName);
-
         $bundle = $this->kernel->getBundle($bundleName);
 
-        return sprintf("%s/Resources/config/datagrid/%s", $bundle->getPath(), $fileName);
+        return $this->locateByBundle($bundle, $fileName);
     }
-
 }

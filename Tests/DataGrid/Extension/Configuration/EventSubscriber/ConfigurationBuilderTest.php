@@ -89,11 +89,7 @@ YML;
 
         $event = new DataGridEvent($dataGrid, array());
 
-        $dataGrid->expects($this->at(0))
-            ->method('getName')
-            ->will($this->returnValue('news'));
-
-        $dataGrid->expects($this->at(1))
+        $dataGrid->expects($this->any())
             ->method('getName')
             ->will($this->returnValue('news'));
 
@@ -102,20 +98,8 @@ YML;
 
         $this->subscriber->readConfiguration($event);
 
-        $this->assertThereColumnExists($dataGridSpy->getInvocations(), array(
-            'title' => array(
-                'type' => 'text',
-                'options' => array(
-                    'label' => 'News Title'
-                )
-            ),
-            'author' => array(
-                'type' => 'text',
-                'options' => array(
-                    'label' => 'Author'
-                )
-            )
-        ));
+        $this->assertThereColumnExists($dataGridSpy, 'title', 'text', array('label' => 'News Title'));
+        $this->assertThereColumnExists($dataGridSpy, 'author', 'text', array('label' => 'Author'));
     }
 
     public function testReadConfigurationFromGlobalConfig()
@@ -154,63 +138,58 @@ YML;
 
         $this->subscriber->readConfiguration($event);
 
-        $this->assertThereColumnExists($dataGridSpy->getInvocations(), array(
-            'title' => array(
-                'type' => 'text',
-                'options' => array(
-                    'label' => 'News Title'
-                )
-            ),
-            'author' => array(
-                'type' => 'text',
-                'options' => array(
-                    'label' => 'Author'
-                )
-            )
-        ));
+        $this->assertThereColumnExists($dataGridSpy, 'title', 'text', array('label' => 'News Title'));
+        $this->assertThereColumnExists($dataGridSpy, 'author', 'text', array('label' => 'Author'));
+
     }
 
     /**
-     * @param array $invocations
-     * @param array $configuration
+     * @param \PHPUnit_Framework_MockObject_Matcher_InvokedRecorder $invokedRecorder
+     * @param string $name
+     * @param string $type
+     * @param array $options
      * @throws \PHPUnit_Framework_AssertionFailedError
      */
-    public static function assertThereColumnExists($invocations, $configuration)
-    {
-        foreach ($configuration as $columnName => $config) {
-            $error = true;
-            foreach ($invocations as $invocation) {
-                if (self::columnExistInInvocation($invocation, $columnName, $config)) {
-                    $error = false;
-                    break;
-                }
+    public static function assertThereColumnExists(
+        \PHPUnit_Framework_MockObject_Matcher_InvokedRecorder $invokedRecorder,
+        $name,
+        $type,
+        $options
+    ) {
+        $error = true;
+
+        foreach ($invokedRecorder->getInvocations() as $invocation) {
+            if (self::columnExistInInvocation($invocation, $name, $type, $options)) {
+                $error = false;
+                break;
             }
-            if ($error) {
-                throw new \PHPUnit_Framework_AssertionFailedError(
-                    sprintf(
-                        'Column %s does not exist.',
-                        $columnName
-                    )
-                );
-            }
+        }
+        if ($error) {
+            throw new \PHPUnit_Framework_AssertionFailedError(
+                sprintf(
+                    'Column %s does not exist.',
+                    $name
+                )
+            );
         }
     }
 
     /**
      * @param object $invocation
      * @param string $columnName
+     * @param string $columnType
      * @param array $columnOptions
      * @return bool
      */
-    public static function columnExistInInvocation($invocation, $columnName, $columnOptions)
+    public static function columnExistInInvocation($invocation, $columnName, $columnType, $columnOptions)
     {
         $invocationColumnName = $invocation->parameters[0];
         $invocationColumnType = $invocation->parameters[1];
         $invocationColumnOptions = $invocation->parameters[2];
 
         if ($columnName == $invocationColumnName ) {
-            self::assertEquals($columnOptions['type'], $invocationColumnType);
-            self::assertEquals($columnOptions['options'], $invocationColumnOptions);
+            self::assertEquals($columnType, $invocationColumnType);
+            self::assertEquals($columnOptions, $invocationColumnOptions);
             return true;
         }
 

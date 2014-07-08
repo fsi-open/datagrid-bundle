@@ -64,9 +64,7 @@ class ConfigurationBuilder implements EventSubscriberInterface
         $dataGrid = $event->getDataGrid();
         $dataGridConfiguration = array();
         foreach ($this->kernel->getBundles() as $bundle) {
-
-
-            $resourcePath = $this->resourceLocator->locate($this->getBundleResourcePath($bundle, $dataGrid));
+            $resourcePath = $this->resourceLocator->locateByBundle($bundle, sprintf("%s.yml", $dataGrid->getName()));
             $configuration = $this->configurationLoader->load($resourcePath);
 
             if(is_array($configuration) && !empty($configuration)) {
@@ -79,19 +77,7 @@ class ConfigurationBuilder implements EventSubscriberInterface
         }
     }
 
-    /**
-     * @param \Symfony\Component\HttpKernel\Bundle\BundleInterface $bundle
-     * @param \FSi\Component\DataGrid\DataGridInterface $dataGrid
-     * @return string
-     */
-    private function getBundleResourcePath(BundleInterface $bundle, DataGridInterface $dataGrid)
-    {
-        return sprintf(
-            "%s:%s.yml",
-            $bundle->getName(),
-            $dataGrid->getName()
-        );
-    }
+
 
     /**
      * @param \FSi\Component\DataGrid\DataGridInterface  $dataGrid
