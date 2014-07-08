@@ -66,7 +66,7 @@ class ConfigurationImporterTest extends DataGridTest
         );
 
         $this->resourceLocator->expects($this->once())
-            ->method('locateByResourcePath')
+            ->method('locate')
             ->with($this->equalTo('BarBundle:news.yml'))
             ->will($this->returnValue(sprintf('%s/BarBundle/Resources/config/datagrid/news.yml', self::FIXTURE_PATH)));
 

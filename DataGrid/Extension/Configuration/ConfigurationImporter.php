@@ -31,7 +31,7 @@ class ConfigurationImporter
         }
 
         foreach ($configuration['imports'] as $resource) {
-            $resourcePath =  $this->resourceLocator->locateByResourcePath($resource['resource']);
+            $resourcePath =  $this->resourceLocator->locate($resource['resource']);
             $configuration = array_replace_recursive(
                 $configuration,
                 $this->configurationLoader->load($resourcePath)

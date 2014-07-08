@@ -31,7 +31,7 @@ class ResourceLocator
      * @param string $resourceName
      * @return string
      */
-    public function locateByResourcePath($resourceName)
+    public function locate($resourceName)
     {
         if ($this->isBundleResource($resourceName)) {
             return $this->getBundleResourcePath($resourceName);
@@ -45,7 +45,7 @@ class ResourceLocator
      * @param string $fileName
      * @return string
      */
-    public function locateByBundle(BundleInterface $bundle, $fileName)
+    public function locateInBundle(BundleInterface $bundle, $fileName)
     {
         return sprintf(
             "%s/Resources/config/%s/%s",
@@ -87,6 +87,6 @@ class ResourceLocator
         list($bundleName, $fileName) = explode(':', $resourceName);
         $bundle = $this->kernel->getBundle($bundleName);
 
-        return $this->locateByBundle($bundle, $fileName);
+        return $this->locateInBundle($bundle, $fileName);
     }
 }
