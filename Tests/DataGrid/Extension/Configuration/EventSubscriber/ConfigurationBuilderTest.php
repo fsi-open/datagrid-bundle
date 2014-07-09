@@ -98,8 +98,8 @@ YML;
 
         $this->subscriber->readConfiguration($event);
 
-        $this->assertThereColumnExists($dataGridSpy, 'title', 'text', array('label' => 'News Title'));
-        $this->assertThereColumnExists($dataGridSpy, 'author', 'text', array('label' => 'Author'));
+        $this->assertColumnIsAdded($dataGridSpy, 'title', 'text', array('label' => 'News Title'));
+        $this->assertColumnIsAdded($dataGridSpy, 'author', 'text', array('label' => 'Author'));
     }
 
     public function testReadConfigurationFromGlobalConfig()
@@ -138,8 +138,8 @@ YML;
 
         $this->subscriber->readConfiguration($event);
 
-        $this->assertThereColumnExists($dataGridSpy, 'title', 'text', array('label' => 'News Title'));
-        $this->assertThereColumnExists($dataGridSpy, 'author', 'text', array('label' => 'Author'));
+        $this->assertColumnIsAdded($dataGridSpy, 'title', 'text', array('label' => 'News Title'));
+        $this->assertColumnIsAdded($dataGridSpy, 'author', 'text', array('label' => 'Author'));
 
     }
 
@@ -150,7 +150,7 @@ YML;
      * @param array $options
      * @throws \PHPUnit_Framework_AssertionFailedError
      */
-    public static function assertThereColumnExists(
+    public static function assertColumnIsAdded(
         \PHPUnit_Framework_MockObject_Matcher_InvokedRecorder $invokedRecorder,
         $name,
         $type,
@@ -165,7 +165,7 @@ YML;
             }
         }
         if ($error) {
-            throw new \PHPUnit_Framework_AssertionFailedError(
+            return new \PHPUnit_Framework_AssertionFailedError(
                 sprintf(
                     'Column %s does not exist.',
                     $name
@@ -181,7 +181,7 @@ YML;
      * @param array $columnOptions
      * @return bool
      */
-    public static function columnExistInInvocation($invocation, $columnName, $columnType, $columnOptions)
+    private static function columnExistInInvocation($invocation, $columnName, $columnType, $columnOptions)
     {
         $invocationColumnName = $invocation->parameters[0];
         $invocationColumnType = $invocation->parameters[1];
