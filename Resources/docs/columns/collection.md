@@ -24,7 +24,7 @@
             </td>
             <td>
                 <ul>
-                    <li><code>` `</code></li>
+                    <li><code>' '</code></li>
                 </ul>
             </td>
         <tr>
@@ -107,7 +107,7 @@
 
 Input class
 
-```php
+'''php
 class User
 {
     /* @var string */
@@ -116,47 +116,47 @@ class User
     /* @var array */
     public $roles
 }
-```
+'''
 
 ======
 #### Example 1
 
 **Column Configuration**
-```php
+'''php
 $datagrid->addColumn('roles', 'collection');
-```
+'''
 
 **Input**
-```php
+'''php
 $user = new User();
 $user->addRole('admin');
 $user->addRole('moderator');
 $user->addRole('user');
-```
+'''
 
 **Output**
-> admin,user,moderator
+> admin user moderator
 
 ======
 #### Example 2
 
 **Column Configuration**
-```php
+'''php
 $datagrid->addColumn('user_roles', 'collection', array(
     'field_mapping' => array(
         'roles'
     ),
     'collection_glue' => '|'
 ));
-```
+'''
 
 **Input**
-```php
+'''php
 $user = new User();
 $user->addRole('Admin');
 $user->addRole('Moderator');
 $user->addRole('User');
-```
+'''
 
 **Output**
 > Admin|Moderator|User
@@ -165,7 +165,7 @@ $user->addRole('User');
 #### Example 3
 
 **Column Configuration**
-```php
+'''php
 $datagrid->addColumn('user_roles', 'text', array(
     'field_mapping' => array(
         'name',
@@ -188,6 +188,6 @@ $datagrid->addColumn('user_roles', 'text', array(
         'surname' => 'text'
     )
 ));
-```
+'''
 
 ======
