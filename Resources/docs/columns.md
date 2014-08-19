@@ -9,4 +9,4 @@ Following column types are natively available in this bundle
 * [Number](columns/number.md)
 * [Entity](columns/entity.md)
 * [Action](columns/action.md)
-
+* [Collection](columns/collection.md)
