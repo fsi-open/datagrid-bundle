@@ -114,7 +114,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
         $datagridWithThemeView = $this->getDataGridView('grid_with_header_theme');
 
         $headerView = $this->getColumnHeaderView($datagridView, 'text', 'title', 'title');
-        $headerWithThemeView = $this->getColumnHeaderView($datagridWithThemeView, 'text', 'title' ,'title');
+        $headerWithThemeView = $this->getColumnHeaderView($datagridWithThemeView, 'text', 'title', 'title');
 
         $html = $this->twig->render('datagrid/header_widget_test.html.twig', array(
             'grid_with_header_theme' => $datagridWithThemeView,
@@ -137,7 +137,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
         $datagridWithThemeView = $this->getDataGridView('grid_with_header_theme');
 
         $cellView = $this->getColumnCellView($datagridView, 'text', 'title', 'This is value 1');
-        $cellWithThemeView = $this->getColumnCellView($datagridWithThemeView, 'text', 'title' ,'This is value 2');
+        $cellWithThemeView = $this->getColumnCellView($datagridWithThemeView, 'text', 'title', 'This is value 2');
 
         $html = $this->twig->render('datagrid/cell_widget_test.html.twig', array(
             'grid_with_header_theme' => $datagridWithThemeView,
@@ -479,7 +479,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
 
         $cellView->expects($this->any())
             ->method('getAttribute')
-            ->will($this->returnCallback(function($key) {
+            ->will($this->returnCallback(function ($key) {
                 switch ($key) {
                     case 'row':
                         return 0;

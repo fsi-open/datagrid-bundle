@@ -1,0 +1,16 @@
+columns:
+  id:
+    type: number
+    options:
+      label: Identity
+
+  actions:
+    type: action
+    options:
+      label: admin.gallery.datagrid.actions
+      field_mapping: [ id ]
+      actions:
+        edit:
+          route_name: fsi_admin_crud_edit
+          additional_parameters: { element: gallery }
+          parameters_field_mapping: { id: id }
