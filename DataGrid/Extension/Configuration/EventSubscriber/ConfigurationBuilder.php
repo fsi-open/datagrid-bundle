@@ -9,12 +9,15 @@
 
 namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\EventSubscriber;
 
+use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationImporter;
+use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationLoader;
+use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ResourceLocator;
 use FSi\Component\DataGrid\DataGridEventInterface;
 use FSi\Component\DataGrid\DataGridEvents;
 use FSi\Component\DataGrid\DataGridInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
-use Symfony\Component\Yaml\Parser;
 
 class ConfigurationBuilder implements EventSubscriberInterface
 {
@@ -24,11 +27,25 @@ class ConfigurationBuilder implements EventSubscriberInterface
     protected $kernel;
 
     /**
-     * @param KernelInterface $kernel
+     * @var \FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationLoader
      */
-    function __construct(KernelInterface $kernel)
-    {
+    protected $configurationLoader;
+
+    /**
+     * @param \Symfony\Component\HttpKernel\KernelInterface $kernel
+     * @param \FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ConfigurationLoader $configurationLoader
+     * @param \FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\ResourceLocator $resourceLocator
+     */
+    function __construct(
+        KernelInterface $kernel,
+        ConfigurationLoader $configurationLoader,
+        ConfigurationImporter $configurationImporter,
+        ResourceLocator $resourceLocator
+    ) {
         $this->kernel = $kernel;
+        $this->configurationLoader = $configurationLoader;
+        $this->resourceLocator = $resourceLocator;
+        $this->configurationLoader->setConfiguratinImporter($configurationImporter);
     }
 
     /**
@@ -47,12 +64,11 @@ class ConfigurationBuilder implements EventSubscriberInterface
         $dataGrid = $event->getDataGrid();
         $dataGridConfiguration = array();
         foreach ($this->kernel->getBundles() as $bundle) {
-            if ($this->hasDataGridConfiguration($bundle->getPath(), $dataGrid->getName())) {
-                $configuration = $this->getDataGridConfiguration($bundle->getPath(), $dataGrid->getName());
+            $resourcePath = $this->resourceLocator->locateInBundle($bundle, sprintf("%s.yml", $dataGrid->getName()));
+            $configuration = $this->configurationLoader->load($resourcePath);
 
-                if (is_array($configuration)) {
-                    $dataGridConfiguration = $configuration;
-                }
+            if(is_array($configuration) && !empty($configuration)) {
+                $dataGridConfiguration = $configuration;
             }
         }
 
@@ -61,29 +77,10 @@ class ConfigurationBuilder implements EventSubscriberInterface
         }
     }
 
-    /**
-     * @param string $bundlePath
-     * @param string $dataGridName
-     * @return bool
-     */
-    protected function hasDataGridConfiguration($bundlePath, $dataGridName)
-    {
-        return file_exists(sprintf($bundlePath . '/Resources/config/datagrid/%s.yml', $dataGridName));
-    }
+
 
     /**
-     * @param string $bundlePath
-     * @param string $dataGridName
-     * @return mixed
-     */
-    protected function getDataGridConfiguration($bundlePath, $dataGridName)
-    {
-        $yamlParser = new Parser();
-        return $yamlParser->parse(file_get_contents(sprintf($bundlePath . '/Resources/config/datagrid/%s.yml', $dataGridName)));
-    }
-
-    /**
-     * @param DataGridInterface $dataGrid
+     * @param \FSi\Component\DataGrid\DataGridInterface  $dataGrid
      * @param array $configuration
      */
     protected function buildConfiguration(DataGridInterface $dataGrid, array $configuration)
