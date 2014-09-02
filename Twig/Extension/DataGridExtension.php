@@ -32,12 +32,12 @@ class DataGridExtension extends \Twig_Extension
     private $themesVars;
 
     /**
-     * @var Twig_TemplateInterface
+     * @var \Twig_TemplateInterface
      */
     private $baseTemplate;
 
     /**
-     * @var Twig_Environment
+     * @var \Twig_Environment
      */
     private $environment;
 
@@ -388,6 +388,8 @@ class DataGridExtension extends \Twig_Extension
     private function renderTheme(DataGridViewInterface $datagridView, array $contextVars = array(), $availableBlocks = array())
     {
         $templates = $this->getTemplates($datagridView);
+
+        $contextVars = $this->environment->mergeGlobals($contextVars);
 
         ob_start();
 
