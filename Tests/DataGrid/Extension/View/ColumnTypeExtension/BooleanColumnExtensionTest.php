@@ -11,7 +11,7 @@ namespace FSi\Bundle\DataGridBundle\Tests\DataGrid\Extension\View\ColumnTypeExte
 
 use FSi\Component\DataGrid\Extension\Core\ColumnType\Boolean;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\View\ColumnTypeExtension\BooleanColumnExtension;
-use FSi\Component\DataGrid\Extension\Symfony\ColumnTypeExtension\FormExtension;
+use FSi\Bundle\DataGridBundle\DataGrid\Extension\ColumnTypeExtension\FormExtension;
 
 class BooleanColumnExtensionTest extends \PHPUnit_Framework_TestCase
 {
