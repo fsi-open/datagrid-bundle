@@ -28,7 +28,7 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->kernel = $this->getMock('Symfony\Component\HttpKernel\KernelInterface');
+        $this->kernel = $this->getMock('Symfony\Component\HttpKernel\Kernel', array(), array('dev', true));
         $this->subscriber = new ConfigurationBuilder($this->kernel);
     }
 
