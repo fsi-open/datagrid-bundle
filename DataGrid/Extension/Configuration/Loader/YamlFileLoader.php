@@ -9,8 +9,6 @@
 
 namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\Loader;
 
-use FSi\Component\DataGrid\DataGridInterface;
-use Symfony\Component\Config\Loader\FileLoader;
 use Symfony\Component\Yaml\Parser as YamlParser;
 
 class YamlFileLoader extends FileLoader
@@ -21,23 +19,7 @@ class YamlFileLoader extends FileLoader
     private $yamlParser;
 
     /**
-     * @var \FSi\Component\DataGrid\DataGridInterface
-     */
-    private $dataGrid;
-
-    /**
-     * @param \FSi\Component\DataGrid\DataGridInterface $dataGrid
-     */
-    public function setDataGrid(DataGridInterface $dataGrid)
-    {
-        $this->dataGrid = $dataGrid;
-    }
-
-    /**
-     * Loads a resource.
-     *
-     * @param mixed $file The resource
-     * @param string $type The resource type
+     * @inheritdoc
      */
     public function load($file, $type = null)
     {
@@ -59,12 +41,7 @@ class YamlFileLoader extends FileLoader
     }
 
     /**
-     * Returns true if this class supports the given resource.
-     *
-     * @param mixed $resource A resource
-     * @param string $type The resource type
-     *
-     * @return bool    true if this class supports the given resource, false otherwise
+     * @inheritdoc
      */
     public function supports($resource, $type = null)
     {
@@ -72,10 +49,7 @@ class YamlFileLoader extends FileLoader
     }
 
     /**
-     * Loads a YAML file.
-     *
      * @param string $file
-     *
      * @return array The file content
      */
     private function loadFile($file)
@@ -96,9 +70,7 @@ class YamlFileLoader extends FileLoader
     }
 
     /**
-     * Parses all imports
-     *
-     * @param array  $content
+     * @param array $content
      * @param string $file
      */
     private function parseImports($content, $file)

@@ -9,23 +9,22 @@
 
 namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\EventSubscriber;
 
-use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\Loader\YamlFileLoader;
+use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\Loader\FileLoader;
 use FSi\Component\DataGrid\DataGridEventInterface;
 use FSi\Component\DataGrid\DataGridEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\KernelInterface;
 
 class ConfigurationBuilder implements EventSubscriberInterface
 {
     /**
-     * @var \FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\Loader\YamlFileLoader
+     * @var \FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\Loader\FileLoader
      */
     protected $fileLoader;
 
     /**
-     * @param KernelInterface $kernel
+     * @param \FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\Loader\FileLoader $fileLoader
      */
-    function __construct(YamlFileLoader $fileLoader)
+    function __construct(FileLoader $fileLoader)
     {
         $this->fileLoader = $fileLoader;
     }
@@ -44,9 +43,7 @@ class ConfigurationBuilder implements EventSubscriberInterface
     public function readConfiguration(DataGridEventInterface $event)
     {
         $dataGrid = $event->getDataGrid();
-
         $this->fileLoader->setDataGrid($dataGrid);
-
         $this->fileLoader->load($dataGrid->getName() . '.yml');
     }
 }
