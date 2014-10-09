@@ -13,6 +13,7 @@
     <services>
         <service id="datagrid.configuration.file_locator" class="%datagrid.configuration.file_locator.class%">
             <argument type="service" id="kernel" />
+            <argument type="string">%kernel.root_dir%/Resources</argument>
             <argument type="string">Resources/config/datagrid</argument>
         </service>
 

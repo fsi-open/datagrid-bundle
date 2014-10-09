@@ -20,6 +20,7 @@ class FileLocator extends BaseFileLocator
 
     /**
      * @param KernelInterface $kernel A KernelInterface instance
+     * @param string $path
      * @param string $bundleRelativePath
      */
     public function __construct(KernelInterface $kernel, $path, $bundleRelativePath)
@@ -83,14 +84,7 @@ class FileLocator extends BaseFileLocator
     {
         $fileParts = explode(':', $file, 2);
 
-        return implode('', array(
-            '@',
-            $fileParts[0],
-            DIRECTORY_SEPARATOR,
-            $this->bundleRelativePath,
-            DIRECTORY_SEPARATOR,
-            $fileParts[1]
-        ));
+        return sprintf('@%s/%s/%s', $fileParts[0], $this->bundleRelativePath, $fileParts[1]);
     }
 
     /**
@@ -108,6 +102,6 @@ class FileLocator extends BaseFileLocator
      */
     private function prependBundleRelativePath($file)
     {
-        return $this->bundleRelativePath . DIRECTORY_SEPARATOR . $file;
+        return sprintf('%s/%s', $this->bundleRelativePath, $file);
     }
 }
