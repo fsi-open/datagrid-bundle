@@ -6,12 +6,23 @@
 
     <parameters>
         <parameter key="datagrid.subscriber.configuration.configuration_builder.class">FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\EventSubscriber\ConfigurationBuilder</parameter>
+        <parameter key="datagrid.configuration.loader.yaml_file_loader.class">FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\Loader\YamlFileLoader</parameter>
+        <parameter key="datagrid.configuration.file_locator.class">FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\Locator\FileLocator</parameter>
     </parameters>
 
     <services>
+        <service id="datagrid.configuration.file_locator" class="%datagrid.configuration.file_locator.class%">
+            <argument type="service" id="kernel" />
+            <argument type="string">Resources/config/datagrid</argument>
+        </service>
+
+        <service id="datagrid.configuration.loader.yaml_file_loader" class="%datagrid.configuration.loader.yaml_file_loader.class%">
+            <argument type="service" id="datagrid.configuration.file_locator" />
+        </service>
+
         <service id="datagrid.subscriber.configuration.configuration_builder" class="%datagrid.subscriber.configuration.configuration_builder.class%">
             <tag name="datagrid.subscriber" alias="configuration.configuration_builder"/>
-            <argument type="service" id="kernel" />
+            <argument type="service" id="datagrid.configuration.loader.yaml_file_loader" />
         </service>
     </services>
 </container>

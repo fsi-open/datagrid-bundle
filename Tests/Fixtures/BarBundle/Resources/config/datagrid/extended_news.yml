@@ -1,0 +1,11 @@
+imports:
+  - { resource: news.yml }
+columns:
+  actions:
+    type: actions
+    options:
+      field_mapping: ['id']
+      actions:
+        edit:
+          route_name: route_edit
+          parameters_field_mapping: {'id' : 'id'}

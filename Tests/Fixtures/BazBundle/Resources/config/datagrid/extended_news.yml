@@ -1,0 +1,11 @@
+imports:
+  - { resource: BarBundle:news.yml }
+columns:
+  actions:
+    type: actions
+    options:
+      field_mapping: ['id']
+      actions:
+        view:
+          route_name: route_view
+          parameters_field_mapping: {'id' : 'id'}
