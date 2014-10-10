@@ -19,6 +19,16 @@ use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\EventSubscriber\C
 class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * @var string
+     */
+    protected static $fixtureAppPath;
+
+    /**
+     * @var string
+     */
+    protected static $datagridConfigRelativePath = 'Resources/config/datagrid';
+
+    /**
      * @var KernelInterface
      */
     protected $kernel;
@@ -31,6 +41,7 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->kernel = $this->getMock('Symfony\Component\HttpKernel\Kernel', array(), array('dev', true));
+        self::$fixtureAppPath = __DIR__ . '/../../../../Fixtures';
     }
 
     public function testSubscribedEvents()
@@ -53,12 +64,7 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
         $this->kernel->expects($this->once())
             ->method('getBundles')
             ->will($this->returnCallback(function() use ($self) {
-                $bundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
-                $bundle->expects($self->any())
-                    ->method('getPath')
-                    ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/FooBundle'));
-
-                return array($bundle);
+                return array($self->getBundleMock('FooBundle'));
             }));
 
         $this->initSubscriber();
@@ -86,18 +92,9 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
         $this->kernel->expects($this->once())
             ->method('getBundles')
             ->will($this->returnCallback(function() use ($self) {
-                $fooBundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
-                $fooBundle->expects($self->any())
-                    ->method('getPath')
-                    ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/FooBundle'));
-
-                $barBundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
-                $barBundle->expects($self->any())
-                    ->method('getPath')
-                    ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/BarBundle'));
                 return array(
-                    $fooBundle,
-                    $barBundle
+                    $self->getBundleMock('FooBundle'),
+                    $self->getBundleMock('BarBundle')
                 );
             }));
 
@@ -134,14 +131,7 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
         $this->kernel->expects($this->once())
             ->method('getBundles')
             ->will($this->returnCallback(function() use ($self) {
-                $barBundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
-                $barBundle->expects($self->any())
-                    ->method('getPath')
-                    ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/BarBundle'));
-
-                return array(
-                    $barBundle
-                );
+                return array($self->getBundleMock('BarBundle'));
             }));
 
         $this->initSubscriber();
@@ -190,26 +180,16 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
         $this->kernel->expects($this->once())
             ->method('getBundles')
             ->will($this->returnCallback(function() use ($self) {
-                $barBundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
-                $barBundle->expects($self->any())
-                    ->method('getPath')
-                    ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/BarBundle'));
-
-                $bazBundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
-                $bazBundle->expects($self->any())
-                    ->method('getPath')
-                    ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/BazBundle'));
-
                 return array(
-                    $barBundle,
-                    $bazBundle
+                    $self->getBundleMock('BarBundle'),
+                    $self->getBundleMock('BazBundle')
                 );
             }));
 
-        $this->kernel->expects($self->once())
+        $this->kernel->expects($this->once())
             ->method('locateResource')
-            ->with('@BarBundle/Resources/config/datagrid/news.yml', '', false)
-            ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/BarBundle/Resources/config/datagrid/news.yml'));
+            ->with('@BarBundle/' . self::$datagridConfigRelativePath . '/news.yml', '', false)
+            ->will($this->returnValue(self::$fixtureAppPath . '/BarBundle/' . self::$datagridConfigRelativePath . '/news.yml'));
 
         $this->initSubscriber();
 
@@ -257,32 +237,17 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
         $this->kernel->expects($this->once())
             ->method('getBundles')
             ->will($this->returnCallback(function() use ($self) {
-                $fooBundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
-                $fooBundle->expects($self->any())
-                    ->method('getPath')
-                    ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/FooBundle'));
-
-                $barBundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
-                $barBundle->expects($self->any())
-                    ->method('getPath')
-                    ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/BarBundle'));
-
-                $bazBundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
-                $bazBundle->expects($self->any())
-                    ->method('getPath')
-                    ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/BazBundle'));
-
                 return array(
-                    $barBundle,
-                    $bazBundle,
-                    $fooBundle,
+                    $self->getBundleMock('BarBundle'),
+                    $self->getBundleMock('BazBundle'),
+                    $self->getBundleMock('FooBundle')
                 );
             }));
 
-        $this->kernel->expects($self->once())
+        $this->kernel->expects($this->once())
             ->method('locateResource')
-            ->with('@BarBundle/Resources/config/datagrid/extended_news.yml', '', false)
-            ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/BarBundle/Resources/config/datagrid/extended_news.yml'));
+            ->with('@BarBundle/' . self::$datagridConfigRelativePath . '/extended_news.yml', '', false)
+            ->will($this->returnValue(self::$fixtureAppPath . '/BarBundle/' . self::$datagridConfigRelativePath . '/extended_news.yml'));
 
         $this->initSubscriber();
 
@@ -341,8 +306,18 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
     {
         $this->subscriber = new ConfigurationBuilder(
             new YamlFileLoader(
-                new FileLocator($this->kernel, '', 'Resources/config/datagrid')
+                new FileLocator($this->kernel, '', self::$datagridConfigRelativePath)
             )
         );
+    }
+
+    protected function getBundleMock($bundleName)
+    {
+        $bundleMock = $this->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
+        $bundleMock->expects($this->any())
+            ->method('getPath')
+            ->will($this->returnValue(self::$fixtureAppPath . '/' . $bundleName));
+
+        return $bundleMock;
     }
 }

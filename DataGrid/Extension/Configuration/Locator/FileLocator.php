@@ -48,7 +48,7 @@ class FileLocator extends BaseFileLocator
             );
         }
 
-        if (!$this->isFileGlobal($file, $currentPath)) {
+        if (!$this->isFileGlobal($file) && !$this->isPathInBundle($currentPath)) {
             $file = $this->prependBundleRelativePath($file);
         }
 
@@ -82,18 +82,27 @@ class FileLocator extends BaseFileLocator
      */
     private function getFilePathInBundle($file)
     {
-        $fileParts = explode(':', $file, 2);
+        list($bundleName, $fileName) = explode(':', $file, 2);
 
-        return sprintf('@%s/%s/%s', $fileParts[0], $this->bundleRelativePath, $fileParts[1]);
+        return sprintf('@%s/%s/%s', $bundleName, $this->bundleRelativePath, $fileName);
     }
 
     /**
-     * @param $file
+     * @param string $file
      * @return bool
      */
-    private function isFileGlobal($file, $currentPath)
+    private function isFileGlobal($file)
     {
-        return $file[0] === '/' || strpos($currentPath, $this->bundleRelativePath) !== false;
+        return $file[0] === '/';
+    }
+
+    /**
+     * @param string $path
+     * @return bool
+     */
+    private function isPathInBundle($path)
+    {
+        return strpos($path, $this->bundleRelativePath) !== false;
     }
 
     /**
