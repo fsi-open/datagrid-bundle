@@ -302,16 +302,7 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
         $this->subscriber->readConfiguration($event);
     }
 
-    protected function initSubscriber()
-    {
-        $this->subscriber = new ConfigurationBuilder(
-            new YamlFileLoader(
-                new FileLocator($this->kernel, '', self::$datagridConfigRelativePath)
-            )
-        );
-    }
-
-    protected function getBundleMock($bundleName)
+    public function getBundleMock($bundleName)
     {
         $bundleMock = $this->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
         $bundleMock->expects($this->any())
@@ -319,5 +310,14 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(self::$fixtureAppPath . '/' . $bundleName));
 
         return $bundleMock;
+    }
+
+    protected function initSubscriber()
+    {
+        $this->subscriber = new ConfigurationBuilder(
+            new YamlFileLoader(
+                new FileLocator($this->kernel, '', self::$datagridConfigRelativePath)
+            )
+        );
     }
 }
