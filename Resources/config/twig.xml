@@ -10,7 +10,7 @@
     <services>
         <service id="datagrid.twig.extension" class="%datagrid.twig.extension.class%" public="false">
             <tag name="twig.extension" />
-            <argument>%datagrid.twig.template%</argument>
+            <argument>%datagrid.twig.themes%</argument>
         </service>
     </services>
 
