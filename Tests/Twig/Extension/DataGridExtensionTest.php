@@ -53,7 +53,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
         $twig->addGlobal('global_var', 'global_value');
         $this->twig = $twig;
 
-        $this->extension = new DataGridExtension('datagrid.html.twig');
+        $this->extension = new DataGridExtension(array('datagrid.html.twig'));
     }
 
     /**
@@ -62,7 +62,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
      */
     public function testInitRuntimeShouldThrowExceptionBecauseNotExistingTheme()
     {
-        $this->twig->addExtension(new DataGridExtension('this_is_not_valid_path.html.twig'));
+        $this->twig->addExtension(new DataGridExtension(array('this_is_not_valid_path.html.twig')));
         $this->twig->initRuntime();
     }
 
@@ -200,6 +200,63 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
         $datagridView = $this->getDataGridView('grid');
 
         $template->expects($this->at(3))
+            ->method('displayBlock')
+            ->with('datagrid', array(
+                'datagrid' => $datagridView,
+                'vars' => array(),
+                'global_var' => 'global_value'
+            ))
+            ->will($this->returnValue(true));
+
+        $this->extension->datagrid($datagridView);
+    }
+
+    public function testDataGridMultipleTemplates()
+    {
+        $this->twig->addExtension($this->extension);
+        $this->twig->initRuntime();
+
+        $template1 = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent'));
+        $template1->expects($this->at(0))
+            ->method('hasBlock')
+            ->with('datagrid_grid')
+            ->will($this->returnValue(false));
+
+        $template1->expects($this->at(1))
+            ->method('getParent')
+            ->with(array())
+            ->will($this->returnValue(false));
+
+        $template1->expects($this->at(2))
+            ->method('hasBlock')
+            ->with('datagrid')
+            ->will($this->returnValue(true));
+
+        $template2 = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent'));
+        $template2->expects($this->at(0))
+            ->method('hasBlock')
+            ->with('datagrid_grid')
+            ->will($this->returnValue(false));
+
+        $template2->expects($this->at(1))
+            ->method('getParent')
+            ->with(array())
+            ->will($this->returnValue(false));
+
+        $template2->expects($this->at(2))
+            ->method('hasBlock')
+            ->with('datagrid')
+            ->will($this->returnValue(false));
+
+        $template2->expects($this->at(3))
+            ->method('getParent')
+            ->with(array())
+            ->will($this->returnValue(false));
+
+        $this->extension->setBaseTheme(array($template1, $template2));
+        $datagridView = $this->getDataGridView('grid');
+
+        $template1->expects($this->at(3))
             ->method('displayBlock')
             ->with('datagrid', array(
                 'datagrid' => $datagridView,

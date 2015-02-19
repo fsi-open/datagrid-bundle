@@ -34,7 +34,7 @@ class DataGridExtension extends \Twig_Extension
     /**
      * @var \Twig_TemplateInterface
      */
-    private $baseTemplate;
+    private $baseThemes;
 
     /**
      * @var \Twig_Environment
@@ -42,13 +42,13 @@ class DataGridExtension extends \Twig_Extension
     private $environment;
 
     /**
-     * @param string $template
+     * @param string $themes
      */
-    public function __construct($template)
+    public function __construct(array $themes)
     {
         $this->themes = array();
         $this->themesVars = array();
-        $this->baseTemplate = $template;
+        $this->baseThemes = $themes;
     }
 
     /**
@@ -65,7 +65,9 @@ class DataGridExtension extends \Twig_Extension
     public function initRuntime(\Twig_Environment $environment)
     {
         $this->environment = $environment;
-        $this->themes[self::DEFAULT_THEME] = $this->environment->loadTemplate($this->baseTemplate);
+        for ($i = count($this->baseThemes) - 1; $i >= 0; $i--) {
+            $this->baseThemes[$i] = $this->environment->loadTemplate($this->baseThemes[$i]);
+        }
     }
 
     /**
@@ -114,15 +116,20 @@ class DataGridExtension extends \Twig_Extension
     }
 
     /**
-     * Set base theme.
+     * Set base theme or themes.
      *
      * @param $theme
      */
     public function setBaseTheme($theme)
     {
-        $this->themes[self::DEFAULT_THEME] = ($theme instanceof \Twig_TemplateInterface)
-            ? $theme
-            : $this->environment->loadTemplate($theme);
+        $themes = is_array($theme) ? $theme : array($theme);
+
+        $this->baseThemes = array();
+        foreach ($themes as $theme) {
+            $this->baseThemes[] = ($theme instanceof \Twig_TemplateInterface)
+                ? $theme
+                : $this->environment->loadTemplate($theme);
+        }
     }
 
     /**
@@ -359,7 +366,9 @@ class DataGridExtension extends \Twig_Extension
             $templates[] = $this->themes[$dataGrid->getName()];
         }
 
-        $templates[] = $this->themes[self::DEFAULT_THEME];
+        for ($i = count($this->baseThemes) - 1; $i >= 0; $i--) {
+            $templates[] = $this->baseThemes[$i];
+        }
 
         return $templates;
     }
@@ -419,6 +428,7 @@ class DataGridExtension extends \Twig_Extension
 
         // Check parents
         if (false !== ($parent = $template->getParent(array()))) {
+            var_dump($parent);
             return $this->findTemplateWithBlock($parent, $blockName);
         }
 
