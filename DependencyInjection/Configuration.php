@@ -25,10 +25,31 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->booleanNode('yaml_configuration')->defaultTrue()->end()
                 ->arrayNode('twig')
+                    ->beforeNormalization()
+                        ->ifTrue(function ($v) { return isset($v['template']); })
+                        ->then(function ($v) {
+                            trigger_error('The fsi_data_grid.twig.template configuration key is deprecated since version 1.1 and will be removed in 1.2. Use the fsi_data_grid.twig.themes configuration key instead.', E_USER_DEPRECATED);
+                            return $v;
+                        })
+                    ->end()
+                    ->validate()
+                        ->ifTrue(function ($v) {
+                            return isset($v['template']) && ($v['template'] !== null);
+                        })
+                        ->then(function ($v) {
+                            $v['themes'] = array($v['template']);
+                            unset($v['template']);
+                            return $v;
+                        })
+                    ->end()
                     ->addDefaultsIfNotSet()
                     ->children()
                         ->booleanNode('enabled')->defaultTrue()->end()
-                        ->scalarNode('template')->defaultValue('datagrid.html.twig')->end()
+                        ->scalarNode('template')->end()
+                        ->arrayNode('themes')
+                            ->prototype('scalar')->end()
+                            ->defaultValue(array('datagrid.html.twig'))
+                        ->end()
                     ->end()
                 ->end()
             ->end()
