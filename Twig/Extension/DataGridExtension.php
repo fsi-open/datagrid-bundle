@@ -32,7 +32,7 @@ class DataGridExtension extends \Twig_Extension
     private $themesVars;
 
     /**
-     * @var \Twig_TemplateInterface
+     * @var \Twig_Template[]
      */
     private $baseThemes;
 
@@ -108,7 +108,7 @@ class DataGridExtension extends \Twig_Extension
      */
     public function setTheme(DataGridViewInterface $dataGrid, $theme, array $vars = array())
     {
-        $this->themes[$dataGrid->getName()] = ($theme instanceof \Twig_TemplateInterface)
+        $this->themes[$dataGrid->getName()] = ($theme instanceof \Twig_Template)
             ? $theme
             : $this->environment->loadTemplate($theme);
 
@@ -126,7 +126,7 @@ class DataGridExtension extends \Twig_Extension
 
         $this->baseThemes = array();
         foreach ($themes as $theme) {
-            $this->baseThemes[] = ($theme instanceof \Twig_TemplateInterface)
+            $this->baseThemes[] = ($theme instanceof \Twig_Template)
                 ? $theme
                 : $this->environment->loadTemplate($theme);
         }
@@ -416,11 +416,11 @@ class DataGridExtension extends \Twig_Extension
     }
 
     /**
-     * @param \Twig_TemplateInterface $template
+     * @param \Twig_Template $template
      * @param string $blockName
-     * @return \Twig_TemplateInterface|bool
+     * @return \Twig_Template|bool
      */
-    private function findTemplateWithBlock(\Twig_TemplateInterface $template, $blockName)
+    private function findTemplateWithBlock(\Twig_Template $template, $blockName)
     {
         if ($template->hasBlock($blockName)) {
             return $template;
@@ -428,7 +428,8 @@ class DataGridExtension extends \Twig_Extension
 
         // Check parents
         if (false !== ($parent = $template->getParent(array()))) {
-            return $this->findTemplateWithBlock($parent, $blockName);
+            if ($this->findTemplateWithBlock($parent, $blockName) !== false)
+                return $template;
         }
 
         return false;
