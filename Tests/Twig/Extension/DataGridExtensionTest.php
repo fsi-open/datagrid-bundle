@@ -179,7 +179,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
     {
         $this->twig->addExtension($this->extension);
         $this->twig->initRuntime();
-        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent'));
+        $template = $this->getMock('\Twig_Template', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent', 'getTemplateName', 'doDisplay'), array($this->twig));
 
         $template->expects($this->at(0))
             ->method('hasBlock')
@@ -216,7 +216,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
         $this->twig->addExtension($this->extension);
         $this->twig->initRuntime();
 
-        $template1 = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent'));
+        $template1 = $this->getMock('\Twig_Template', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent', 'getTemplateName', 'doDisplay'), array($this->twig));
         $template1->expects($this->at(0))
             ->method('hasBlock')
             ->with('datagrid_grid')
@@ -232,7 +232,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
             ->with('datagrid')
             ->will($this->returnValue(true));
 
-        $template2 = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent'));
+        $template2 = $this->getMock('\Twig_Template', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent', 'getTemplateName', 'doDisplay'), array($this->twig));
         $template2->expects($this->at(0))
             ->method('hasBlock')
             ->with('datagrid_grid')
@@ -273,8 +273,8 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
         $this->twig->addExtension($this->extension);
         $this->twig->initRuntime();
 
-        $parent = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent'));
-        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent'));
+        $template = $this->getMock('\Twig_Template', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent', 'getTemplateName', 'doDisplay'), array($this->twig));
+        $parent = $this->getMock('\Twig_Template', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent', 'getTemplateName', 'doDisplay'), array($this->twig));
 
         $template->expects($this->at(0))
             ->method('hasBlock')
@@ -304,7 +304,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
         $this->extension->setBaseTheme($template);
         $datagridView = $this->getDataGridView('grid');
 
-        $parent->expects($this->at(1))
+        $template->expects($this->at(4))
             ->method('displayBlock')
             ->with('datagrid', array(
                 'datagrid' => $datagridView,
@@ -320,7 +320,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
     {
         $this->twig->addExtension($this->extension);
         $this->twig->initRuntime();
-        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent'));
+        $template = $this->getMock('\Twig_Template', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent', 'getTemplateName', 'doDisplay'), array($this->twig));
 
         $template->expects($this->at(0))
             ->method('hasBlock')
@@ -360,7 +360,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
     {
         $this->twig->addExtension($this->extension);
         $this->twig->initRuntime();
-        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent'));
+        $template = $this->getMock('\Twig_Template', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent', 'getTemplateName', 'doDisplay'), array($this->twig));
 
         $template->expects($this->at(0))
             ->method('hasBlock')
@@ -443,7 +443,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
     {
         $this->twig->addExtension($this->extension);
         $this->twig->initRuntime();
-        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent'));
+        $template = $this->getMock('\Twig_Template', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent', 'getTemplateName', 'doDisplay'), array($this->twig));
 
         $template->expects($this->at(0))
             ->method('hasBlock')
@@ -479,7 +479,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
     {
         $this->twig->addExtension($this->extension);
         $this->twig->initRuntime();
-        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent'));
+        $template = $this->getMock('\Twig_Template', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent', 'getTemplateName', 'doDisplay'), array($this->twig));
 
         $template->expects($this->at(0))
             ->method('hasBlock')
@@ -571,7 +571,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
     {
         $this->twig->addExtension($this->extension);
         $this->twig->initRuntime();
-        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent'));
+        $template = $this->getMock('\Twig_Template', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent', 'getTemplateName', 'doDisplay'), array($this->twig));
 
         $template->expects($this->at(0))
             ->method('hasBlock')
@@ -659,7 +659,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
     {
         $this->twig->addExtension($this->extension);
         $this->twig->initRuntime();
-        $template = $this->getMock('\Twig_TemplateInterface', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent'));
+        $template = $this->getMock('\Twig_Template', array('hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock', 'getParent', 'getTemplateName', 'doDisplay'), array($this->twig));
 
         $template->expects($this->at(0))
             ->method('hasBlock')
