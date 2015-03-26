@@ -9,26 +9,24 @@
 
 namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\EventSubscriber;
 
+use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\Loader\FileLoader;
 use FSi\Component\DataGrid\DataGridEventInterface;
 use FSi\Component\DataGrid\DataGridEvents;
-use FSi\Component\DataGrid\DataGridInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\KernelInterface;
-use Symfony\Component\Yaml\Parser;
 
 class ConfigurationBuilder implements EventSubscriberInterface
 {
     /**
-     * @var \Symfony\Component\HttpKernel\KernelInterface
+     * @var \FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\Loader\FileLoader
      */
-    protected $kernel;
+    protected $fileLoader;
 
     /**
-     * @param KernelInterface $kernel
+     * @param \FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\Loader\FileLoader $fileLoader
      */
-    function __construct(KernelInterface $kernel)
+    function __construct(FileLoader $fileLoader)
     {
-        $this->kernel = $kernel;
+        $this->fileLoader = $fileLoader;
     }
 
     /**
@@ -45,58 +43,7 @@ class ConfigurationBuilder implements EventSubscriberInterface
     public function readConfiguration(DataGridEventInterface $event)
     {
         $dataGrid = $event->getDataGrid();
-        $dataGridConfiguration = array();
-        foreach ($this->kernel->getBundles() as $bundle) {
-            if ($this->hasDataGridConfiguration($bundle->getPath(), $dataGrid->getName())) {
-                $configuration = $this->getDataGridConfiguration($bundle->getPath(), $dataGrid->getName());
-
-                if (is_array($configuration)) {
-                    $dataGridConfiguration = $configuration;
-                }
-            }
-        }
-
-        if (count($dataGridConfiguration)) {
-            $this->buildConfiguration($dataGrid, $dataGridConfiguration);
-        }
-    }
-
-    /**
-     * @param string $bundlePath
-     * @param string $dataGridName
-     * @return bool
-     */
-    protected function hasDataGridConfiguration($bundlePath, $dataGridName)
-    {
-        return file_exists(sprintf($bundlePath . '/Resources/config/datagrid/%s.yml', $dataGridName));
-    }
-
-    /**
-     * @param string $bundlePath
-     * @param string $dataGridName
-     * @return mixed
-     */
-    protected function getDataGridConfiguration($bundlePath, $dataGridName)
-    {
-        $yamlParser = new Parser();
-        return $yamlParser->parse(file_get_contents(sprintf($bundlePath . '/Resources/config/datagrid/%s.yml', $dataGridName)));
-    }
-
-    /**
-     * @param DataGridInterface $dataGrid
-     * @param array $configuration
-     */
-    protected function buildConfiguration(DataGridInterface $dataGrid, array $configuration)
-    {
-        foreach ($configuration['columns'] as $name => $column) {
-            $type = array_key_exists('type', $column)
-                ? $column['type']
-                : 'text';
-            $options = array_key_exists('options', $column)
-                ? $column['options']
-                : array();
-
-            $dataGrid->addColumn($name, $type, $options);
-        }
+        $this->fileLoader->setDataGrid($dataGrid);
+        $this->fileLoader->load($dataGrid->getName() . '.yml');
     }
 }
