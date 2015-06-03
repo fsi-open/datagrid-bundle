@@ -12,8 +12,9 @@
     ],
     "require": {
         "php": ">=5.3.3",
-        "twig/twig": "~1.2",
+        "twig/twig": "~1.11",
         "symfony/framework-bundle" : "~2.2",
+        "symfony/dependency-injection" : "~2.2",
         "fsi/datagrid": "~1.1"
     },
     "require-dev": {
