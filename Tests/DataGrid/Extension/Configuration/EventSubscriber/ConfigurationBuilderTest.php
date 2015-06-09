@@ -11,6 +11,7 @@ namespace FSi\Bundle\DataGridBundle\Tests\DataGrid\Extension\Configuration\Event
 
 use FSi\Component\DataGrid\DataGridEvent;
 use FSi\Component\DataGrid\DataGridEvents;
+use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\HttpKernel\KernelInterface;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\EventSubscriber\ConfigurationBuilder;
 
@@ -28,7 +29,15 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->kernel = $this->getMock('Symfony\Component\HttpKernel\Kernel', array(), array('dev', true));
+        $kernelMockBuilder = $this->getMockBuilder('Symfony\Component\HttpKernel\Kernel')
+            ->setConstructorArgs(array('dev', true));
+        if (version_compare(Kernel::VERSION, '2.7.0', '<')) {
+            $kernelMockBuilder->setMethods(array('registerContainerConfiguration', 'registerBundles', 'getBundles', 'init'));
+        } else {
+            $kernelMockBuilder->setMethods(array('registerContainerConfiguration', 'registerBundles', 'getBundles'));
+        }
+        $this->kernel = $kernelMockBuilder->getMock();
+
         $this->subscriber = new ConfigurationBuilder($this->kernel);
     }
 
@@ -46,7 +55,7 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
         $this->kernel->expects($this->once())
             ->method('getBundles')
             ->will($this->returnCallback(function() use ($self) {
-                $bundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
+                $bundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle', array('getPath'));
                 $bundle->expects($self->any())
                     ->method('getPath')
                     ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/FooBundle'));
@@ -77,12 +86,12 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
         $this->kernel->expects($this->once())
             ->method('getBundles')
             ->will($this->returnCallback(function() use ($self) {
-                $fooBundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
+                $fooBundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle', array('getPath'));
                 $fooBundle->expects($self->any())
                     ->method('getPath')
                     ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/FooBundle'));
 
-                $barBundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
+                $barBundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle', array('getPath'));
                 $barBundle->expects($self->any())
                     ->method('getPath')
                     ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/BarBundle'));
