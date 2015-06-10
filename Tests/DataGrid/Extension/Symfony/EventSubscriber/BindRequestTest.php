@@ -26,10 +26,6 @@ class BindRequestTest extends \PHPUnit_Framework_TestCase
 
     public function testPreBindDataPOST()
     {
-        if (!class_exists('Symfony\Component\HttpFoundation\Request')) {
-            $this->markTestSkipped('Symfony Column Extension require Symfony\Component\HttpFoundation\Request class.');
-        }
-
         $request = $this->getMock('Symfony\Component\HttpFoundation\Request');
         $request->expects($this->once())
              ->method('getMethod')

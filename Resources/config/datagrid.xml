@@ -101,10 +101,11 @@
         </service>
         <!-- GedmoExtension -->
 
-        <!-- SymfonyExtension -->
+        <!-- RouterExtension -->
         <service id="datagrid.column.symfony.action" class="FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnType\Action">
             <tag name="datagrid.column" alias="action" />
-            <argument type="service" id="service_container"/>
+            <argument type="service" id="router"/>
+            <argument type="service" id="request_stack"/>
         </service>
         <service id="datagrid.column_extension.symfony.form" class="FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnTypeExtension\FormExtension">
             <tag name="datagrid.column_extension" alias="symfony.form"/>
@@ -117,7 +118,7 @@
             <tag name="datagrid.column_extension" alias="symfony.column.boolean"/>
             <argument type="service" id="translator" />
         </service>
-        <!-- SymfonyExtension -->
+        <!-- RouterExtension -->
 
         <service id="datagrid.column_extension.view" class="FSi\Bundle\DataGridBundle\DataGrid\Extension\View\ColumnTypeExtension\ColumnViewOptionsExtension">
             <tag name="datagrid.column_extension" alias="datagrid.bundle.view"/>

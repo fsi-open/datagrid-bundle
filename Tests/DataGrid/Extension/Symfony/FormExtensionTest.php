@@ -15,10 +15,6 @@ class FormExtensionTest extends \PHPUnit_Framework_TestCase
 {
     public function testSymfonyFormExtension()
     {
-        if (!class_exists('Symfony\Component\Form\FormFactory')) {
-            $this->markTestSkipped('Symfony\Component\Form\FormFactory is required for testSymfonyFormExtension');
-        }
-
         $formFactory = $this->getMock('Symfony\Component\Form\FormFactoryInterface');
         $extension = new FormExtension($formFactory);
 

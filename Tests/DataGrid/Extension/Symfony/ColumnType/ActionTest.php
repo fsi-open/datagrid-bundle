@@ -9,27 +9,38 @@
 
 namespace FSi\Bundle\DatagridBundle\Tests\DataGrid\Extension\Symfony\ColumnType;
 
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnType\Action;
 use FSi\Component\DataGrid\Extension\Core\ColumnTypeExtension\DefaultColumnOptionsExtension;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Routing\RouterInterface;
 
 class ActionTest extends \PHPUnit_Framework_TestCase
 {
-    private $container;
+    /**
+     * @var RouterInterface
+     */
+    private $router;
+
+    /**
+     * @var RequestStack
+     */
+    private $requestStack;
+
+    /**
+     * @var Action
+     */
     private $column;
 
     protected function setUp()
     {
-        if (!interface_exists('Symfony\Component\DependencyInjection\ContainerInterface')
-            || !interface_exists('Symfony\Component\Routing\RouterInterface')
-            || !class_exists('Symfony\Component\HttpFoundation\Request')) {
-            $this->markTestSkipped('Symfony Column Action require Symfony\Component\DependencyInjection\ContainerInterface interface.');
-        }
+        $this->router = $this->getMock('Symfony\Component\Routing\RouterInterface');
+        $this->requestStack = $this->getMock('Symfony\Component\HttpFoundation\RequestStack');
+        $this->requestStack->expects($this->any())
+            ->method('getMasterRequest')
+            ->will($this->returnValue(new MyRequest()));
 
-        $this->container = $this->getMock('Symfony\Component\DependencyInjection\ContainerInterface');
-
-        $column = new Action($this->container);
+        $column = new Action($this->router, $this->requestStack);
         $column->setName('action');
         $column->initOptions();
 
@@ -59,36 +70,19 @@ class ActionTest extends \PHPUnit_Framework_TestCase
 
     public function testFilterValueRequiredActionInActionsOption()
     {
-        $self = $this;
+        $this->router->expects($this->any())
+            ->method('generate')
+            ->with('foo', array('redirect_uri' => MyRequest::RELATIVE_URI), false)
+            ->will($this->returnValue('/test/bar?redirect_uri=' . urlencode(MyRequest::ABSOLUTE_URI)));
 
-        $this->container->expects($this->any())
-            ->method('get')
-            ->will($this->returnCallback(function($serviceId) use ($self) {
-
-                if ($serviceId == 'router') {
-                    $router = $self->getMock('Symfony\Component\Routing\RouterInterface');
-                    $router->expects($self->once())
-                        ->method('generate')
-                        ->with('foo', array('redirect_uri' => MyRequest::RELATIVE_URI), false)
-                        ->will($self->returnValue('/test/bar?redirect_uri=' . urlencode(MyRequest::ABSOLUTE_URI)));
-
-                    return $router;
-                }
-
-                if ($serviceId == 'request') {
-                    return new MyRequest();
-                }
-            }));
-
-        $column = new Action($this->container);
-        $column->setName('action');
-        $column->initOptions();
+        $this->column->setName('action');
+        $this->column->initOptions();
 
         $extension = new DefaultColumnOptionsExtension();
-        $extension->initOptions($column);
+        $extension->initOptions($this->column);
 
 
-        $column->setOption('actions', array(
+        $this->column->setOption('actions', array(
             'edit' => array(
                 'route_name' => 'foo',
                 'absolute' => false
@@ -98,7 +92,6 @@ class ActionTest extends \PHPUnit_Framework_TestCase
        $this->assertSame(
            array(
                'edit' => array(
-                   'url' => '/test/bar?redirect_uri=' . urlencode(MyRequest::ABSOLUTE_URI),
                    'content' => 'edit',
                    'field_mapping_values' => array(
                            'foo' => 'bar'
@@ -108,7 +101,7 @@ class ActionTest extends \PHPUnit_Framework_TestCase
                    )
                )
            ),
-           $column->filterValue(array(
+           $this->column->filterValue(array(
                'foo' => 'bar'
            ))
        );
@@ -116,35 +109,19 @@ class ActionTest extends \PHPUnit_Framework_TestCase
 
     public function testFilterValueAvailableActionInActionsOption()
     {
-        $self = $this;
+        $this->router->expects($this->once())
+            ->method('generate')
+            ->with('foo', array('foo' => 'bar', 'redirect_uri' => MyRequest::RELATIVE_URI), true)
+            ->will($this->returnValue('https://fsi.pl/test/bar?redirect_uri=' . urlencode(MyRequest::RELATIVE_URI)));
 
-        $this->container->expects($this->any())
-            ->method('get')
-            ->will($this->returnCallback(function($serviceId) use ($self) {
-                switch ($serviceId) {
-                    case 'router':
-                        $router = $self->getMock('Symfony\Component\Routing\RouterInterface');
-                        $router->expects($self->once())
-                            ->method('generate')
-                            ->with('foo', array('foo' => 'bar', 'redirect_uri' => MyRequest::RELATIVE_URI), true)
-                            ->will($self->returnValue('https://fsi.pl/test/bar?redirect_uri=' . urlencode(MyRequest::RELATIVE_URI)));
-                        return $router;
-                        break;
-                    case 'request':
-                        return new MyRequest();
-                        break;
-                }
-            }));
-
-        $column = new Action($this->container);
-        $column->setName('action');
-        $column->initOptions();
+        $this->column->setName('action');
+        $this->column->initOptions();
 
         $extension = new DefaultColumnOptionsExtension();
-        $extension->initOptions($column);
+        $extension->initOptions($this->column);
 
-        $column->setOption('field_mapping', array('foo'));
-        $column->setOption('actions', array(
+        $this->column->setOption('field_mapping', array('foo'));
+        $this->column->setOption('actions', array(
             'edit' => array(
                 'route_name' => 'foo',
                 'parameters_field_mapping' => array('foo' => 'foo'),
@@ -155,7 +132,6 @@ class ActionTest extends \PHPUnit_Framework_TestCase
        $this->assertSame(
            array(
                'edit' => array(
-                   'url' => 'https://fsi.pl/test/bar?redirect_uri=' . urlencode(MyRequest::RELATIVE_URI),
                    'content' => 'edit',
                    'field_mapping_values' => array(
                            'foo' => 'bar'
@@ -165,7 +141,7 @@ class ActionTest extends \PHPUnit_Framework_TestCase
                    )
                )
            ),
-           $column->filterValue(array(
+           $this->column->filterValue(array(
                'foo' => 'bar'
            ))
        );
@@ -174,35 +150,18 @@ class ActionTest extends \PHPUnit_Framework_TestCase
 
     public function testFilterValueWithRedirectUriFalse()
     {
-        $self = $this;
+        $this->router->expects($this->once())
+            ->method('generate')
+            ->with('foo', array(), false)
+            ->will($this->returnValue('/test/bar'));
 
-        $this->container->expects($this->any())
-            ->method('get')
-            ->will($this->returnCallback(function($serviceId) use ($self) {
-                switch ($serviceId) {
-                    case 'router':
-                        $router = $self->getMock('Symfony\Component\Routing\RouterInterface');
-                        $router->expects($self->once())
-                            ->method('generate')
-                            ->with('foo', array(), false)
-                            ->will($self->returnValue('/test/bar'));
-
-                        return $router;
-                    break;
-                    case 'request':
-                        return new MyRequest();
-                    break;
-                }
-            }));
-
-        $column = new Action($this->container);
-        $column->setName('action');
-        $column->initOptions();
+        $this->column->setName('action');
+        $this->column->initOptions();
 
         $extension = new DefaultColumnOptionsExtension();
-        $extension->initOptions($column);
+        $extension->initOptions($this->column);
 
-        $column->setOption('actions', array(
+        $this->column->setOption('actions', array(
             'edit' => array(
                 'route_name' => 'foo',
                 'absolute' => false,
@@ -213,7 +172,6 @@ class ActionTest extends \PHPUnit_Framework_TestCase
        $this->assertSame(
            array(
                'edit' => array(
-                   'url' => '/test/bar',
                    'content' => 'edit',
                    'field_mapping_values' => array(
                        'foo' => 'bar'
@@ -223,7 +181,7 @@ class ActionTest extends \PHPUnit_Framework_TestCase
                    )
                )
            ),
-           $column->filterValue(array(
+           $this->column->filterValue(array(
                'foo' => 'bar'
            ))
        );

@@ -12,7 +12,9 @@ namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnType;
 use FSi\Component\DataGrid\Column\ColumnAbstractType;
 use FSi\Component\DataGrid\Exception\UnexpectedTypeException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Routing\RouterInterface;
 
 class Action extends ColumnAbstractType
 {
@@ -26,9 +28,9 @@ class Action extends ColumnAbstractType
     /**
      * Service container used to access current request.
      *
-     * @var \Symfony\Component\DependencyInjection\ContainerInterface
+     * @var \Symfony\Component\HttpFoundation\RequestStack
      */
-    protected $container;
+    protected $requestStack;
 
     /**
      * @var \Symfony\Component\OptionsResolver\OptionsResolver
@@ -36,12 +38,13 @@ class Action extends ColumnAbstractType
     protected $actionOptionsResolver;
 
     /**
-     * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
      */
-    public function __construct(ContainerInterface $container)
+    public function __construct(RouterInterface $router, RequestStack $requestStack)
     {
-        $this->container = $container;
-        $this->router = $container->get('router');
+        $this->router = $router;
+        $this->requestStack = $requestStack;
         $this->actionOptionsResolver = new OptionsResolver();
     }
 
@@ -90,7 +93,7 @@ class Action extends ColumnAbstractType
                 }
 
                 if ($options['redirect_uri'] === true) {
-                    $parameters['redirect_uri'] = $this->container->get('request')->getRequestUri();
+                    $parameters['redirect_uri'] = $this->requestStack->getMasterRequest()->getRequestUri();
                 }
             }
 
@@ -98,7 +101,7 @@ class Action extends ColumnAbstractType
                 $urlAttributes = $urlAttributes($value, $this->getIndex());
 
                 if (!is_array($urlAttributes)) {
-                    throw new UnexpectedTypeException('url_attr option Clousure must return new array with url attributes.');
+                    throw new UnexpectedTypeException('url_attr option Closure must return new array with url attributes.');
                 }
             }
 
@@ -112,8 +115,6 @@ class Action extends ColumnAbstractType
                 $content = (string) $content($value, $this->getIndex());
             }
 
-            // $return[$name]['url'] is deprecated since 1.0 and will be removed in version 1.2
-            $return[$name]['url'] = $url;
             $return[$name]['content']  = isset($content) ? $content : $name;
             $return[$name]['field_mapping_values'] = $value;
             $return[$name]['url_attr'] = $urlAttributes;

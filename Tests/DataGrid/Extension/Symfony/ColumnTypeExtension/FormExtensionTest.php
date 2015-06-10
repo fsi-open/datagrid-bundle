@@ -38,10 +38,6 @@ class FormExtensionTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        if (!class_exists('Symfony\Component\Form\FormRegistry')) {
-            $this->markTestSkipped('Symfony Column Extension require Symfony\Component\Form\FormRegistry class.');
-        }
-
         $entities = array(
             new EntityCategory(1, 'category name 1'),
             new EntityCategory(2, 'category name 2'),
@@ -169,7 +165,7 @@ class FormExtensionTest extends \PHPUnit_Framework_TestCase
 
     public function testEntityBindData()
     {
-        $nestedEntityClass = 'FSi\Component\DataGrid\Tests\Fixtures\EntityCategory';
+        $nestedEntityClass = 'FSi\Bundle\DataGridBundle\Tests\Fixtures\EntityCategory';
 
         $column = $this->createColumnMock();
         $this->setColumnId($column, 'entity');

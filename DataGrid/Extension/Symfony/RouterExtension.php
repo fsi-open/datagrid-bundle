@@ -13,22 +13,29 @@ use FSi\Component\DataGrid\DataGridAbstractExtension;
 use FSi\Bundle\DataGridBundle\Datagrid\Extension\Symfony\EventSubscriber;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnType;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Routing\RouterInterface;
 
-class SymfonyExtension extends DataGridAbstractExtension
+class RouterExtension extends DataGridAbstractExtension
 {
     /**
-     * FormFactory used by extension to build forms.
-     *
-     * @var \Symfony\Component\DependencyInjection\ContainerInterface
+     * @var RouterInterface
      */
-    protected $container;
+    private $router;
 
     /**
-     * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
+     * @var RequestStack
      */
-    public function __construct(ContainerInterface $container)
+    private $requestStack;
+
+    /**
+     * @param RouterInterface $router
+     * @param RequestStack $requestStack
+     */
+    public function __construct(RouterInterface $router, RequestStack $requestStack)
     {
-        $this->container = $container;
+        $this->router = $router;
+        $this->requestStack = $requestStack;
     }
 
     /**
@@ -37,7 +44,7 @@ class SymfonyExtension extends DataGridAbstractExtension
     protected function loadColumnTypes()
     {
         return array(
-            new ColumnType\Action($this->container),
+            new ColumnType\Action($this->router, $this->requestStack),
         );
     }
 
