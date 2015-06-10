@@ -14,11 +14,12 @@
         "php": ">=5.3.3",
         "twig/twig": "~1.11",
         "symfony/framework-bundle" : "~2.2",
+        "symfony/options-resolver": "~2.6",
         "symfony/dependency-injection" : "~2.2",
         "fsi/datagrid": "~1.1"
     },
     "require-dev": {
-        "symfony/form" : "2.2.*",
+        "symfony/form" : "~2.3",
         "symfony/twig-bridge" : "2.2.*",
         "phpunit/phpunit": "3.7.*"
     },

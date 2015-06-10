@@ -59,11 +59,9 @@ class ColumnViewOptionsExtension extends ColumnAbstractTypeExtension
             'translation_domain' => 'messages',
         ));
 
-        $column->getOptionsResolver()->setAllowedTypes(array(
-            'translation_domain' => array(
-                'string' ,
-                'null'
-            ),
+        $column->getOptionsResolver()->setAllowedTypes('translation_domain', array(
+            'string' ,
+            'null'
         ));
     }
 }
