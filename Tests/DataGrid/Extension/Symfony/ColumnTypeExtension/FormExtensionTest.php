@@ -45,7 +45,7 @@ class FormExtensionTest extends \PHPUnit_Framework_TestCase
 
         $configuration = $this->getMock('Doctrine\ORM\Configuration');
 
-        $objectManager = $this->getMock('Doctrine\ORM\EntityManagerInterface');
+        $objectManager = $this->getMockBuilder('Doctrine\ORM\EntityManager')->disableOriginalConstructor()->getMock();
         $objectManager->expects($this->any())
             ->method('getConfiguration')
             ->will($this->returnValue($configuration));
