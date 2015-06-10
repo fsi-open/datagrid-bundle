@@ -20,7 +20,8 @@
     },
     "require-dev": {
         "symfony/form" : "~2.3",
-        "symfony/twig-bridge" : "2.2.*",
+        "symfony/doctrine-bridge": "~2.2",
+        "symfony/twig-bridge" : "~2.2",
         "phpunit/phpunit": "3.7.*"
     },
     "autoload": {
