@@ -9,8 +9,8 @@
 
 namespace FSi\Bundle\DatagridBundle\Tests\DataGrid\Extension\Symfony\ColumnType;
 
-use Symfony\Component\HttpFoundation\Request;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnType\Action;
+use FSi\Bundle\DataGridBundle\Tests\Fixtures\Request;
 use FSi\Component\DataGrid\Extension\Core\ColumnTypeExtension\DefaultColumnOptionsExtension;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
@@ -38,7 +38,7 @@ class ActionTest extends \PHPUnit_Framework_TestCase
         $this->requestStack = $this->getMock('Symfony\Component\HttpFoundation\RequestStack');
         $this->requestStack->expects($this->any())
             ->method('getMasterRequest')
-            ->will($this->returnValue(new MyRequest()));
+            ->will($this->returnValue(new Request()));
 
         $column = new Action($this->router, $this->requestStack);
         $column->setName('action');
@@ -72,8 +72,8 @@ class ActionTest extends \PHPUnit_Framework_TestCase
     {
         $this->router->expects($this->any())
             ->method('generate')
-            ->with('foo', array('redirect_uri' => MyRequest::RELATIVE_URI), false)
-            ->will($this->returnValue('/test/bar?redirect_uri=' . urlencode(MyRequest::ABSOLUTE_URI)));
+            ->with('foo', array('redirect_uri' => Request::RELATIVE_URI), false)
+            ->will($this->returnValue('/test/bar?redirect_uri=' . urlencode(Request::ABSOLUTE_URI)));
 
         $this->column->setName('action');
         $this->column->initOptions();
@@ -111,8 +111,8 @@ class ActionTest extends \PHPUnit_Framework_TestCase
     {
         $this->router->expects($this->once())
             ->method('generate')
-            ->with('foo', array('foo' => 'bar', 'redirect_uri' => MyRequest::RELATIVE_URI), true)
-            ->will($this->returnValue('https://fsi.pl/test/bar?redirect_uri=' . urlencode(MyRequest::RELATIVE_URI)));
+            ->with('foo', array('foo' => 'bar', 'redirect_uri' => Request::RELATIVE_URI), true)
+            ->will($this->returnValue('https://fsi.pl/test/bar?redirect_uri=' . urlencode(Request::RELATIVE_URI)));
 
         $this->column->setName('action');
         $this->column->initOptions();
@@ -137,7 +137,7 @@ class ActionTest extends \PHPUnit_Framework_TestCase
                            'foo' => 'bar'
                    ),
                    'url_attr' => array (
-                       'href' => 'https://fsi.pl/test/bar?redirect_uri=' . urlencode(MyRequest::RELATIVE_URI)
+                       'href' => 'https://fsi.pl/test/bar?redirect_uri=' . urlencode(Request::RELATIVE_URI)
                    )
                )
            ),
@@ -169,41 +169,21 @@ class ActionTest extends \PHPUnit_Framework_TestCase
             )
         ));
 
-       $this->assertSame(
-           array(
-               'edit' => array(
-                   'content' => 'edit',
-                   'field_mapping_values' => array(
-                       'foo' => 'bar'
-                   ),
-                   'url_attr' => array (
-                       'href' => '/test/bar'
-                   )
-               )
-           ),
-           $this->column->filterValue(array(
-               'foo' => 'bar'
-           ))
-       );
-    }
-}
-
-class MyRequest extends Request
-{
-    const ABSOLUTE_URI = 'http://example.com/?test=1&test=2';
-    const RELATIVE_URI = '/?test=1&test=2';
-
-    public function __construct()
-    {
-    }
-
-    public function getUri()
-    {
-        return self::ABSOLUTE_URI;
-    }
-
-    public function getRequestUri()
-    {
-        return self::RELATIVE_URI;
+        $this->assertSame(
+            array(
+                'edit' => array(
+                    'content' => 'edit',
+                    'field_mapping_values' => array(
+                        'foo' => 'bar'
+                    ),
+                    'url_attr' => array (
+                        'href' => '/test/bar'
+                    )
+                )
+            ),
+            $this->column->filterValue(array(
+                'foo' => 'bar'
+            ))
+        );
     }
 }

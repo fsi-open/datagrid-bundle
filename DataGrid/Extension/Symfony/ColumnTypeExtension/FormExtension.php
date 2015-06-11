@@ -216,7 +216,6 @@ class FormExtension extends ColumnAbstractTypeExtension
         $formBuilderOptions = array(
             'type' => new RowType($fields),
             'csrf_protection' => false,
-
         );
 
         if (null !== $data) {

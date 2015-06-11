@@ -13,7 +13,7 @@
 ``FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnTypeExtension\FormExtension``
 
 This extensions is loaded into almost all column types. It allows you to set 
-``editable`` otpion in column type.
+``editable`` option in column type.
 
 If ``editable`` option value is ``true`` the SymfonyForm is being created from
 column ``field_mapping``.
