@@ -32,7 +32,6 @@
     "config": {
         "bin-dir": "bin"
     },
-    "target-dir" : "FSi/Bundle/DataGridBundle",
     "extra": {
         "branch-alias": {
             "dev-master": "1.2-dev"
