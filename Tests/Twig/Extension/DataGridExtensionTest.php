@@ -16,6 +16,7 @@ use Symfony\Bridge\Twig\Form\TwigRendererEngine;
 use Symfony\Bridge\Twig\Extension\FormExtension;
 use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Symfony\Bridge\Twig\Tests\Extension\Fixtures\StubTranslator;
+use Symfony\Component\HttpKernel\Kernel;
 
 /**
  * @author Norbert Orzechowicz <norbert@fsi.pl>
@@ -35,8 +36,9 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
+        $subPath = version_compare(Kernel::VERSION, '2.7.0', '<') ? 'Symfony/Bridge/Twig/' : '';
         $loader = new \Twig_Loader_Filesystem(array(
-            __DIR__ . '/../../../vendor/symfony/twig-bridge/Symfony/Bridge/Twig/Resources/views/Form',
+            __DIR__ . '/../../../vendor/symfony/twig-bridge/' . $subPath . 'Resources/views/Form',
             __DIR__ . '/../../../Resources/views', // datagrid base theme
             __DIR__ . '/../../Resources/views', // templates used in tests
         ));

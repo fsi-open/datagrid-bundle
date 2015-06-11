@@ -50,39 +50,43 @@ class BooleanColumnExtension extends ColumnAbstractTypeExtension
         ));
 
         $translator = $this->translator;
-        $column->getOptionsResolver()->setNormalizers(array(
-            'form_options' => function(Options $options, $value) use ($translator) {
-                    if ($options['editable'] && count($options['field_mapping']) == 1) {
-                        $field = $options['field_mapping'][0];
+        $column->getOptionsResolver()->setNormalizer(
+            'form_options',
+            function(Options $options, $value) use ($translator) {
+                if ($options['editable'] && count($options['field_mapping']) == 1) {
+                    $field = $options['field_mapping'][0];
 
-                        return array_merge(
-                            array(
-                                $field => array(
-                                    'choices' => array(
-                                        0 => $translator->trans('datagrid.boolean.no', array(), 'DataGridBundle'),
-                                        1 => $translator->trans('datagrid.boolean.yes', array(), 'DataGridBundle')
-                                    )
+                    return array_merge(
+                        array(
+                            $field => array(
+                                'choices' => array(
+                                    0 => $translator->trans('datagrid.boolean.no', array(), 'DataGridBundle'),
+                                    1 => $translator->trans('datagrid.boolean.yes', array(), 'DataGridBundle')
                                 )
-                            ),
-                            $value
-                        );
-                    }
-
-                    return $value;
-                },
-            'form_type' => function(Options $options, $value) {
-                    if ($options['editable'] && count($options['field_mapping']) == 1) {
-
-                        $field = $options['field_mapping'][0];
-
-                        return array_merge(
-                            array($field => 'choice'),
-                            $value
-                        );
-                    }
-
-                    return $value;
+                            )
+                        ),
+                        $value
+                    );
                 }
-        ));
+
+                return $value;
+            }
+        );
+        $column->getOptionsResolver()->setNormalizer(
+            'form_type',
+            function(Options $options, $value) {
+                if ($options['editable'] && count($options['field_mapping']) == 1) {
+
+                    $field = $options['field_mapping'][0];
+
+                    return array_merge(
+                        array($field => 'choice'),
+                        $value
+                    );
+                }
+
+                return $value;
+            }
+        );
     }
 }
