@@ -46,6 +46,7 @@ class ColumnViewOptionsExtension extends ColumnAbstractTypeExtension
             'money',
             'gedmo.tree',
             'entity',
+            'collection',
             'action'
         );
     }
