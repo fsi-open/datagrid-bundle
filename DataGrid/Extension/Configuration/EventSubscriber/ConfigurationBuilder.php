@@ -19,84 +19,53 @@ use Symfony\Component\Yaml\Parser;
 class ConfigurationBuilder implements EventSubscriberInterface
 {
     /**
-     * @var \Symfony\Component\HttpKernel\KernelInterface
+     * Datagrid configuration
+     *
+     * @var array
      */
-    protected $kernel;
+    protected $datagridConfiguration;
 
     /**
-     * @param KernelInterface $kernel
+     * Constructor
+     *
+     * @param array $datagridConfiguration Datagrid configuration
      */
-    function __construct(KernelInterface $kernel)
+    public function __construct(array $datagridConfiguration)
     {
-        $this->kernel = $kernel;
+        $this->datagridConfiguration = $datagridConfiguration;
     }
+
 
     /**
      * {@inheritdoc}
      */
     public static function getSubscribedEvents()
     {
-        return array(DataGridEvents::PRE_SET_DATA => array('readConfiguration', 128));
+        return array(DataGridEvents::PRE_SET_DATA => array('configureDatagrid', 128));
     }
 
+
     /**
-     * {@inheritdoc}
+     * Configure datagrid
+     *
+     * @param DataGridEventInterface $event DataGrid PRE_SET_DATA event
+     *
+     * @return void
      */
-    public function readConfiguration(DataGridEventInterface $event)
+    public function configureDatagrid(DataGridEventInterface $event)
     {
         $dataGrid = $event->getDataGrid();
-        $dataGridConfiguration = array();
-        foreach ($this->kernel->getBundles() as $bundle) {
-            if ($this->hasDataGridConfiguration($bundle->getPath(), $dataGrid->getName())) {
-                $configuration = $this->getDataGridConfiguration($bundle->getPath(), $dataGrid->getName());
+        if (array_key_exists($dataGrid->getName(), $this->datagridConfiguration)) {
+            foreach ($this->datagridConfiguration[$dataGrid->getName()]['columns'] as $name => $column) {
+                $type = array_key_exists('type', $column)
+                    ? $column['type']
+                    : 'text';
+                $options = array_key_exists('options', $column)
+                    ? $column['options']
+                    : array();
 
-                if (is_array($configuration)) {
-                    $dataGridConfiguration = $configuration;
-                }
+                $dataGrid->addColumn($name, $type, $options);
             }
-        }
-
-        if (count($dataGridConfiguration)) {
-            $this->buildConfiguration($dataGrid, $dataGridConfiguration);
-        }
-    }
-
-    /**
-     * @param string $bundlePath
-     * @param string $dataGridName
-     * @return bool
-     */
-    protected function hasDataGridConfiguration($bundlePath, $dataGridName)
-    {
-        return file_exists(sprintf($bundlePath . '/Resources/config/datagrid/%s.yml', $dataGridName));
-    }
-
-    /**
-     * @param string $bundlePath
-     * @param string $dataGridName
-     * @return mixed
-     */
-    protected function getDataGridConfiguration($bundlePath, $dataGridName)
-    {
-        $yamlParser = new Parser();
-        return $yamlParser->parse(file_get_contents(sprintf($bundlePath . '/Resources/config/datagrid/%s.yml', $dataGridName)));
-    }
-
-    /**
-     * @param DataGridInterface $dataGrid
-     * @param array $configuration
-     */
-    protected function buildConfiguration(DataGridInterface $dataGrid, array $configuration)
-    {
-        foreach ($configuration['columns'] as $name => $column) {
-            $type = array_key_exists('type', $column)
-                ? $column['type']
-                : 'text';
-            $options = array_key_exists('options', $column)
-                ? $column['options']
-                : array();
-
-            $dataGrid->addColumn($name, $type, $options);
         }
     }
 }
