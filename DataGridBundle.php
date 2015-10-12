@@ -12,6 +12,7 @@ namespace FSi\Bundle\DataGridBundle;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use FSi\Bundle\DataGridBundle\DependencyInjection\Compiler\DataGridPass;
+use FSi\Bundle\DataGridBundle\DependencyInjection\Compiler\DataMapperPass;
 use FSi\Bundle\DataGridBundle\DependencyInjection\Compiler\TemplatePathPass;
 use FSi\Bundle\DataGridBundle\DependencyInjection\FSIDataGridExtension;
 
@@ -26,6 +27,7 @@ class DataGridBundle extends Bundle
     {
         parent::build($container);
         $container->addCompilerPass(new DataGridPass());
+        $container->addCompilerPass(new DataMapperPass());
         $container->addCompilerPass(new TemplatePathPass());
     }
 

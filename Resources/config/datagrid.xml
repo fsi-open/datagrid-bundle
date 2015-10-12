@@ -25,16 +25,17 @@
         </service>
 
         <!-- DataMapper\Reflection -->
-        <service id="datagrid.data_mapper.reflection" class="%datagrid.data_mapper.reflection.class%" />
+        <service id="datagrid.data_mapper.reflection" class="%datagrid.data_mapper.reflection.class%">
+          <tag name="datagrid.data_mapper" priority="20"/>
+        </service>
         <!-- DataMapper\PropertyAccessorMapper -->
-        <service id="datagrid.data_mapper.property_accessor" class="%datagrid.data_mapper.property_accessor.class%" />
+        <service id="datagrid.data_mapper.property_accessor" class="%datagrid.data_mapper.property_accessor.class%">
+          <tag name="datagrid.data_mapper" priority="10"/>
+        </service>
 
         <!-- DataMapper\Chain -->
         <service id="datagrid.data_mapper.chain" class="%datagrid.data_mapper.chain.class%">
-            <argument type="collection">
-                <argument type="service" id="datagrid.data_mapper.property_accessor" />
-                <argument type="service" id="datagrid.data_mapper.reflection" />
-            </argument>
+            <argument type="collection"/>
         </service>
 
         <!-- DataGridFactory -->
