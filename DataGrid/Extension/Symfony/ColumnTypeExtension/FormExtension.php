@@ -11,10 +11,12 @@ namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnTypeExtensi
 
 use Doctrine\Common\Util\ClassUtils;
 use FSi\Bundle\DataGridBundle\Form\Type\RowType;
+use FSi\Bundle\DataGridBundle\Form\Type\Symfony3RowType;
 use FSi\Component\DataGrid\Column\CellViewInterface;
 use FSi\Component\DataGrid\Column\ColumnAbstractTypeExtension;
 use FSi\Component\DataGrid\Column\ColumnTypeInterface;
 use FSi\Component\DataGrid\DataGridInterface;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 
@@ -153,7 +155,7 @@ class FormExtension extends ColumnAbstractTypeExtension
             case 'entity':
                 $field = array(
                     'name' => $column->getOption('relation_field'),
-                    'type' => 'entity',
+                    'type' => $this->isSymfony3() ? $this->getEntityTypeName() : 'entity',
                     'options' => array(),
                 );
 
@@ -198,7 +200,9 @@ class FormExtension extends ColumnAbstractTypeExtension
                 foreach ($fields as &$field) {
                     $value = $column->getDataMapper()->getData($field['name'], $data);
                     if (!isset($field['type'])) {
-                        $field['type'] = 'datetime';
+                        $field['type'] = $this->isSymfony3() 
+                            ? $this->getDateTimeTypeName()
+                            : 'datetime';
                     }
                     if (is_numeric($value) && !isset($field['options']['input'])) {
                         $field['options']['input'] = 'timestamp';
@@ -213,21 +217,34 @@ class FormExtension extends ColumnAbstractTypeExtension
                 break;
         }
 
-        $formBuilderOptions = array(
-            'type' => new RowType($fields),
-            'csrf_protection' => false,
-        );
+        if ($this->isSymfony3()) {
+            $formBuilderOptions = array(
+                'entry_type' => $this->getRowTypeName(),
+                'csrf_protection' => false,
+            );
+        } else {
+            $formBuilderOptions = array(
+                'type' => new RowType($fields),
+                'csrf_protection' => false,
+            );
+        }
 
         if (null !== $data) {
-            $formBuilderOptions['options'] = array(
+            $formBuilderOptions[$this->isSymfony3() ? 'entry_options' : 'options'] = array(
                 'data_class' => ClassUtils::getRealClass(get_class($data))
             );
         }
 
+        if ($this->isSymfony3()) {
+            $formBuilderOptions['entry_options']['fields'] = $fields;
+        }
+        
         //Create form builder.
         $formBuilder = $this->formFactory->createNamedBuilder(
             $column->getDataGrid()->getName(),
-            'collection',
+            ($this->isSymfony3()) 
+                ? $this->getCollectionTypeName()
+                : 'collection',
             array($index => $data),
             $formBuilderOptions
         );
@@ -237,4 +254,42 @@ class FormExtension extends ColumnAbstractTypeExtension
 
         return $this->forms[$formId];
     }
+
+    /**
+     * @return string
+     */
+    private function getEntityTypeName()
+    {
+        return 'Symfony\Bridge\Doctrine\Form\Type\EntityType';
+    }
+
+    /**
+     * @return string
+     */
+    private function getDateTimeTypeName()
+    {
+        return 'Symfony\Component\Form\Extension\Core\Type\DateTimeType';
+    }
+    
+    private function getCollectionTypeName()
+    {
+        return 'Symfony\Component\Form\Extension\Core\Type\CollectionType';
+    }
+
+    /**
+     * @return string
+     */
+    private function getRowTypeName()
+    {
+        return 'FSi\Bundle\DataGridBundle\Form\Type\Symfony3RowType';
+    }
+    
+    /**
+     * @return bool
+     */
+    private function isSymfony3()
+    {
+        return method_exists('Symfony\Component\Form\AbstractType', 'getBlockPrefix');
+    }
+        
 }
