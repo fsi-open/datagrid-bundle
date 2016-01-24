@@ -16,10 +16,6 @@ before_script:
   - if [ "$DEPENDENCIES" != "low" ]; then composer update; fi;
   - if [ "$DEPENDENCIES" == "low" ]; then composer update --prefer-lowest; fi;
 
-before_script:
-  - composer selfupdate
-  - composer update --prefer-source ${COMPOSER_FLAGS}
-
 script: bin/phpunit
 
 notifications:

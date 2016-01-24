@@ -76,8 +76,8 @@ class FormExtensionTest extends \PHPUnit_Framework_TestCase
 
         $queryBuilder = new QueryBuilder($objectManager);
 
-        $entityClass = 'FSi\Component\DataGrid\Tests\Fixtures\EntityCategory';
-        $classMetadata = new ClassMetadata('FSi\Component\DataGrid\Tests\Fixtures\EntityCategory');
+        $entityClass = 'FSi\Bundle\DataGridBundle\Tests\Fixtures\EntityCategory';
+        $classMetadata = new ClassMetadata($entityClass);
         $classMetadata->identifier = array('id');
         $classMetadata->fieldMappings = array(
             'id' => array(
@@ -145,8 +145,8 @@ class FormExtensionTest extends \PHPUnit_Framework_TestCase
             'editable' => true,
             'form_options' => array(),
             'form_type' => array(
-                'name' => array('type' => 'text'),
-                'author' => array('type' => 'text'),
+                'name' => array('type' => $this->isSymfony3() ? 'Symfony\Component\Form\Extension\Core\Type\TextTyp' : 'text'),
+                'author' => array('type' => $this->isSymfony3() ? 'Symfony\Component\Form\Extension\Core\Type\TextTyp' : 'text'),
             )
         ));
 
@@ -245,5 +245,10 @@ class FormExtensionTest extends \PHPUnit_Framework_TestCase
         return $this->returnCallback(function() use ($dataMapper) {
             return $dataMapper;
         });
+    }
+
+    private function isSymfony3()
+    {
+        return method_exists('Symfony\Component\Form\AbstractType', 'getBlockPrefix');
     }
 }
