@@ -78,7 +78,7 @@ class FormExtension extends ColumnAbstractTypeExtension
         $form->submit(array($index => $formData));
         if ($form->isValid()) {
             $data = $form->getData();
-            foreach ($data as $index => $fields) {
+            foreach ($data as $fields) {
                 foreach ($fields as $field => $value) {
                     $column->getDataMapper()->setData($field, $object, $value);
                 }
@@ -138,10 +138,10 @@ class FormExtension extends ColumnAbstractTypeExtension
      *
      * @param \FSi\Component\DataGrid\Column\ColumnTypeInterface $column
      * @param mixed $index
-     * @param mixed $data
+     * @param mixed $object
      * @return FormInterface
      */
-    private function createForm(ColumnTypeInterface $column, $index, $data)
+    private function createForm(ColumnTypeInterface $column, $index, $object)
     {
         $formId = implode(array($column->getName(),$column->getId(), $index));
         if (array_key_exists($formId, $this->forms)) {
@@ -198,9 +198,9 @@ class FormExtension extends ColumnAbstractTypeExtension
         switch ($column->getId()) {
             case 'datetime':
                 foreach ($fields as &$field) {
-                    $value = $column->getDataMapper()->getData($field['name'], $data);
+                    $value = $column->getDataMapper()->getData($field['name'], $object);
                     if (!isset($field['type'])) {
-                        $field['type'] = $this->isSymfony3() 
+                        $field['type'] = $this->isSymfony3()
                             ? $this->getDateTimeTypeName()
                             : 'datetime';
                     }
@@ -229,23 +229,22 @@ class FormExtension extends ColumnAbstractTypeExtension
             );
         }
 
-        if (null !== $data) {
-            $formBuilderOptions[$this->isSymfony3() ? 'entry_options' : 'options'] = array(
-                'data_class' => ClassUtils::getRealClass(get_class($data))
-            );
-        }
-
         if ($this->isSymfony3()) {
             $formBuilderOptions['entry_options']['fields'] = $fields;
         }
-        
+
+        $formData = [];
+        foreach (array_keys($fields) as $fieldName) {
+            $formData[$fieldName] = $column->getDataMapper()->getData($fieldName, $object);
+        }
+
         //Create form builder.
         $formBuilder = $this->formFactory->createNamedBuilder(
             $column->getDataGrid()->getName(),
-            ($this->isSymfony3()) 
+            ($this->isSymfony3())
                 ? $this->getCollectionTypeName()
                 : 'collection',
-            array($index => $data),
+            array($index => $formData),
             $formBuilderOptions
         );
 
@@ -270,7 +269,7 @@ class FormExtension extends ColumnAbstractTypeExtension
     {
         return 'Symfony\Component\Form\Extension\Core\Type\DateTimeType';
     }
-    
+
     private function getCollectionTypeName()
     {
         return 'Symfony\Component\Form\Extension\Core\Type\CollectionType';
@@ -283,7 +282,7 @@ class FormExtension extends ColumnAbstractTypeExtension
     {
         return 'FSi\Bundle\DataGridBundle\Form\Type\Symfony3RowType';
     }
-    
+
     /**
      * @return bool
      */
@@ -291,5 +290,5 @@ class FormExtension extends ColumnAbstractTypeExtension
     {
         return method_exists('Symfony\Component\Form\AbstractType', 'getBlockPrefix');
     }
-        
+
 }
