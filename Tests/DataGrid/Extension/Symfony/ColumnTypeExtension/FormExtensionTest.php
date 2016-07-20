@@ -19,10 +19,13 @@ use FSi\Component\DataGrid\DataGrid;
 use Symfony\Bridge\Doctrine\Form\DoctrineOrmExtension;
 use Symfony\Component\Form\Extension\Core\CoreExtension;
 use Symfony\Component\Form\Extension\Csrf\CsrfExtension;
+use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Form\FormRegistry;
 use Symfony\Component\Form\ResolvedFormTypeFactory;
 use Symfony\Component\Security\Csrf\CsrfTokenManager;
+use Symfony\Component\Validator\Constraints\Email;
+use Symfony\Component\Validator\ValidatorBuilder;
 
 class FormExtensionTest extends \PHPUnit_Framework_TestCase
 {
@@ -117,12 +120,14 @@ class FormExtensionTest extends \PHPUnit_Framework_TestCase
             ->method('getManagers')
             ->will($this->returnValue(array()));
 
+        $validatorBuilder = new ValidatorBuilder();
         $resolvedTypeFactory = new ResolvedFormTypeFactory();
         $formRegistry = new FormRegistry(array(
-                new CoreExtension(),
-                new DoctrineOrmExtension($managerRegistry),
-                new CsrfExtension(new CsrfTokenManager())
-            ),
+            new CoreExtension(),
+            new DoctrineOrmExtension($managerRegistry),
+            new CsrfExtension(new CsrfTokenManager()),
+            new ValidatorExtension($validatorBuilder->getValidator())
+        ),
             $resolvedTypeFactory
         );
 
@@ -161,6 +166,40 @@ class FormExtensionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame('norbert@fsi.pl', $object->getAuthor());
         $this->assertSame('object', $object->getName());
+    }
+
+
+    public function testAvoidBindingDataWhenFormIsNotValid()
+    {
+        $column = $this->createColumnMock();
+        $this->setColumnId($column, 'text');
+        $this->setColumnOptions($column, array(
+            'field_mapping' => array('name', 'author'),
+            'editable' => true,
+            'form_options' => array(
+                'author' => [
+                    'constraints' => [
+                        new Email()
+                    ]
+                ]
+            ),
+            'form_type' => array(
+                'name' => array('type' => $this->isSymfony3() ? 'Symfony\Component\Form\Extension\Core\Type\TextTyp' : 'text'),
+                'author' => array('type' => $this->isSymfony3() ? 'Symfony\Component\Form\Extension\Core\Type\TextTyp' : 'text'),
+            )
+        ));
+
+        $object = new Entity('old_name');
+
+        $data = array(
+            'name' => 'object',
+            'author' => 'invalid_value',
+        );
+
+        $this->extension->bindData($column, $data, $object, 1);
+
+        $this->assertNull($object->getAuthor());
+        $this->assertSame('old_name', $object->getName());
     }
 
     public function testEntityBindData()
