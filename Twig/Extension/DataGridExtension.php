@@ -76,14 +76,14 @@ class DataGridExtension extends \Twig_Extension
     public function getFunctions()
     {
         return [
-            'datagrid_widget' => new \Twig_SimpleFunction($this, 'datagrid', ['is_safe' => ['html']]),
-            'datagrid_header_widget' =>  new \Twig_SimpleFunction($this, 'datagridHeader', ['is_safe' => ['html']]),
-            'datagrid_rowset_widget' =>  new \Twig_SimpleFunction($this, 'datagridRowset', ['is_safe' => ['html']]),
-            'datagrid_column_header_widget' =>  new \Twig_SimpleFunction($this, 'datagridColumnHeader', ['is_safe' => ['html']]),
-            'datagrid_column_cell_widget' =>  new \Twig_SimpleFunction($this, 'datagridColumnCell', ['is_safe' => ['html']]),
-            'datagrid_column_cell_form_widget' =>  new \Twig_SimpleFunction($this, 'datagridColumnCellForm', ['is_safe' => ['html']]),
-            'datagrid_column_type_action_cell_action_widget' =>  new \Twig_SimpleFunction($this, 'datagridColumnActionCellActionWidget', ['is_safe' => ['html']]),
-            'datagrid_attributes_widget' =>  new \Twig_SimpleFunction($this, 'datagridAttributes', ['is_safe' => ['html']])
+            new \Twig_SimpleFunction('datagrid_widget', [$this, 'datagrid'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFunction('datagrid_header_widget', [$this, 'datagridHeader'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFunction('datagrid_rowset_widget', [$this, 'datagridRowset'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFunction('datagrid_column_header_widget', [$this, 'datagridColumnHeader'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFunction('datagrid_column_cell_widget', [$this, 'datagridColumnCell'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFunction('datagrid_column_cell_form_widget', [$this, 'datagridColumnCellForm'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFunction('datagrid_column_type_action_cell_action_widget', [$this, 'datagridColumnActionCellActionWidget'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFunction('datagrid_attributes_widget', [$this, 'datagridAttributes'], ['is_safe' => ['html']])
         ];
     }
 
