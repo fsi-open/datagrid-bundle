@@ -37,7 +37,7 @@ class Configuration implements ConfigurationInterface
                             return isset($v['template']) && ($v['template'] !== null);
                         })
                         ->then(function ($v) {
-                            $v['themes'] = array($v['template']);
+                            $v['themes'] = [$v['template']];
                             unset($v['template']);
                             return $v;
                         })
@@ -48,7 +48,7 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('template')->end()
                         ->arrayNode('themes')
                             ->prototype('scalar')->end()
-                            ->defaultValue(array('datagrid.html.twig'))
+                            ->defaultValue(['datagrid.html.twig'])
                         ->end()
                     ->end()
                 ->end()

@@ -37,7 +37,7 @@ abstract class ExportAbstract extends Response
      * @param array $headers
      * @param Translator $translator
      */
-    public function __construct(DataGridViewInterface $datagrid, $filename, $status = 200, $headers = array(), Translator $translator = null)
+    public function __construct(DataGridViewInterface $datagrid, $filename, $status = 200, $headers = [], Translator $translator = null)
     {
         parent::__construct('', $status, $headers);
 

@@ -12,7 +12,7 @@
     ],
     "require": {
         "php": ">=5.4",
-        "twig/twig": "~1.11",
+        "twig/twig": "~1.12",
         "symfony/property-access": "^2.3|^3.0",
         "symfony/framework-bundle" : "^2.4|^3.0",
         "symfony/options-resolver": "^2.6|^3.0",
