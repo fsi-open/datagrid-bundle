@@ -36,7 +36,7 @@ class BooleanColumnExtension extends ColumnAbstractTypeExtension
      */
     public function getExtendedColumnTypes()
     {
-        return array('boolean');
+        return ['boolean'];
     }
 
     /**
@@ -44,10 +44,10 @@ class BooleanColumnExtension extends ColumnAbstractTypeExtension
      */
     public function initOptions(ColumnTypeInterface $column)
     {
-        $column->getOptionsResolver()->setDefaults(array(
-            'true_value' => $this->translator->trans('datagrid.boolean.yes', array(), 'DataGridBundle'),
-            'false_value' => $this->translator->trans('datagrid.boolean.no', array(), 'DataGridBundle')
-        ));
+        $column->getOptionsResolver()->setDefaults([
+            'true_value' => $this->translator->trans('datagrid.boolean.yes', [], 'DataGridBundle'),
+            'false_value' => $this->translator->trans('datagrid.boolean.no', [], 'DataGridBundle')
+        ]);
 
         $translator = $this->translator;
         $column->getOptionsResolver()->setNormalizer(
@@ -57,14 +57,14 @@ class BooleanColumnExtension extends ColumnAbstractTypeExtension
                     $field = $options['field_mapping'][0];
 
                     return array_merge(
-                        array(
-                            $field => array(
-                                'choices' => array(
-                                    0 => $translator->trans('datagrid.boolean.no', array(), 'DataGridBundle'),
-                                    1 => $translator->trans('datagrid.boolean.yes', array(), 'DataGridBundle')
-                                )
-                            )
-                        ),
+                        [
+                            $field => [
+                                'choices' => [
+                                    0 => $translator->trans('datagrid.boolean.no', [], 'DataGridBundle'),
+                                    1 => $translator->trans('datagrid.boolean.yes', [], 'DataGridBundle')
+                                ]
+                            ]
+                        ],
                         $value
                     );
                 }
@@ -80,7 +80,7 @@ class BooleanColumnExtension extends ColumnAbstractTypeExtension
                     $field = $options['field_mapping'][0];
 
                     return array_merge(
-                        array($field => 'choice'),
+                        [$field => 'choice'],
                         $value
                     );
                 }

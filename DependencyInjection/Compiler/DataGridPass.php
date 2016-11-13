@@ -20,7 +20,7 @@ class DataGridPass implements CompilerPassInterface
             return;
         }
 
-        $columns = array();
+        $columns = [];
 
         foreach ($container->findTaggedServiceIds('datagrid.column') as $serviceId => $tag) {
             $alias = isset($tag[0]['alias'])
@@ -32,7 +32,7 @@ class DataGridPass implements CompilerPassInterface
 
         $container->getDefinition('datagrid.extension')->replaceArgument(1, $columns);
 
-        $columnExtensions = array();
+        $columnExtensions = [];
 
         foreach ($container->findTaggedServiceIds('datagrid.column_extension') as $serviceId => $tag) {
             $alias = isset($tag[0]['alias'])
@@ -44,7 +44,7 @@ class DataGridPass implements CompilerPassInterface
 
         $container->getDefinition('datagrid.extension')->replaceArgument(2, $columnExtensions);
 
-        $subscribers = array();
+        $subscribers = [];
 
         foreach ($container->findTaggedServiceIds('datagrid.subscriber') as $serviceId => $tag) {
             $alias = isset($tag[0]['alias'])
