@@ -76,14 +76,14 @@ class DataGridExtension extends \Twig_Extension
     public function getFunctions()
     {
         return array(
-            'datagrid_widget' => new \Twig_Function_Method($this, 'datagrid', array('is_safe' => array('html'))),
-            'datagrid_header_widget' =>  new \Twig_Function_Method($this, 'datagridHeader', array('is_safe' => array('html'))),
-            'datagrid_rowset_widget' =>  new \Twig_Function_Method($this, 'datagridRowset', array('is_safe' => array('html'))),
-            'datagrid_column_header_widget' =>  new \Twig_Function_Method($this, 'datagridColumnHeader', array('is_safe' => array('html'))),
-            'datagrid_column_cell_widget' =>  new \Twig_Function_Method($this, 'datagridColumnCell', array('is_safe' => array('html'))),
-            'datagrid_column_cell_form_widget' =>  new \Twig_Function_Method($this, 'datagridColumnCellForm', array('is_safe' => array('html'))),
-            'datagrid_column_type_action_cell_action_widget' =>  new \Twig_Function_Method($this, 'datagridColumnActionCellActionWidget', array('is_safe' => array('html'))),
-            'datagrid_attributes_widget' =>  new \Twig_Function_Method($this, 'datagridAttributes', array('is_safe' => array('html')))
+            'datagrid_widget' => new \Twig_SimpleFunction($this, 'datagrid', array('is_safe' => array('html'))),
+            'datagrid_header_widget' =>  new \Twig_SimpleFunction($this, 'datagridHeader', array('is_safe' => array('html'))),
+            'datagrid_rowset_widget' =>  new \Twig_SimpleFunction($this, 'datagridRowset', array('is_safe' => array('html'))),
+            'datagrid_column_header_widget' =>  new \Twig_SimpleFunction($this, 'datagridColumnHeader', array('is_safe' => array('html'))),
+            'datagrid_column_cell_widget' =>  new \Twig_SimpleFunction($this, 'datagridColumnCell', array('is_safe' => array('html'))),
+            'datagrid_column_cell_form_widget' =>  new \Twig_SimpleFunction($this, 'datagridColumnCellForm', array('is_safe' => array('html'))),
+            'datagrid_column_type_action_cell_action_widget' =>  new \Twig_SimpleFunction($this, 'datagridColumnActionCellActionWidget', array('is_safe' => array('html'))),
+            'datagrid_attributes_widget' =>  new \Twig_SimpleFunction($this, 'datagridAttributes', array('is_safe' => array('html')))
         );
     }
 
