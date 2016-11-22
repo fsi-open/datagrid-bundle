@@ -28,6 +28,11 @@ class FormExtension extends ColumnAbstractTypeExtension
     protected $formFactory;
 
     /**
+     * @var bool
+     */
+    protected $csrfTokenEnabled;
+
+    /**
      * Form Objects instances created by method CreateForm.
      *
      * @var array
@@ -37,9 +42,10 @@ class FormExtension extends ColumnAbstractTypeExtension
     /**
      * @param \Symfony\Component\Form\FormFactoryInterface $formFactory
      */
-    public function __construct(FormFactoryInterface $formFactory)
+    public function __construct(FormFactoryInterface $formFactory, $csrfTokenEnabled = true)
     {
         $this->formFactory = $formFactory;
+        $this->csrfTokenEnabled = $csrfTokenEnabled;
     }
 
     /**
@@ -217,16 +223,13 @@ class FormExtension extends ColumnAbstractTypeExtension
                 break;
         }
 
-        if ($this->isSymfony3()) {
-            $formBuilderOptions = array(
-                'entry_type' => $this->getRowTypeName(),
-                'csrf_protection' => false,
-            );
-        } else {
-            $formBuilderOptions = array(
-                'type' => new RowType($fields),
-                'csrf_protection' => false,
-            );
+        $formBuilderOptions = $this->isSymfony3()
+            ? array('entry_type' => $this->getRowTypeName())
+            : array('type' => new RowType($fields))
+        ;
+
+        if ($this->csrfTokenEnabled) {
+            $formBuilderOptions['csrf_protection'] = false;
         }
 
         if ($this->isSymfony3()) {
