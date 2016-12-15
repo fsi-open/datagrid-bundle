@@ -19,6 +19,7 @@ use FSi\Component\DataGrid\DataGrid;
 use Symfony\Bridge\Doctrine\Form\DoctrineOrmExtension;
 use Symfony\Component\Form\Extension\Core\CoreExtension;
 use Symfony\Component\Form\Extension\Csrf\CsrfExtension;
+use Symfony\Component\Form\Extension\Csrf\CsrfProvider\DefaultCsrfProvider;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Form\FormRegistry;
@@ -120,6 +121,12 @@ class FormExtensionTest extends \PHPUnit_Framework_TestCase
             ->method('getManagers')
             ->will($this->returnValue(array()));
 
+        if ($this->isSymfonyForm27()) {
+            $tokenManager = new CsrfTokenManager();
+        } else {
+            $tokenManager = new DefaultCsrfProvider('tests');
+        }
+
         $validatorBuilder = new ValidatorBuilder();
         $resolvedTypeFactory = new ResolvedFormTypeFactory();
         $formRegistry = new FormRegistry(array(
@@ -150,8 +157,8 @@ class FormExtensionTest extends \PHPUnit_Framework_TestCase
             'editable' => true,
             'form_options' => array(),
             'form_type' => array(
-                'name' => array('type' => $this->isSymfony3() ? 'Symfony\Component\Form\Extension\Core\Type\TextTyp' : 'text'),
-                'author' => array('type' => $this->isSymfony3() ? 'Symfony\Component\Form\Extension\Core\Type\TextTyp' : 'text'),
+                'name' => array('type' => $this->isSymfonyForm28() ? 'Symfony\Component\Form\Extension\Core\Type\TextType' : 'text'),
+                'author' => array('type' => $this->isSymfonyForm28() ? 'Symfony\Component\Form\Extension\Core\Type\TextType' : 'text'),
             )
         ));
 
@@ -184,8 +191,8 @@ class FormExtensionTest extends \PHPUnit_Framework_TestCase
                 ]
             ),
             'form_type' => array(
-                'name' => array('type' => $this->isSymfony3() ? 'Symfony\Component\Form\Extension\Core\Type\TextTyp' : 'text'),
-                'author' => array('type' => $this->isSymfony3() ? 'Symfony\Component\Form\Extension\Core\Type\TextTyp' : 'text'),
+                'name' => array('type' => $this->isSymfonyForm28() ? 'Symfony\Component\Form\Extension\Core\Type\TextType' : 'text'),
+                'author' => array('type' => $this->isSymfonyForm28() ? 'Symfony\Component\Form\Extension\Core\Type\TextType' : 'text'),
             )
         ));
 
@@ -286,7 +293,15 @@ class FormExtensionTest extends \PHPUnit_Framework_TestCase
         });
     }
 
-    private function isSymfony3()
+    /**
+     * @return bool
+     */
+    private function isSymfonyForm27()
+    {
+        return method_exists('Symfony\Component\Form\FormTypeInterface', 'configureOptions');
+    }
+
+    private function isSymfonyForm28()
     {
         return method_exists('Symfony\Component\Form\AbstractType', 'getBlockPrefix');
     }

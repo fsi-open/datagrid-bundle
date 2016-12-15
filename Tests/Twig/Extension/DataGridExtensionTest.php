@@ -9,6 +9,7 @@
 
 namespace FSi\Bundle\DataGridBundle\Tests\Twig\Extension;
 
+use FSi\Bundle\DataGridBundle\Tests\Fixtures\TwigRuntimeLoader;
 use FSi\Bundle\DataGridBundle\Twig\Extension\DataGridExtension;
 use FSi\Component\DataGrid\DataGridViewInterface;
 use Symfony\Bridge\Twig\Form\TwigRenderer;
@@ -48,12 +49,17 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
         ));
         $renderer = new TwigRenderer($rendererEngine);
 
-
         $twig = new \Twig_Environment($loader);
         $twig->addExtension(new TranslationExtension(new StubTranslator()));
         $twig->addExtension(new FormExtension($renderer));
         $twig->addGlobal('global_var', 'global_value');
         $this->twig = $twig;
+
+        if (interface_exists('Twig_RuntimeLoaderInterface')) {
+            $twig->addRuntimeLoader(new TwigRuntimeLoader([
+                $renderer,
+            ]));
+        }
 
         $this->extension = new DataGridExtension(array('datagrid.html.twig'));
     }

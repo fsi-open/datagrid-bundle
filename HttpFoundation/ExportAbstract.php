@@ -10,8 +10,9 @@
 namespace FSi\Bundle\DataGridBundle\HttpFoundation;
 
 use FSi\Component\DataGrid\DataGridViewInterface;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Translation\Translator;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Translation\TranslatorInterface;
 
 abstract class ExportAbstract extends Response
 {
@@ -26,7 +27,7 @@ abstract class ExportAbstract extends Response
     protected $filename;
 
     /**
-     * @var Symfony\Bundle\FrameworkBundle\Translation\Translator|null
+     * @var TranslatorInterface|null
      */
     protected $translator;
 
@@ -37,8 +38,13 @@ abstract class ExportAbstract extends Response
      * @param array $headers
      * @param Translator $translator
      */
-    public function __construct(DataGridViewInterface $datagrid, $filename, $status = 200, $headers = array(), Translator $translator = null)
-    {
+    public function __construct(
+        DataGridViewInterface $datagrid,
+        $filename,
+        $status = 200,
+        $headers = array(),
+        TranslatorInterface $translator = null
+    ) {
         parent::__construct('', $status, $headers);
 
         $this->translator = $translator;
