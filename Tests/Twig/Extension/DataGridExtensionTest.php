@@ -716,6 +716,8 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
         $template->expects($this->at(7))
             ->method('displayBlock')
             ->with('datagrid_column_type_action_cell_action', array(
+                'cell_view' => $cellView,
+                'action' => 'edit',
                 'content' => 'content',
                 'attr' => array(),
                 'translation_domain' => null,
