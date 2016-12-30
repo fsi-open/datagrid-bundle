@@ -318,7 +318,7 @@ class DataGridExtension extends \Twig_Extension
         );
 
         $context = array(
-            'cell_view' => $view,
+            'cell' => $view,
             'action' => $action,
             'content' => $content,
             'attr' => $urlAttrs,
