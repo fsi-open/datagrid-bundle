@@ -318,6 +318,8 @@ class DataGridExtension extends \Twig_Extension
         );
 
         $context = array(
+            'cell' => $view,
+            'action' => $action,
             'content' => $content,
             'attr' => $urlAttrs,
             'translation_domain' => $view->getAttribute('translation_domain'),
