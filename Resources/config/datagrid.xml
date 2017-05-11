@@ -110,6 +110,7 @@
         <service id="datagrid.column_extension.symfony.form" class="FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnTypeExtension\FormExtension">
             <tag name="datagrid.column_extension" alias="symfony.form"/>
             <argument type="service" id="form.factory" />
+            <argument>%form.type_extension.csrf.enabled%</argument>
         </service>
         <service id="datagrid.subscriber.symfony.bindrequest" class="FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\EventSubscriber\BindRequest">
             <tag name="datagrid.subscriber" alias="symfony.form.bindrequest"/>
