@@ -14,7 +14,7 @@ use FSi\Component\DataGrid\Column\HeaderViewInterface;
 use FSi\Component\DataGrid\Column\CellViewInterface;
 use FSi\Bundle\DataGridBundle\Twig\TokenParser\DataGridThemeTokenParser;
 
-class DataGridExtension extends \Twig_Extension
+class DataGridExtension extends \Twig_Extension implements \Twig_Extension_InitRuntimeInterface
 {
     /**
      * Default theme key in themes array.
@@ -76,14 +76,14 @@ class DataGridExtension extends \Twig_Extension
     public function getFunctions()
     {
         return array(
-            'datagrid_widget' => new \Twig_Function_Method($this, 'datagrid', array('is_safe' => array('html'))),
-            'datagrid_header_widget' =>  new \Twig_Function_Method($this, 'datagridHeader', array('is_safe' => array('html'))),
-            'datagrid_rowset_widget' =>  new \Twig_Function_Method($this, 'datagridRowset', array('is_safe' => array('html'))),
-            'datagrid_column_header_widget' =>  new \Twig_Function_Method($this, 'datagridColumnHeader', array('is_safe' => array('html'))),
-            'datagrid_column_cell_widget' =>  new \Twig_Function_Method($this, 'datagridColumnCell', array('is_safe' => array('html'))),
-            'datagrid_column_cell_form_widget' =>  new \Twig_Function_Method($this, 'datagridColumnCellForm', array('is_safe' => array('html'))),
-            'datagrid_column_type_action_cell_action_widget' =>  new \Twig_Function_Method($this, 'datagridColumnActionCellActionWidget', array('is_safe' => array('html'))),
-            'datagrid_attributes_widget' =>  new \Twig_Function_Method($this, 'datagridAttributes', array('is_safe' => array('html')))
+            new \Twig_SimpleFunction('datagrid_widget', [$this, 'datagrid'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFunction('datagrid_header_widget', [$this, 'datagridHeader'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFunction('datagrid_rowset_widget', [$this, 'datagridRowset'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFunction('datagrid_column_header_widget', [$this, 'datagridColumnHeader'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFunction('datagrid_column_cell_widget', [$this, 'datagridColumnCell'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFunction('datagrid_column_cell_form_widget', [$this, 'datagridColumnCellForm'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFunction('datagrid_column_type_action_cell_action_widget', [$this, 'datagridColumnActionCellActionWidget'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFunction('datagrid_attributes_widget', [$this, 'datagridAttributes'], ['is_safe' => ['html']])
         );
     }
 
