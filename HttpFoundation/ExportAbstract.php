@@ -42,7 +42,7 @@ abstract class ExportAbstract extends Response
         DataGridViewInterface $datagrid,
         $filename,
         $status = 200,
-        $headers = array(),
+        $headers = [],
         TranslatorInterface $translator = null
     ) {
         parent::__construct('', $status, $headers);

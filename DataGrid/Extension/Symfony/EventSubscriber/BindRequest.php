@@ -22,7 +22,7 @@ class BindRequest implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(DataGridEvents::PRE_BIND_DATA => array('preBindData', 128));
+        return [DataGridEvents::PRE_BIND_DATA => ['preBindData', 128]];
     }
 
     /**
@@ -39,7 +39,7 @@ class BindRequest implements EventSubscriberInterface
 
         $name = $dataGrid->getName();
 
-        $default = array();
+        $default = [];
 
         switch ($request->getMethod()) {
             case 'POST':

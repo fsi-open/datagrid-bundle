@@ -34,8 +34,8 @@ class BindRequestTest extends \PHPUnit_Framework_TestCase
         $requestBag = $this->getMock('Symfony\Component\HttpFoundation\ParameterBag');
         $requestBag->expects($this->once())
             ->method('get')
-            ->with('grid', array())
-            ->will($this->returnValue(array('foo' => 'bar')));
+            ->with('grid', [])
+            ->will($this->returnValue(['foo' => 'bar']));
 
         $request->request = $requestBag;
 
@@ -51,7 +51,7 @@ class BindRequestTest extends \PHPUnit_Framework_TestCase
 
         $event->expects($this->once())
             ->method('setData')
-            ->with(array('foo' => 'bar'));
+            ->with(['foo' => 'bar']);
 
         $event->expects($this->once())
             ->method('getDataGrid')
@@ -76,8 +76,8 @@ class BindRequestTest extends \PHPUnit_Framework_TestCase
         $queryBag = $this->getMock('Symfony\Component\HttpFoundation\ParameterBag');
         $queryBag->expects($this->once())
             ->method('get')
-            ->with('grid', array())
-            ->will($this->returnValue(array('foo' => 'bar')));
+            ->with('grid', [])
+            ->will($this->returnValue(['foo' => 'bar']));
 
         $request->query = $queryBag;
 
@@ -93,7 +93,7 @@ class BindRequestTest extends \PHPUnit_Framework_TestCase
 
         $event->expects($this->once())
             ->method('setData')
-            ->with(array('foo' => 'bar'));
+            ->with(['foo' => 'bar']);
 
         $event->expects($this->once())
             ->method('getDataGrid')

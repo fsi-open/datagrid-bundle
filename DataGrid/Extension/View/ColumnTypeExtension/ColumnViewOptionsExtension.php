@@ -37,7 +37,7 @@ class ColumnViewOptionsExtension extends ColumnAbstractTypeExtension
      */
     public function getExtendedColumnTypes()
     {
-        return array(
+        return [
             'action',
             'boolean',
             'text',
@@ -48,7 +48,7 @@ class ColumnViewOptionsExtension extends ColumnAbstractTypeExtension
             'entity',
             'collection',
             'action'
-        );
+        ];
     }
 
     /**
@@ -56,13 +56,13 @@ class ColumnViewOptionsExtension extends ColumnAbstractTypeExtension
      */
     public function initOptions(ColumnTypeInterface $column)
     {
-        $column->getOptionsResolver()->setDefaults(array(
+        $column->getOptionsResolver()->setDefaults([
             'translation_domain' => 'messages',
-        ));
+        ]);
 
-        $column->getOptionsResolver()->setAllowedTypes('translation_domain', array(
+        $column->getOptionsResolver()->setAllowedTypes('translation_domain', [
             'string' ,
             'null'
-        ));
+        ]);
     }
 }

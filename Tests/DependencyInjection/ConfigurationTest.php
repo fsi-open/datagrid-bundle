@@ -20,7 +20,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
     public function testDefaultOptions()
     {
         $processor = new Processor();
-        $config = $processor->processConfiguration(new Configuration(), array('fsi_data_grid' => array()));
+        $config = $processor->processConfiguration(new Configuration(), ['fsi_data_grid' => []]);
 
         $this->assertSame(
             $config,
@@ -33,11 +33,13 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
         $this->setExpectedException('PHPUnit_Framework_Error_Deprecated');
 
         $processor = new Processor();
-        $config = $processor->processConfiguration(new Configuration(), array('fsi_data_grid' => array(
-            'twig' => array(
+        $config = $processor->processConfiguration(new Configuration(), [
+            'fsi_data_grid' => [
+            'twig' => [
                 'template' => 'custom_datagrid.html.twig'
-            )
-        )));
+            ]
+            ]
+        ]);
 
         $this->assertSame(
             $config,
@@ -50,53 +52,57 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
         \PHPUnit_Framework_Error_Deprecated::$enabled = false;
 
         $processor = new Processor();
-        $config = @$processor->processConfiguration(new Configuration(), array('fsi_data_grid' => array(
-            'twig' => array(
+        $config = @$processor->processConfiguration(new Configuration(), [
+            'fsi_data_grid' => [
+            'twig' => [
                 'template' => 'custom_datagrid.html.twig'
-            )
-        )));
+            ]
+            ]
+        ]);
 
         $this->assertSame(
             $config,
-            array(
-                'twig' => array(
+            [
+                'twig' => [
                     'enabled' => true,
-                    'themes' => array('custom_datagrid.html.twig')
-                ),
+                    'themes' => ['custom_datagrid.html.twig']
+                ],
                 'yaml_configuration' => true
-            )
+            ]
         );
     }
 
     public function testThemesOption()
     {
         $processor = new Processor();
-        $config = $processor->processConfiguration(new Configuration(), array('fsi_data_grid' => array(
-            'twig' => array(
-                'themes' => array('custom_datagrid.html.twig')
-            )
-        )));
+        $config = $processor->processConfiguration(new Configuration(), [
+            'fsi_data_grid' => [
+            'twig' => [
+                'themes' => ['custom_datagrid.html.twig']
+            ]
+            ]
+        ]);
 
         $this->assertSame(
             $config,
-            array(
-                'twig' => array(
-                    'themes' => array('custom_datagrid.html.twig'),
+            [
+                'twig' => [
+                    'themes' => ['custom_datagrid.html.twig'],
                     'enabled' => true
-                ),
+                ],
                 'yaml_configuration' => true
-            )
+            ]
         );
     }
 
     public static function getBundleDefaultOptions()
     {
-        return array(
+        return [
             'yaml_configuration' => true,
-            'twig' => array(
+            'twig' => [
                 'enabled' => true,
-                'themes' => array('datagrid.html.twig')
-            )
-        );
+                'themes' => ['datagrid.html.twig']
+            ]
+        ];
     }
 }
