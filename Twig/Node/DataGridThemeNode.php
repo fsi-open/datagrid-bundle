@@ -11,7 +11,7 @@ namespace FSi\Bundle\DataGridBundle\Twig\Node;
 
 class DataGridThemeNode extends \Twig_Node
 {
-    public function __construct(\Twig_NodeInterface $dataGrid, \Twig_NodeInterface $theme, \Twig_Node_Expression_Array $vars, $lineno, $tag = null)
+    public function __construct(\Twig_Node $dataGrid, \Twig_Node $theme, \Twig_Node_Expression_Array $vars, $lineno, $tag = null)
     {
         parent::__construct(array('datagrid' => $dataGrid, 'theme' => $theme, 'vars' => $vars), array(), $lineno, $tag);
     }
@@ -25,7 +25,7 @@ class DataGridThemeNode extends \Twig_Node
     {
         $compiler
             ->addDebugInfo($this)
-            ->write('$this->env->getExtension(\'datagrid\')->setTheme(')
+            ->write('$this->env->getExtension(\'FSi\Bundle\DataGridBundle\Twig\Extension\DataGridExtension\')->setTheme(')
             ->subcompile($this->getNode('datagrid'))
             ->raw(', ')
             ->subcompile($this->getNode('theme'))
