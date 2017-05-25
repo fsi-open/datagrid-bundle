@@ -12,7 +12,7 @@
     ],
     "require": {
         "php": ">=5.4",
-        "twig/twig": "~1.11",
+        "twig/twig": "^1.26",
         "symfony/property-access": "^2.3|^3.0",
         "symfony/framework-bundle" : "^2.4|^3.0",
         "symfony/options-resolver": "^2.6|^3.0",
@@ -24,7 +24,7 @@
         "symfony/translation" : "^2.4|^3.0",
         "symfony/doctrine-bridge": "^2.2|^3.0",
         "symfony/security-csrf": "^2.4|^3.0",
-        "symfony/twig-bridge" : "^2.2|^3.0",
+        "symfony/twig-bridge" : "^2.2.6|^3.0",
         "phpunit/phpunit": "3.7.*"
     },
     "autoload": {
@@ -38,7 +38,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "1.2-dev"
+            "dev-master": "2.0-dev"
         }
     }
 }

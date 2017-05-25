@@ -22,7 +22,7 @@ class RowType extends AbstractType
     /**
      * @param array $fields
      */
-    public function __construct($fields = array())
+    public function __construct($fields = [])
     {
         $this->fields = $fields;
     }

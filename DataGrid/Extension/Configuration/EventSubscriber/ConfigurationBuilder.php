@@ -36,7 +36,7 @@ class ConfigurationBuilder implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(DataGridEvents::PRE_SET_DATA => array('readConfiguration', 128));
+        return [DataGridEvents::PRE_SET_DATA => ['readConfiguration', 128]];
     }
 
     /**
@@ -45,7 +45,7 @@ class ConfigurationBuilder implements EventSubscriberInterface
     public function readConfiguration(DataGridEventInterface $event)
     {
         $dataGrid = $event->getDataGrid();
-        $dataGridConfiguration = array();
+        $dataGridConfiguration = [];
         foreach ($this->kernel->getBundles() as $bundle) {
             if ($this->hasDataGridConfiguration($bundle->getPath(), $dataGrid->getName())) {
                 $configuration = $this->getDataGridConfiguration($bundle->getPath(), $dataGrid->getName());
@@ -94,7 +94,7 @@ class ConfigurationBuilder implements EventSubscriberInterface
                 : 'text';
             $options = array_key_exists('options', $column)
                 ? $column['options']
-                : array();
+                : [];
 
             $dataGrid->addColumn($name, $type, $options);
         }

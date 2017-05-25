@@ -95,7 +95,7 @@ class DependencyInjectionExtension extends DataGridAbstractExtension
      */
     public function getColumnTypeExtensions($type)
     {
-        $columnExtension = array();
+        $columnExtension = [];
 
         foreach ($this->columnExtensionServiceIds as $alias => $extensionName) {
             $extension = $this->container->get($this->columnExtensionServiceIds[$alias]);
@@ -113,7 +113,7 @@ class DependencyInjectionExtension extends DataGridAbstractExtension
      */
     public function loadSubscribers()
     {
-        $subscribers = array();
+        $subscribers = [];
 
         foreach ($this->gridSubscriberServiceIds as $alias => $subscriberName) {
             $subscriber = $this->container->get($this->gridSubscriberServiceIds[$alias]);

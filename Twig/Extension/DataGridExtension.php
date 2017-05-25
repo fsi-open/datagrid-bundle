@@ -14,7 +14,7 @@ use FSi\Component\DataGrid\Column\HeaderViewInterface;
 use FSi\Component\DataGrid\Column\CellViewInterface;
 use FSi\Bundle\DataGridBundle\Twig\TokenParser\DataGridThemeTokenParser;
 
-class DataGridExtension extends \Twig_Extension
+class DataGridExtension extends \Twig_Extension implements \Twig_Extension_InitRuntimeInterface
 {
     /**
      * Default theme key in themes array.
@@ -46,8 +46,8 @@ class DataGridExtension extends \Twig_Extension
      */
     public function __construct(array $themes)
     {
-        $this->themes = array();
-        $this->themesVars = array();
+        $this->themes = [];
+        $this->themesVars = [];
         $this->baseThemes = $themes;
     }
 
@@ -75,16 +75,16 @@ class DataGridExtension extends \Twig_Extension
      */
     public function getFunctions()
     {
-        return array(
-            'datagrid_widget' => new \Twig_Function_Method($this, 'datagrid', array('is_safe' => array('html'))),
-            'datagrid_header_widget' =>  new \Twig_Function_Method($this, 'datagridHeader', array('is_safe' => array('html'))),
-            'datagrid_rowset_widget' =>  new \Twig_Function_Method($this, 'datagridRowset', array('is_safe' => array('html'))),
-            'datagrid_column_header_widget' =>  new \Twig_Function_Method($this, 'datagridColumnHeader', array('is_safe' => array('html'))),
-            'datagrid_column_cell_widget' =>  new \Twig_Function_Method($this, 'datagridColumnCell', array('is_safe' => array('html'))),
-            'datagrid_column_cell_form_widget' =>  new \Twig_Function_Method($this, 'datagridColumnCellForm', array('is_safe' => array('html'))),
-            'datagrid_column_type_action_cell_action_widget' =>  new \Twig_Function_Method($this, 'datagridColumnActionCellActionWidget', array('is_safe' => array('html'))),
-            'datagrid_attributes_widget' =>  new \Twig_Function_Method($this, 'datagridAttributes', array('is_safe' => array('html')))
-        );
+        return [
+            new \Twig_SimpleFunction('datagrid_widget', [$this, 'datagrid'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFunction('datagrid_header_widget', [$this, 'datagridHeader'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFunction('datagrid_rowset_widget', [$this, 'datagridRowset'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFunction('datagrid_column_header_widget', [$this, 'datagridColumnHeader'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFunction('datagrid_column_cell_widget', [$this, 'datagridColumnCell'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFunction('datagrid_column_cell_form_widget', [$this, 'datagridColumnCellForm'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFunction('datagrid_column_type_action_cell_action_widget', [$this, 'datagridColumnActionCellActionWidget'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFunction('datagrid_attributes_widget', [$this, 'datagridAttributes'], ['is_safe' => ['html']])
+        ];
     }
 
     /**
@@ -92,9 +92,9 @@ class DataGridExtension extends \Twig_Extension
      */
     public function getTokenParsers()
     {
-        return array(
+        return [
             new DataGridThemeTokenParser(),
-        );
+        ];
     }
 
     /**
@@ -106,7 +106,7 @@ class DataGridExtension extends \Twig_Extension
      * @param $theme
      * @param array $vars
      */
-    public function setTheme(DataGridViewInterface $dataGrid, $theme, array $vars = array())
+    public function setTheme(DataGridViewInterface $dataGrid, $theme, array $vars = [])
     {
         $this->themes[$dataGrid->getName()] = ($theme instanceof \Twig_Template)
             ? $theme
@@ -122,9 +122,9 @@ class DataGridExtension extends \Twig_Extension
      */
     public function setBaseTheme($theme)
     {
-        $themes = is_array($theme) ? $theme : array($theme);
+        $themes = is_array($theme) ? $theme : [$theme];
 
-        $this->baseThemes = array();
+        $this->baseThemes = [];
         foreach ($themes as $theme) {
             $this->baseThemes[] = ($theme instanceof \Twig_Template)
                 ? $theme
@@ -138,15 +138,15 @@ class DataGridExtension extends \Twig_Extension
      */
     public function datagrid(DataGridViewInterface $view)
     {
-        $blockNames = array(
+        $blockNames = [
             'datagrid_' . $view->getName(),
             'datagrid',
-        );
+        ];
 
-        $context = array(
+        $context = [
             'datagrid' => $view,
             'vars' => $this->getVars($view)
-        );
+        ];
 
         return $this->renderTheme($view, $context, $blockNames);
     }
@@ -158,20 +158,20 @@ class DataGridExtension extends \Twig_Extension
      * @param array $vars
      * @return string
      */
-    public function datagridHeader(DataGridViewInterface $view, array $vars = array())
+    public function datagridHeader(DataGridViewInterface $view, array $vars = [])
     {
-        $blockNames = array(
+        $blockNames = [
             'datagrid_' . $view->getName() . '_header',
             'datagrid_header',
-        );
+        ];
 
-        $context = array(
+        $context = [
             'headers' => $view->getColumns(),
             'vars' => array_merge(
                 $this->getVars($view),
                 $vars
             )
-        );
+        ];
 
         return $this->renderTheme($view, $context, $blockNames);
     }
@@ -183,26 +183,26 @@ class DataGridExtension extends \Twig_Extension
      * @param array $vars
      * @return string
      */
-    public function datagridColumnHeader(HeaderViewInterface $view, array $vars = array())
+    public function datagridColumnHeader(HeaderViewInterface $view, array $vars = [])
     {
         $dataGridView = $view->getDataGridView();
-        $blockNames = array(
+        $blockNames = [
             'datagrid_' . $dataGridView->getName() . '_column_name_' . $view->getName() . '_header',
             'datagrid_' . $dataGridView->getName() . '_column_type_' . $view->getType() . '_header',
             'datagrid_column_name_' . $view->getName() . '_header',
             'datagrid_column_type_' . $view->getType() . '_header',
             'datagrid_' . $dataGridView->getName() . '_column_header',
             'datagrid_column_header',
-        );
+        ];
 
-        $context = array(
+        $context = [
             'header' => $view,
             'translation_domain' => $view->getAttribute('translation_domain'),
             'vars' => array_merge(
                 $this->getVars($view->getDataGridView()),
                 $vars
             )
-        );
+        ];
 
         return $this->renderTheme($dataGridView, $context, $blockNames);
     }
@@ -214,20 +214,20 @@ class DataGridExtension extends \Twig_Extension
      * @param array $vars
      * @return string
      */
-    public function datagridRowset(DataGridViewInterface $view, array $vars = array())
+    public function datagridRowset(DataGridViewInterface $view, array $vars = [])
     {
-        $blockNames = array(
+        $blockNames = [
             'datagrid_' . $view->getName() . '_rowset',
             'datagrid_rowset',
-        );
+        ];
 
-        $context = array(
+        $context = [
             'datagrid' => $view,
             'vars' => array_merge(
                 $this->getVars($view),
                 $vars
             )
-        );
+        ];
 
         return $this->renderTheme($view, $context, $blockNames);
     }
@@ -239,19 +239,19 @@ class DataGridExtension extends \Twig_Extension
      * @param array $vars
      * @return string
      */
-    public function datagridColumnCell(CellViewInterface $view, array $vars = array())
+    public function datagridColumnCell(CellViewInterface $view, array $vars = [])
     {
         $dataGridView = $view->getDataGridView();
-        $blockNames = array(
+        $blockNames = [
             'datagrid_' . $dataGridView->getName() . '_column_name_' . $view->getName() . '_cell',
             'datagrid_' . $dataGridView->getName() . '_column_type_' . $view->getType() . '_cell',
             'datagrid_column_name_' . $view->getName() . '_cell',
             'datagrid_column_type_' . $view->getType() . '_cell',
             'datagrid_' . $dataGridView->getName() . '_column_cell',
             'datagrid_column_cell',
-        );
+        ];
 
-        $context = array(
+        $context = [
             'cell' => $view,
             'row_index' => $view->getAttribute('row'),
             'datagrid_name' => $dataGridView->getName(),
@@ -260,7 +260,7 @@ class DataGridExtension extends \Twig_Extension
                 $this->getVars($dataGridView),
                 $vars
             )
-        );
+        ];
 
         return $this->renderTheme($dataGridView, $context, $blockNames);
     }
@@ -272,29 +272,29 @@ class DataGridExtension extends \Twig_Extension
      * @param array $vars
      * @return string
      */
-    public function datagridColumnCellForm(CellViewInterface $view, array $vars = array())
+    public function datagridColumnCellForm(CellViewInterface $view, array $vars = [])
     {
         if (!$view->hasAttribute('form')) {
             return ;
         }
 
         $dataGridView = $view->getDataGridView();
-        $blockNames = array(
+        $blockNames = [
             'datagrid_' . $dataGridView->getName() . '_column_name_' . $view->getName() . '_cell_form',
             'datagrid_' . $dataGridView->getName() . '_column_type_' . $view->getType() . '_cell_form',
             'datagrid_column_name_' . $view->getName() . '_cell_form',
             'datagrid_column_type_' . $view->getType() . '_cell_form',
             'datagrid_' . $dataGridView->getName() . '_column_cell_form',
             'datagrid_column_cell_form',
-        );
+        ];
 
-        $context = array(
+        $context = [
             'form' => $view->getAttribute('form'),
             'vars' => array_merge(
                 $this->getVars($view->getDataGridView()),
                 $vars
             )
-        );
+        ];
 
         return $this->renderTheme($dataGridView, $context, $blockNames);
     }
@@ -307,24 +307,25 @@ class DataGridExtension extends \Twig_Extension
      * @param array $fieldMappingValues
      * @return string
      */
-    public function datagridColumnActionCellActionWidget(CellViewInterface $view, $action, $content, $urlAttrs = array(), $fieldMappingValues = array())
+    public function datagridColumnActionCellActionWidget(CellViewInterface $view, $action, $content, $urlAttrs = [], $fieldMappingValues = []
+    )
     {
         $dataGridView = $view->getDataGridView();
-        $blockNames = array(
+        $blockNames = [
             'datagrid_' . $dataGridView->getName() . '_column_type_action_cell_action_' . $action,
             'datagrid_column_type_action_cell_action_' . $action ,
             'datagrid_' . $dataGridView->getName() . '_column_type_action_cell_action',
             'datagrid_column_type_action_cell_action',
-        );
+        ];
 
-        $context = array(
+        $context = [
             'cell' => $view,
             'action' => $action,
             'content' => $content,
             'attr' => $urlAttrs,
             'translation_domain' => $view->getAttribute('translation_domain'),
             'field_mapping_values' => $fieldMappingValues
-        );
+        ];
 
         return $this->renderTheme($dataGridView, $context, $blockNames);
     }
@@ -339,11 +340,11 @@ class DataGridExtension extends \Twig_Extension
      */
     public function datagridAttributes(array $attributes, $translationDomain = null)
     {
-        $attrs = array();
+        $attrs = [];
 
         foreach ($attributes as $attributeName => $attributeValue) {
             if ($attributeName == 'title') {
-                $attrs[] = $attributeName . '="' . $this->environment->getExtension('translator')->trans($attributeValue, array(), $translationDomain) . '"';
+                $attrs[] = $attributeName . '="' . $this->environment->getExtension('translator')->trans($attributeValue, [], $translationDomain) . '"';
                 continue;
             }
 
@@ -362,7 +363,7 @@ class DataGridExtension extends \Twig_Extension
      */
     private function getTemplates(DataGridViewInterface $dataGrid)
     {
-        $templates = array();
+        $templates = [];
 
         if (isset($this->themes[$dataGrid->getName()])) {
             $templates[] = $this->themes[$dataGrid->getName()];
@@ -387,7 +388,7 @@ class DataGridExtension extends \Twig_Extension
             return $this->themesVars[$dataGrid->getName()];
         }
 
-        return array();
+        return [];
     }
 
     /**
@@ -396,7 +397,8 @@ class DataGridExtension extends \Twig_Extension
      * @param $availableBlocks
      * @return string
      */
-    private function renderTheme(DataGridViewInterface $datagridView, array $contextVars = array(), $availableBlocks = array())
+    private function renderTheme(DataGridViewInterface $datagridView, array $contextVars = [], $availableBlocks = []
+    )
     {
         $templates = $this->getTemplates($datagridView);
 
@@ -406,7 +408,7 @@ class DataGridExtension extends \Twig_Extension
 
         foreach ($availableBlocks as $blockName) {
             foreach ($templates as $template) {
-                if (false !== ($template = $this->findTemplateWithBlock($template, $blockName))) {
+                if (false !== ($template = $this->findTemplateWithBlock($template, $blockName, $contextVars))) {
                     $template->displayBlock($blockName, $contextVars);
 
                     return ob_get_clean();
@@ -420,17 +422,18 @@ class DataGridExtension extends \Twig_Extension
     /**
      * @param \Twig_Template $template
      * @param string $blockName
+     * @param array $context
      * @return \Twig_Template|bool
      */
-    private function findTemplateWithBlock(\Twig_Template $template, $blockName)
+    private function findTemplateWithBlock(\Twig_Template $template, $blockName, array $context = null)
     {
-        if ($template->hasBlock($blockName)) {
+        if ($template->hasBlock($blockName, $context)) {
             return $template;
         }
 
         // Check parents
-        if (false !== ($parent = $template->getParent(array()))) {
-            if ($this->findTemplateWithBlock($parent, $blockName) !== false)
+        if (false !== ($parent = $template->getParent([]))) {
+            if ($this->findTemplateWithBlock($parent, $blockName, $context) !== false)
                 return $template;
         }
 
