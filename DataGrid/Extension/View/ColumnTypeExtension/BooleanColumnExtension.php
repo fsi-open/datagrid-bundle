@@ -56,13 +56,14 @@ class BooleanColumnExtension extends ColumnAbstractTypeExtension
                 if ($options['editable'] && count($options['field_mapping']) == 1) {
                     $field = $options['field_mapping'][0];
 
+                    $choices = array(
+                        0 => $translator->trans('datagrid.boolean.no', array(), 'DataGridBundle'),
+                        1 => $translator->trans('datagrid.boolean.yes', array(), 'DataGridBundle')
+                    );
                     return array_merge(
                         array(
                             $field => array(
-                                'choices' => array(
-                                    0 => $translator->trans('datagrid.boolean.no', array(), 'DataGridBundle'),
-                                    1 => $translator->trans('datagrid.boolean.yes', array(), 'DataGridBundle')
-                                )
+                                'choices' => $this->isSymfony3() ? array_flip($choices) : $choices
                             )
                         ),
                         $value
@@ -80,7 +81,11 @@ class BooleanColumnExtension extends ColumnAbstractTypeExtension
                     $field = $options['field_mapping'][0];
 
                     return array_merge(
-                        array($field => 'choice'),
+                        array(
+                            $field => $this->isSymfony3()
+                                ? 'Symfony\Component\Form\Extension\Core\Type\ChoiceType'
+                                : 'choice'
+                        ),
                         $value
                     );
                 }
@@ -88,5 +93,10 @@ class BooleanColumnExtension extends ColumnAbstractTypeExtension
                 return $value;
             }
         );
+    }
+
+    private function isSymfony3()
+    {
+        return method_exists('Symfony\Component\Form\AbstractType', 'getBlockPrefix');
     }
 }
