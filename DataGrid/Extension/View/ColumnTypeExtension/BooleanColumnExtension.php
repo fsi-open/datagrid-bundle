@@ -55,16 +55,12 @@ class BooleanColumnExtension extends ColumnAbstractTypeExtension
             function(Options $options, $value) use ($translator) {
                 if ($options['editable'] && count($options['field_mapping']) == 1) {
                     $field = $options['field_mapping'][0];
-
+                    $choices = [
+                        0 => $translator->trans('datagrid.boolean.no', [], 'DataGridBundle'),
+                        1 => $translator->trans('datagrid.boolean.yes', [], 'DataGridBundle')
+                    ];
                     return array_merge(
-                        [
-                            $field => [
-                                'choices' => [
-                                    0 => $translator->trans('datagrid.boolean.no', [], 'DataGridBundle'),
-                                    1 => $translator->trans('datagrid.boolean.yes', [], 'DataGridBundle')
-                                ]
-                            ]
-                        ],
+                        [$field => ['choices' => $this->isSymfony3() ? array_flip($choices) : $choices]],
                         $value
                     );
                 }
@@ -76,11 +72,13 @@ class BooleanColumnExtension extends ColumnAbstractTypeExtension
             'form_type',
             function(Options $options, $value) {
                 if ($options['editable'] && count($options['field_mapping']) == 1) {
-
                     $field = $options['field_mapping'][0];
-
                     return array_merge(
-                        [$field => 'choice'],
+                        [
+                            $field => $this->isSymfony3()
+                                ? 'Symfony\Component\Form\Extension\Core\Type\ChoiceType'
+                                : 'choice'
+                        ],
                         $value
                     );
                 }
@@ -88,5 +86,10 @@ class BooleanColumnExtension extends ColumnAbstractTypeExtension
                 return $value;
             }
         );
+    }
+
+    private function isSymfony3()
+    {
+        return method_exists('Symfony\Component\Form\AbstractType', 'getBlockPrefix');
     }
 }
