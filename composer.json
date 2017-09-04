@@ -16,7 +16,7 @@
         "symfony/property-access": "^2.3|^3.0",
         "symfony/framework-bundle" : "^2.4|^3.0",
         "symfony/options-resolver": "^2.6|^3.0",
-        "fsi/datagrid": "^1.0"
+        "fsi/datagrid": "^1.0|^2.0@dev"
     },
     "require-dev": {
         "symfony/form" : "^2.4|^3.0",
@@ -25,13 +25,13 @@
         "symfony/doctrine-bridge": "^2.2|^3.0",
         "symfony/security-csrf": "^2.4|^3.0",
         "symfony/twig-bridge" : "^2.2.6|^3.0",
-        "phpunit/phpunit": "3.7.*"
+        "phpunit/phpunit": "^4.8"
     },
     "autoload": {
         "psr-4": { "FSi\\Bundle\\DataGridBundle\\": "" }
     },
     "suggest": {
-        "phpoffice/phpexcel" : "Allows export data to xls format."
+        "phpoffice/phpexcel" : "Allows exporting data to xls format."
     },
     "config": {
         "bin-dir": "bin"
