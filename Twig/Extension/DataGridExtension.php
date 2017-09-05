@@ -1,7 +1,7 @@
 <?php
 
 /**
- * (c) Fabryka Stron Internetowych sp. z o.o <info@fsi.pl>
+ * (c) FSi sp. z o.o. <info@fsi.pl>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -223,10 +223,7 @@ class DataGridExtension extends \Twig_Extension implements \Twig_Extension_InitR
 
         $context = [
             'datagrid' => $view,
-            'vars' => array_merge(
-                $this->getVars($view),
-                $vars
-            )
+            'vars' => array_merge($this->getVars($view), $vars)
         ];
 
         return $this->renderTheme($view, $context, $blockNames);
@@ -256,10 +253,7 @@ class DataGridExtension extends \Twig_Extension implements \Twig_Extension_InitR
             'row_index' => $view->getAttribute('row'),
             'datagrid_name' => $dataGridView->getName(),
             'translation_domain' => $view->getAttribute('translation_domain'),
-            'vars' => array_merge(
-                $this->getVars($dataGridView),
-                $vars
-            )
+            'vars' => array_merge($this->getVars($dataGridView), $vars)
         ];
 
         return $this->renderTheme($dataGridView, $context, $blockNames);
@@ -290,10 +284,7 @@ class DataGridExtension extends \Twig_Extension implements \Twig_Extension_InitR
 
         $context = [
             'form' => $view->getAttribute('form'),
-            'vars' => array_merge(
-                $this->getVars($view->getDataGridView()),
-                $vars
-            )
+            'vars' => array_merge($this->getVars($view->getDataGridView()), $vars)
         ];
 
         return $this->renderTheme($dataGridView, $context, $blockNames);
@@ -432,9 +423,11 @@ class DataGridExtension extends \Twig_Extension implements \Twig_Extension_InitR
         }
 
         // Check parents
-        if (false !== ($parent = $template->getParent([]))) {
-            if ($this->findTemplateWithBlock($parent, $blockName, $context) !== false)
-                return $template;
+        $parent = $parent = $template->getParent([]);
+        if (false !== $parent
+            && $this->findTemplateWithBlock($parent, $blockName, $context) !== false
+        ) {
+            return $template;
         }
 
         return false;

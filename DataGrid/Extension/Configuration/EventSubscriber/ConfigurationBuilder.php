@@ -79,7 +79,11 @@ class ConfigurationBuilder implements EventSubscriberInterface
     protected function getDataGridConfiguration($bundlePath, $dataGridName)
     {
         $yamlParser = new Parser();
-        return $yamlParser->parse(file_get_contents(sprintf($bundlePath . '/Resources/config/datagrid/%s.yml', $dataGridName)));
+        return $yamlParser->parse(
+            file_get_contents(
+                sprintf($bundlePath . '/Resources/config/datagrid/%s.yml', $dataGridName)
+            )
+        );
     }
 
     /**

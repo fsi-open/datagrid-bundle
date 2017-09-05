@@ -1,7 +1,7 @@
 <?php
 
 /**
- * (c) Fabryka Stron Internetowych sp. z o.o <info@fsi.pl>
+ * (c) FSi sp. z o.o. <info@fsi.pl>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,8 +11,13 @@ namespace FSi\Bundle\DataGridBundle\Twig\Node;
 
 class DataGridThemeNode extends \Twig_Node
 {
-    public function __construct(\Twig_Node $dataGrid, \Twig_Node $theme, \Twig_Node_Expression_Array $vars, $lineno, $tag = null)
-    {
+    public function __construct(
+        \Twig_Node $dataGrid,
+        \Twig_Node $theme,
+        \Twig_Node_Expression_Array $vars,
+        $lineno,
+        $tag = null
+    ) {
         parent::__construct(['datagrid' => $dataGrid, 'theme' => $theme, 'vars' => $vars], [], $lineno, $tag);
     }
 

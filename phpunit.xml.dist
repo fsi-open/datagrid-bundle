@@ -10,6 +10,11 @@
          stopOnFailure="false"
          syntaxCheck="false"
         >
+
+    <php>
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="weak"/>
+    </php>
+
     <testsuites>
         <testsuite name="FSiDataGridBundle Test Suite">
             <directory>./Tests</directory>

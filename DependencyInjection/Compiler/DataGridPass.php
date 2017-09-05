@@ -1,7 +1,7 @@
 <?php
 
 /**
- * (c) Fabryka Stron Internetowych sp. z o.o <info@fsi.pl>
+ * (c) FSi Sp. z o.o. <info@fsi.pl>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -21,11 +21,8 @@ class DataGridPass implements CompilerPassInterface
         }
 
         $columns = [];
-
         foreach ($container->findTaggedServiceIds('datagrid.column') as $serviceId => $tag) {
-            $alias = isset($tag[0]['alias'])
-                ? $tag[0]['alias']
-                : $serviceId;
+            $alias = isset($tag[0]['alias']) ? $tag[0]['alias'] : $serviceId;
 
             $columns[$alias] = $serviceId;
         }
@@ -33,11 +30,8 @@ class DataGridPass implements CompilerPassInterface
         $container->getDefinition('datagrid.extension')->replaceArgument(1, $columns);
 
         $columnExtensions = [];
-
         foreach ($container->findTaggedServiceIds('datagrid.column_extension') as $serviceId => $tag) {
-            $alias = isset($tag[0]['alias'])
-                ? $tag[0]['alias']
-                : $serviceId;
+            $alias = isset($tag[0]['alias']) ? $tag[0]['alias'] : $serviceId;
 
             $columnExtensions[$alias] = $serviceId;
         }
@@ -45,11 +39,8 @@ class DataGridPass implements CompilerPassInterface
         $container->getDefinition('datagrid.extension')->replaceArgument(2, $columnExtensions);
 
         $subscribers = [];
-
         foreach ($container->findTaggedServiceIds('datagrid.subscriber') as $serviceId => $tag) {
-            $alias = isset($tag[0]['alias'])
-                ? $tag[0]['alias']
-                : $serviceId;
+            $alias = isset($tag[0]['alias']) ? $tag[0]['alias'] : $serviceId;
 
             $subscribers[$alias] = $serviceId;
         }

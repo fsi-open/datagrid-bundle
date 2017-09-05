@@ -1,7 +1,7 @@
 <?php
 
 /**
- * (c) Fabryka Stron Internetowych sp. z o.o <info@fsi.pl>
+ * (c) FSi sp. z o.o. <info@fsi.pl>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -29,7 +29,7 @@ class ExcelExport extends ExportAbstract
     protected $mimeType = 'application/vnd.ms-excel';
 
     /**
-     * @return ExportAbstract|\Symfony\Component\HttpFoundation\Response
+     * @return ExportAbstract|Response
      */
     public function setData()
     {
@@ -79,7 +79,7 @@ class ExcelExport extends ExportAbstract
     /**
      * Update response headers and content;
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
     protected function update()
     {

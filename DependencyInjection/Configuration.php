@@ -1,7 +1,7 @@
 <?php
 
 /**
- * (c) Fabryka Stron Internetowych sp. z o.o <info@fsi.pl>
+ * (c) FSi sp. z o.o. <info@fsi.pl>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,23 +25,6 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->booleanNode('yaml_configuration')->defaultTrue()->end()
                 ->arrayNode('twig')
-                    ->beforeNormalization()
-                        ->ifTrue(function ($v) { return isset($v['template']); })
-                        ->then(function ($v) {
-                            trigger_error('The fsi_data_grid.twig.template configuration key is deprecated since version 1.1 and will be removed in 1.2. Use the fsi_data_grid.twig.themes configuration key instead.', E_USER_DEPRECATED);
-                            return $v;
-                        })
-                    ->end()
-                    ->validate()
-                        ->ifTrue(function ($v) {
-                            return isset($v['template']) && ($v['template'] !== null);
-                        })
-                        ->then(function ($v) {
-                            $v['themes'] = [$v['template']];
-                            unset($v['template']);
-                            return $v;
-                        })
-                    ->end()
                     ->addDefaultsIfNotSet()
                     ->children()
                         ->booleanNode('enabled')->defaultTrue()->end()
