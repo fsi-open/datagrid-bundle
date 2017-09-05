@@ -9,8 +9,6 @@
 
 namespace FSi\Bundle\DataGridBundle\HttpFoundation;
 
-use Symfony\Component\HttpFoundation\Response;
-
 class Excel2007Export extends ExcelExport
 {
     /**

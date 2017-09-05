@@ -11,8 +11,13 @@ namespace FSi\Bundle\DataGridBundle\Twig\Node;
 
 class DataGridThemeNode extends \Twig_Node
 {
-    public function __construct(\Twig_Node $dataGrid, \Twig_Node $theme, \Twig_Node_Expression_Array $vars, $lineno, $tag = null)
-    {
+    public function __construct(
+        \Twig_Node $dataGrid,
+        \Twig_Node $theme,
+        \Twig_Node_Expression_Array $vars,
+        $lineno,
+        $tag = null
+    ) {
         parent::__construct(['datagrid' => $dataGrid, 'theme' => $theme, 'vars' => $vars], [], $lineno, $tag);
     }
 

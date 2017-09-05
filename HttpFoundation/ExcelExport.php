@@ -29,7 +29,7 @@ class ExcelExport extends ExportAbstract
     protected $mimeType = 'application/vnd.ms-excel';
 
     /**
-     * @return ExportAbstract|\Symfony\Component\HttpFoundation\Response
+     * @return ExportAbstract|Response
      */
     public function setData()
     {
@@ -79,7 +79,7 @@ class ExcelExport extends ExportAbstract
     /**
      * Update response headers and content;
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
     protected function update()
     {

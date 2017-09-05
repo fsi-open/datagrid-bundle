@@ -423,9 +423,11 @@ class DataGridExtension extends \Twig_Extension implements \Twig_Extension_InitR
         }
 
         // Check parents
-        if (false !== ($parent = $template->getParent([]))) {
-            if ($this->findTemplateWithBlock($parent, $blockName, $context) !== false)
-                return $template;
+        $parent = $parent = $template->getParent([]);
+        if (false !== $parent
+            && $this->findTemplateWithBlock($parent, $blockName, $context) !== false
+        ) {
+            return $template;
         }
 
         return false;

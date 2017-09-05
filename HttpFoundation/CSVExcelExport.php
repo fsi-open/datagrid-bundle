@@ -13,13 +13,12 @@ class CSVExcelExport extends CSVExport
 {
     /**
      * Set CRLF line ending
-     * @param $data
-     * @return mixed
+     *
+     * @param string $data
+     * @return string
      */
     public function setLineEndings($data)
     {
-        $data = str_replace("\n", "\r\n", $data);
-
-        return $data;
+        return str_replace("\n", "\r\n", $data);
     }
 }
