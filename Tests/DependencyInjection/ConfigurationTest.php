@@ -28,59 +28,11 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testDeprecatedTemplateOption()
-    {
-        $this->setExpectedException('PHPUnit_Framework_Error_Deprecated');
-
-        $processor = new Processor();
-        $config = $processor->processConfiguration(new Configuration(), [
-            'fsi_data_grid' => [
-            'twig' => [
-                'template' => 'custom_datagrid.html.twig'
-            ]
-            ]
-        ]);
-
-        $this->assertSame(
-            $config,
-            self::getBundleDefaultOptions()
-        );
-    }
-
-    public function testTemplateOption()
-    {
-        \PHPUnit_Framework_Error_Deprecated::$enabled = false;
-
-        $processor = new Processor();
-        $config = @$processor->processConfiguration(new Configuration(), [
-            'fsi_data_grid' => [
-            'twig' => [
-                'template' => 'custom_datagrid.html.twig'
-            ]
-            ]
-        ]);
-
-        $this->assertSame(
-            $config,
-            [
-                'twig' => [
-                    'enabled' => true,
-                    'themes' => ['custom_datagrid.html.twig']
-                ],
-                'yaml_configuration' => true
-            ]
-        );
-    }
-
     public function testThemesOption()
     {
         $processor = new Processor();
         $config = $processor->processConfiguration(new Configuration(), [
-            'fsi_data_grid' => [
-            'twig' => [
-                'themes' => ['custom_datagrid.html.twig']
-            ]
-            ]
+            'fsi_data_grid' => ['twig' => ['themes' => ['custom_datagrid.html.twig']]]
         ]);
 
         $this->assertSame(

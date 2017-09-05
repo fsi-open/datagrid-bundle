@@ -223,10 +223,7 @@ class DataGridExtension extends \Twig_Extension implements \Twig_Extension_InitR
 
         $context = [
             'datagrid' => $view,
-            'vars' => array_merge(
-                $this->getVars($view),
-                $vars
-            )
+            'vars' => array_merge($this->getVars($view), $vars)
         ];
 
         return $this->renderTheme($view, $context, $blockNames);
@@ -256,10 +253,7 @@ class DataGridExtension extends \Twig_Extension implements \Twig_Extension_InitR
             'row_index' => $view->getAttribute('row'),
             'datagrid_name' => $dataGridView->getName(),
             'translation_domain' => $view->getAttribute('translation_domain'),
-            'vars' => array_merge(
-                $this->getVars($dataGridView),
-                $vars
-            )
+            'vars' => array_merge($this->getVars($dataGridView), $vars)
         ];
 
         return $this->renderTheme($dataGridView, $context, $blockNames);
@@ -290,10 +284,7 @@ class DataGridExtension extends \Twig_Extension implements \Twig_Extension_InitR
 
         $context = [
             'form' => $view->getAttribute('form'),
-            'vars' => array_merge(
-                $this->getVars($view->getDataGridView()),
-                $vars
-            )
+            'vars' => array_merge($this->getVars($view->getDataGridView()), $vars)
         ];
 
         return $this->renderTheme($dataGridView, $context, $blockNames);
