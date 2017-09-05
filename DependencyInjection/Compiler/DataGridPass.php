@@ -23,9 +23,7 @@ class DataGridPass implements CompilerPassInterface
         $columns = [];
 
         foreach ($container->findTaggedServiceIds('datagrid.column') as $serviceId => $tag) {
-            $alias = isset($tag[0]['alias'])
-                ? $tag[0]['alias']
-                : $serviceId;
+            $alias = isset($tag[0]['alias']) ? $tag[0]['alias'] : $serviceId;
 
             $columns[$alias] = $serviceId;
         }
@@ -35,9 +33,7 @@ class DataGridPass implements CompilerPassInterface
         $columnExtensions = [];
 
         foreach ($container->findTaggedServiceIds('datagrid.column_extension') as $serviceId => $tag) {
-            $alias = isset($tag[0]['alias'])
-                ? $tag[0]['alias']
-                : $serviceId;
+            $alias = isset($tag[0]['alias']) ? $tag[0]['alias'] : $serviceId;
 
             $columnExtensions[$alias] = $serviceId;
         }
@@ -47,9 +43,7 @@ class DataGridPass implements CompilerPassInterface
         $subscribers = [];
 
         foreach ($container->findTaggedServiceIds('datagrid.subscriber') as $serviceId => $tag) {
-            $alias = isset($tag[0]['alias'])
-                ? $tag[0]['alias']
-                : $serviceId;
+            $alias = isset($tag[0]['alias']) ? $tag[0]['alias'] : $serviceId;
 
             $subscribers[$alias] = $serviceId;
         }
