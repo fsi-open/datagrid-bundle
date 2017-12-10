@@ -34,6 +34,17 @@ class FSIDataGridExtension extends Extension
         if (isset($config['twig']['enabled']) && $config['twig']['enabled']) {
             $this->registerTwigConfiguration($config['twig'], $container, $loader);
         }
+
+        if (method_exists($container, 'registerForAutoconfiguration')) {
+            $container->registerForAutoconfiguration('FSi\Component\DataGrid\DataGridExtensionInterface')
+                ->addTag('datagrid.extension');
+            $container->registerForAutoconfiguration('FSi\Component\DataGrid\Column\ColumnTypeInterface')
+                ->addTag('datagrid.column');
+            $container->registerForAutoconfiguration('FSi\Component\DataGrid\Column\ColumnTypeExtensionInterface')
+                ->addTag('datagrid.column_extension');
+            $container->registerForAutoconfiguration('FSi\Bundle\DataGridBundle\DataGrid\EventSubscriberInterface')
+                ->addTag('datagrid.subscriber');
+        }
     }
 
     public function registerTwigConfiguration(array $config, ContainerBuilder $container, XmlFileLoader $loader)

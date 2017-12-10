@@ -14,7 +14,6 @@
 
     <services>
         <service id="datagrid.extension" class="%datagrid.extension.class%">
-            <argument type="service" id="service_container" />
             <!-- All services with tag "datagrid.column" are inserted here by DataGridPass -->
             <argument type="collection" />
             <!-- All services with tag "datagrid.column_extension" are inserted here by DataGridPass -->
