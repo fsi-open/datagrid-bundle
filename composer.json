@@ -13,19 +13,19 @@
     "require": {
         "php": ">=5.4",
         "twig/twig": "^1.28|^2.0",
-        "symfony/property-access": "^2.3|^3.0",
-        "symfony/framework-bundle" : "^2.4|^3.0",
-        "symfony/options-resolver": "^2.6|^3.0",
+        "symfony/property-access": "^2.3|^3.0|^4.0",
+        "symfony/framework-bundle" : "^2.4|^3.0|^4.0",
+        "symfony/options-resolver": "^2.6|^3.0|^4.0",
         "fsi/datagrid": "^1.0|^2.0@dev"
     },
     "require-dev": {
-        "symfony/form" : "^2.4|^3.0",
-        "symfony/validator" : "^2.4|^3.0",
-        "symfony/translation" : "^2.4|^3.0",
-        "symfony/doctrine-bridge": "^2.2|^3.0",
-        "symfony/phpunit-bridge": "^3.3",
-        "symfony/security-csrf": "^2.4|^3.0",
-        "symfony/twig-bridge" : "^2.2.6|^3.0",
+        "symfony/form" : "^2.4|^3.0|^4.0",
+        "symfony/validator" : "^2.4|^3.0|^4.0",
+        "symfony/translation" : "^2.4|^3.0|^4.0",
+        "symfony/doctrine-bridge": "^2.2|^3.0|^4.0",
+        "symfony/phpunit-bridge": "^3.3|^4.0",
+        "symfony/security-csrf": "^2.4|^3.0|^4.0",
+        "symfony/twig-bridge" : "^2.2.6|^3.0|^4.0",
         "phpunit/phpunit": "^4.8"
     },
     "autoload": {
