@@ -17,6 +17,7 @@ use Symfony\Bridge\Twig\Form\TwigRendererEngine;
 use Symfony\Bridge\Twig\Extension\FormExtension;
 use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Symfony\Bridge\Twig\Tests\Extension\Fixtures\StubTranslator;
+use Symfony\Component\Form\FormRenderer;
 use Symfony\Component\HttpKernel\Kernel;
 
 /**
@@ -48,7 +49,12 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
         $twig->addExtension(new TranslationExtension(new StubTranslator()));
         $twig->addGlobal('global_var', 'global_value');
 
-        $renderer = new TwigRenderer(new TwigRendererEngine(['form_div_layout.html.twig'], $twig));
+        $twigRendererEngine = new TwigRendererEngine(['form_div_layout.html.twig'], $twig);
+        if (version_compare(Kernel::VERSION, '3.4.0', '>=')) {
+            $renderer = new FormRenderer($twigRendererEngine);
+        } else {
+            $renderer = new TwigRenderer($twigRendererEngine);
+        }
         $formExtension = ($subPath !== '') ? new FormExtension($renderer) : new FormExtension();
         $twig->addExtension($formExtension);
         if (interface_exists('Twig_RuntimeLoaderInterface')) {

@@ -37,7 +37,7 @@
         </service>
 
         <!-- DataGridFactory -->
-        <service id="datagrid.factory" class="%datagrid.factory.class%">
+        <service id="datagrid.factory" class="%datagrid.factory.class%" lazy="true">
             <argument type="collection">
                 <argument type="service" id="datagrid.extension" />
                 <!--
