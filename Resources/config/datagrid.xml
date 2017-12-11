@@ -37,7 +37,7 @@
         </service>
 
         <!-- DataGridFactory -->
-        <service id="datagrid.factory" class="%datagrid.factory.class%" lazy="true">
+        <service id="datagrid.factory" class="%datagrid.factory.class%" lazy="true" public="true">
             <argument type="collection">
                 <argument type="service" id="datagrid.extension" />
                 <!--
@@ -49,6 +49,9 @@
             </argument>
             <argument type="service" id="datagrid.data_mapper.chain" />
         </service>
+
+        <service id="FSi\Component\DataGrid\DataGridFactoryInterface"
+                 alias="datagrid.factory" public="true" />
 
         <!-- CoreExtension -->
         <service id="datagrid.column.batch" class="FSi\Component\DataGrid\Extension\Core\ColumnType\Batch">

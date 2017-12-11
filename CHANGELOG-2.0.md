@@ -15,7 +15,7 @@ constructor instead of just their IDs.
 All services implementing the following interfaces are now automatically tagged
 with corresponding tags:
 
-`FSi\Component\DataGrid\DataGridExtensionInterface` = `'datagrid.extension`
+`FSi\Component\DataGrid\DataGridExtensionInterface` - `'datagrid.extension`
 `FSi\Component\DataGrid\Column\ColumnTypeInterface` - `'datagrid.column'`
 `FSi\Component\DataGrid\Column\ColumnTypeExtensionInterface` - `'datagrid.column_extension'`
 `FSi\Bundle\DataGridBundle\DataGrid\EventSubscriberInterface` - `'datagrid.subscriber'`
