@@ -9,63 +9,53 @@
 
 namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony;
 
-use FSi\Component\DataGrid\DataGridAbstractExtension;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use FSi\Component\DataGrid\Column\ColumnTypeExtensionInterface;
+use FSi\Component\DataGrid\Column\ColumnTypeInterface;
+use FSi\Component\DataGrid\DataGridExtensionInterface;
+use FSi\Component\DataGrid\DataGridInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class DependencyInjectionExtension extends DataGridAbstractExtension
+class DependencyInjectionExtension implements DataGridExtensionInterface
 {
     /**
-     * @var \Symfony\Component\DependencyInjection\ContainerInterface
+     * @var ColumnTypeInterface[]
      */
-    protected $container;
+    private $columnTypes = [];
 
     /**
-     * @var array
+     * @var ColumnTypeExtensionInterface[][]
      */
-    protected $columnServiceIds;
+    private $columnTypesExtensions = [];
 
     /**
-     * @var array
+     * @var EventSubscriberInterface[]
      */
-    protected $columnExtensionServiceIds;
+    private $eventSubscribers = [];
 
     /**
-     * @var array
-     */
-    protected $gridSubscriberServiceIds;
-
-    /**
-     * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
-     * @param array $columnServiceIds
-     * @param array $columnExtensionServiceIds
-     * @param array $gridSubscriberServiceIds
-     * @internal param array $columnExtensionsServiceIds
+     * @param ColumnTypeInterface[] $columnTypes
+     * @param ColumnTypeExtensionInterface[] $columnTypesExtensions
+     * @param EventSubscriberInterface[] $eventSubscribers
      */
     public function __construct(
-        ContainerInterface $container,
-        array $columnServiceIds,
-        array $columnExtensionServiceIds,
-        array $gridSubscriberServiceIds
+        array $columnTypes,
+        array $columnTypesExtensions,
+        array $eventSubscribers
     ) {
-        $this->container = $container;
-        $this->columnServiceIds = $columnServiceIds;
-        $this->columnExtensionServiceIds = $columnExtensionServiceIds;
-        $this->gridSubscriberServiceIds = $gridSubscriberServiceIds;
-    }
+        foreach ($columnTypes as $columnType) {
+            $this->columnTypes[$columnType->getId()] = $columnType;
+        }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function hasColumnTypeExtensions($type)
-    {
-        foreach ($this->columnExtensionServiceIds as $alias => $extensionName) {
-            $extension = $this->container->get($this->columnExtensionServiceIds[$alias]);
-            $types = $extension->getExtendedColumnTypes();
-            if (in_array($type, $types)) {
-                return true;
+        foreach ($columnTypesExtensions as $columnTypeExtension) {
+            foreach ($columnTypeExtension->getExtendedColumnTypes() as $extendedColumnType) {
+                if (!array_key_exists($extendedColumnType, $this->columnTypesExtensions)) {
+                    $this->columnTypesExtensions[$extendedColumnType] = [];
+                }
+                $this->columnTypesExtensions[$extendedColumnType][] = $columnTypeExtension;
             }
         }
-        return false;
+
+        $this->eventSubscribers = $eventSubscribers;
     }
 
     /**
@@ -73,7 +63,7 @@ class DependencyInjectionExtension extends DataGridAbstractExtension
      */
     public function hasColumnType($type)
     {
-        return isset($this->columnServiceIds[$type]);
+        return array_key_exists($type, $this->columnTypes);
     }
 
     /**
@@ -81,13 +71,19 @@ class DependencyInjectionExtension extends DataGridAbstractExtension
      */
     public function getColumnType($type)
     {
-        if (!isset($this->columnServiceIds[$type])) {
+        if (!array_key_exists($type, $this->columnTypes)) {
             throw new \InvalidArgumentException(sprintf('The column type "%s" is not registered with the service container.', $type));
         }
 
-        $type = $this->container->get($this->columnServiceIds[$type]);
+        return $this->columnTypes[$type];
+    }
 
-        return $type;
+    /**
+     * {@inheritdoc}
+     */
+    public function hasColumnTypeExtensions($type)
+    {
+        return array_key_exists($type, $this->columnTypesExtensions);
     }
 
     /**
@@ -95,31 +91,20 @@ class DependencyInjectionExtension extends DataGridAbstractExtension
      */
     public function getColumnTypeExtensions($type)
     {
-        $columnExtension = [];
-
-        foreach ($this->columnExtensionServiceIds as $alias => $extensionName) {
-            $extension = $this->container->get($this->columnExtensionServiceIds[$alias]);
-            $types = $extension->getExtendedColumnTypes();
-            if (in_array($type, $types)) {
-                $columnExtension[] = $extension;
-            }
+        if (!array_key_exists($type, $this->columnTypesExtensions)) {
+            return [];
         }
 
-        return $columnExtension;
+        return $this->columnTypesExtensions[$type];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function loadSubscribers()
+    public function registerSubscribers(DataGridInterface $dataGrid)
     {
-        $subscribers = [];
-
-        foreach ($this->gridSubscriberServiceIds as $alias => $subscriberName) {
-            $subscriber = $this->container->get($this->gridSubscriberServiceIds[$alias]);
-            $subscribers[] = $subscriber;
+        foreach ($this->eventSubscribers as $eventSubscriber) {
+            $dataGrid->addEventSubscriber($eventSubscriber);
         }
-
-        return $subscribers;
     }
 }

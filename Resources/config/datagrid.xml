@@ -14,7 +14,6 @@
 
     <services>
         <service id="datagrid.extension" class="%datagrid.extension.class%">
-            <argument type="service" id="service_container" />
             <!-- All services with tag "datagrid.column" are inserted here by DataGridPass -->
             <argument type="collection" />
             <!-- All services with tag "datagrid.column_extension" are inserted here by DataGridPass -->
@@ -38,7 +37,7 @@
         </service>
 
         <!-- DataGridFactory -->
-        <service id="datagrid.factory" class="%datagrid.factory.class%">
+        <service id="datagrid.factory" class="%datagrid.factory.class%" lazy="true" public="true">
             <argument type="collection">
                 <argument type="service" id="datagrid.extension" />
                 <!--
@@ -50,6 +49,9 @@
             </argument>
             <argument type="service" id="datagrid.data_mapper.chain" />
         </service>
+
+        <service id="FSi\Component\DataGrid\DataGridFactoryInterface"
+                 alias="datagrid.factory" public="true" />
 
         <!-- CoreExtension -->
         <service id="datagrid.column.batch" class="FSi\Component\DataGrid\Extension\Core\ColumnType\Batch">
