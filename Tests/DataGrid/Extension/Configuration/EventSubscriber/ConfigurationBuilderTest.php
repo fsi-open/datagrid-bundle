@@ -13,13 +13,14 @@ namespace FSi\Bundle\DataGridBundle\Tests\DataGrid\Extension\Configuration\Event
 
 use FSi\Component\DataGrid\DataGridEvent;
 use FSi\Component\DataGrid\DataGridEvents;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\HttpKernel\KernelInterface;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\EventSubscriber\ConfigurationBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use FSi\Component\DataGrid\DataGrid;
 
-class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
+class ConfigurationBuilderTest extends TestCase
 {
     /**
      * @var KernelInterface

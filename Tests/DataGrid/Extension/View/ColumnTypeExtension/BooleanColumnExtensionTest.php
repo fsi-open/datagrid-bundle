@@ -14,10 +14,11 @@ namespace FSi\Bundle\DataGridBundle\Tests\DataGrid\Extension\View\ColumnTypeExte
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnTypeExtension\FormExtension;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\View\ColumnTypeExtension\BooleanColumnExtension;
 use FSi\Component\DataGrid\Extension\Core\ColumnType\Boolean;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 
-class BooleanColumnExtensionTest extends \PHPUnit_Framework_TestCase
+class BooleanColumnExtensionTest extends TestCase
 {
     public function testColumnOptions()
     {
@@ -49,7 +50,10 @@ class BooleanColumnExtensionTest extends \PHPUnit_Framework_TestCase
         return $translator;
     }
 
-    private function getFormFactory()
+    /**
+     * @return FormFactoryInterface
+     */
+    private function getFormFactory(): \PHPUnit_Framework_MockObject_MockObject
     {
         return $this->createMock(FormFactoryInterface::class);
     }

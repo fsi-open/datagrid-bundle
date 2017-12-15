@@ -12,10 +12,11 @@ declare(strict_types=1);
 namespace FSi\Bundle\DatagridBundle\Tests\DataGrid\Extension\Symfony;
 
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\RouterExtension;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-class RouterExtensionTest extends \PHPUnit_Framework_TestCase
+class RouterExtensionTest extends TestCase
 {
     public function testSymfonyExtension()
     {

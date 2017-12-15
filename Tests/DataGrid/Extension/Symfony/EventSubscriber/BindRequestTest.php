@@ -13,11 +13,12 @@ namespace FSi\Bundle\DatagridBundle\Tests\DataGrid\Extension\Symfony\EventSubscr
 
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\EventSubscriber\BindRequest;
 use FSi\Component\DataGrid\DataGridEventInterface;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use FSi\Component\DataGrid\DataGridInterface;
 
-class BindRequestTest extends \PHPUnit_Framework_TestCase
+class BindRequestTest extends TestCase
 {
     public function testPreBindDataWithoutRequestObject()
     {

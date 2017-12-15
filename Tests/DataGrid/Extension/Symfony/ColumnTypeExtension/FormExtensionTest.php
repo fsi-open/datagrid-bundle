@@ -18,10 +18,10 @@ use FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnTypeExtension\For
 use FSi\Bundle\DataGridBundle\Tests\Fixtures\Entity;
 use FSi\Bundle\DataGridBundle\Tests\Fixtures\EntityCategory;
 use FSi\Component\DataGrid\DataGrid;
+use PHPUnit\Framework\TestCase;
 use Symfony\Bridge\Doctrine\Form\DoctrineOrmExtension;
 use Symfony\Component\Form\Extension\Core\CoreExtension;
 use Symfony\Component\Form\Extension\Csrf\CsrfExtension;
-use Symfony\Component\Form\Extension\Csrf\CsrfProvider\DefaultCsrfProvider;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Form\FormRegistry;
@@ -38,10 +38,9 @@ use FSi\Component\DataGrid\DataGridInterface;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use FSi\Component\DataGrid\Column\ColumnTypeInterface;
 use FSi\Component\DataGrid\DataMapper\DataMapperInterface;
-use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\Form\AbstractType;
 
-class FormExtensionTest extends \PHPUnit_Framework_TestCase
+class FormExtensionTest extends TestCase
 {
     /**
      * @var FormExtension

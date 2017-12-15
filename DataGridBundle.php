@@ -15,11 +15,6 @@ use FSi\Bundle\DataGridBundle\DependencyInjection\Compiler\DataGridPass;
 use FSi\Bundle\DataGridBundle\DependencyInjection\Compiler\TemplatePathPass;
 use FSi\Bundle\DataGridBundle\DependencyInjection\FSIDataGridExtension;
 
-/**
- * FSiDataGridBundle.
- *
- * @author Norbert Orzechowicz <norbert@fsi.pl>
- */
 class DataGridBundle extends Bundle
 {
     public function build(ContainerBuilder $container)

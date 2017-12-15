@@ -15,6 +15,7 @@ use FSi\Bundle\DataGridBundle\Twig\TokenParser\DataGridThemeTokenParser;
 use FSi\Component\DataGrid\Column\CellViewInterface;
 use FSi\Component\DataGrid\Column\HeaderViewInterface;
 use FSi\Component\DataGrid\DataGridViewInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class DataGridExtension extends \Twig_Extension implements \Twig_Extension_InitRuntimeInterface
 {
@@ -39,13 +40,20 @@ class DataGridExtension extends \Twig_Extension implements \Twig_Extension_InitR
     private $environment;
 
     /**
-     * @param string[] $themes
+     * @var TranslatorInterface
      */
-    public function __construct(array $themes)
+    private $translator;
+
+    /**
+     * @param string[] $themes
+     * @param TranslatorInterface $translator
+     */
+    public function __construct(array $themes, TranslatorInterface $translator)
     {
         $this->themes = [];
         $this->themesVars = [];
         $this->baseThemes = $themes;
+        $this->translator = $translator;
     }
 
     public function getName(): string
@@ -97,7 +105,7 @@ class DataGridExtension extends \Twig_Extension implements \Twig_Extension_InitR
     }
 
     /**
-     * @param \Twig_Template|string $theme
+     * @param \Twig_Template[]|\Twig_Template|string $theme
      */
     public function setBaseTheme($theme): void
     {
@@ -263,9 +271,7 @@ class DataGridExtension extends \Twig_Extension implements \Twig_Extension_InitR
 
         foreach ($attributes as $attributeName => $attributeValue) {
             if ($attributeName === 'title') {
-                $attributeValue = $this->environment
-                    ->getExtension('translator')
-                    ->trans($attributeValue, [], $translationDomain);
+                $attributeValue = $this->translator->trans($attributeValue, [], $translationDomain);
             }
 
             $attrs[] = sprintf( '%s="%s"', $attributeName, $attributeValue);
