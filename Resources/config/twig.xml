@@ -11,6 +11,7 @@
         <service id="datagrid.twig.extension" class="%datagrid.twig.extension.class%" public="false">
             <tag name="twig.extension" />
             <argument>%datagrid.twig.themes%</argument>
+            <argument type="service" id="translator" />
         </service>
     </services>
 
