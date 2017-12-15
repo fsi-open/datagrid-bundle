@@ -7,14 +7,17 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace FSi\Bundle\DataGridBundle\DependencyInjection\Compiler;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
+use FSi\Bundle\DataGridBundle\DataGridBundle;
 
 class TemplatePathPass implements CompilerPassInterface
 {
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         $loaderDefinition = null;
 
@@ -29,7 +32,7 @@ class TemplatePathPass implements CompilerPassInterface
             return;
         }
 
-        $refl = new \ReflectionClass('FSi\Bundle\DataGridBundle\DataGridBundle');
+        $refl = new \ReflectionClass(DataGridBundle::class);
         $path = dirname($refl->getFileName()).'/Resources/views';
         $loaderDefinition->addMethodCall('addPath', [$path]);
     }

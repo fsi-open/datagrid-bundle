@@ -7,15 +7,22 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace FSi\Bundle\DatagridBundle\Tests\DataGrid\Extension\Symfony\EventSubscriber;
 
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\EventSubscriber\BindRequest;
+use FSi\Component\DataGrid\DataGridEventInterface;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\ParameterBag;
+use FSi\Component\DataGrid\DataGridInterface;
 
-class BindRequestTest extends \PHPUnit_Framework_TestCase
+class BindRequestTest extends TestCase
 {
     public function testPreBindDataWithoutRequestObject()
     {
-        $event = $this->getMock('FSi\Component\DataGrid\DataGridEventInterface');
+        $event = $this->createMock(DataGridEventInterface::class);
         $event->expects($this->never())
             ->method('setData');
 
@@ -26,12 +33,12 @@ class BindRequestTest extends \PHPUnit_Framework_TestCase
 
     public function testPreBindDataPOST()
     {
-        $request = $this->getMock('Symfony\Component\HttpFoundation\Request');
+        $request = $this->createMock(Request::class);
         $request->expects($this->once())
              ->method('getMethod')
              ->will($this->returnValue('POST'));
 
-        $requestBag = $this->getMock('Symfony\Component\HttpFoundation\ParameterBag');
+        $requestBag = $this->createMock(ParameterBag::class);
         $requestBag->expects($this->once())
             ->method('get')
             ->with('grid', [])
@@ -39,12 +46,12 @@ class BindRequestTest extends \PHPUnit_Framework_TestCase
 
         $request->request = $requestBag;
 
-        $grid = $this->getMock('FSi\Component\DataGrid\DataGridInterface');
+        $grid = $this->createMock(DataGridInterface::class);
         $grid->expects($this->once())
              ->method('getName')
              ->will($this->returnValue('grid'));
 
-        $event = $this->getMock('FSi\Component\DataGrid\DataGridEventInterface');
+        $event = $this->createMock(DataGridEventInterface::class);
         $event->expects($this->once())
             ->method('getData')
             ->will($this->returnValue($request));
@@ -64,16 +71,12 @@ class BindRequestTest extends \PHPUnit_Framework_TestCase
 
     public function testPreBindDataGET()
     {
-        if (!class_exists('Symfony\Component\HttpFoundation\Request')) {
-            $this->markTestSkipped('Symfony Column Extension require Symfony\Component\HttpFoundation\Request class.');
-        }
-
-        $request = $this->getMock('Symfony\Component\HttpFoundation\Request');
+        $request = $this->createMock(Request::class);
         $request->expects($this->once())
              ->method('getMethod')
              ->will($this->returnValue('GET'));
 
-        $queryBag = $this->getMock('Symfony\Component\HttpFoundation\ParameterBag');
+        $queryBag = $this->createMock(ParameterBag::class);
         $queryBag->expects($this->once())
             ->method('get')
             ->with('grid', [])
@@ -81,12 +84,12 @@ class BindRequestTest extends \PHPUnit_Framework_TestCase
 
         $request->query = $queryBag;
 
-        $grid = $this->getMock('FSi\Component\DataGrid\DataGridInterface');
+        $grid = $this->createMock(DataGridInterface::class);
         $grid->expects($this->once())
              ->method('getName')
              ->will($this->returnValue('grid'));
 
-        $event = $this->getMock('FSi\Component\DataGrid\DataGridEventInterface');
+        $event = $this->createMock(DataGridEventInterface::class);
         $event->expects($this->once())
             ->method('getData')
             ->will($this->returnValue($request));

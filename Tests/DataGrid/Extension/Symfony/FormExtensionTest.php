@@ -7,15 +7,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace FSi\Bundle\DatagridBundle\Tests\DataGrid\Extension\Symfony;
 
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\FormExtension;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Form\FormFactoryInterface;
 
-class FormExtensionTest extends \PHPUnit_Framework_TestCase
+class FormExtensionTest extends TestCase
 {
     public function testSymfonyFormExtension()
     {
-        $formFactory = $this->getMock('Symfony\Component\Form\FormFactoryInterface');
+        $formFactory = $this->createMock(FormFactoryInterface::class);
         $extension = new FormExtension($formFactory);
 
         $this->assertFalse($extension->hasColumnType('foo'));

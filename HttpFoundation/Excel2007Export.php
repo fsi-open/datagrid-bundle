@@ -7,6 +7,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace FSi\Bundle\DataGridBundle\HttpFoundation;
 
 class Excel2007Export extends ExcelExport
@@ -21,14 +23,11 @@ class Excel2007Export extends ExcelExport
      */
     protected $mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
-    /**
-     * @param \PHPExcel $PHPExcel
-     * @return \PHPExcel_Writer_Excel2007|\PHPExcel_Writer_Excel5
-     */
-    protected function getWriter(\PHPExcel $PHPExcel)
+    protected function getWriter(\PHPExcel $PHPExcel): \PHPExcel_Writer_Abstract
     {
         $writer = new \PHPExcel_Writer_Excel2007($PHPExcel);
         $writer->setPreCalculateFormulas(false);
+
         return $writer;
     }
 }

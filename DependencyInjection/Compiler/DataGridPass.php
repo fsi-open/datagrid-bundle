@@ -7,6 +7,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace FSi\Bundle\DataGridBundle\DependencyInjection\Compiler;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -15,7 +17,7 @@ use Symfony\Component\DependencyInjection\Reference;
 
 class DataGridPass implements CompilerPassInterface
 {
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         if (!$container->hasDefinition('datagrid.extension')) {
             return;
@@ -23,7 +25,7 @@ class DataGridPass implements CompilerPassInterface
 
         $columns = [];
         foreach ($container->findTaggedServiceIds('datagrid.column') as $serviceId => $tag) {
-            $alias = isset($tag[0]['alias']) ? $tag[0]['alias'] : $serviceId;
+            $alias = $tag[0]['alias'] ?? $serviceId;
 
             $columns[$alias] = new Reference($serviceId);
         }
@@ -32,7 +34,7 @@ class DataGridPass implements CompilerPassInterface
 
         $columnExtensions = [];
         foreach ($container->findTaggedServiceIds('datagrid.column_extension') as $serviceId => $tag) {
-            $alias = isset($tag[0]['alias']) ? $tag[0]['alias'] : $serviceId;
+            $alias = $tag[0]['alias'] ?? $serviceId;
 
             $columnExtensions[$alias] = new Reference($serviceId);
         }
@@ -41,7 +43,7 @@ class DataGridPass implements CompilerPassInterface
 
         $subscribers = [];
         foreach ($container->findTaggedServiceIds('datagrid.subscriber') as $serviceId => $tag) {
-            $alias = isset($tag[0]['alias']) ? $tag[0]['alias'] : $serviceId;
+            $alias = $tag[0]['alias'] ?? $serviceId;
 
             $subscribers[$alias] = new Reference($serviceId);
         }

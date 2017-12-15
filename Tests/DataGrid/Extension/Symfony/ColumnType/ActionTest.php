@@ -7,15 +7,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace FSi\Bundle\DatagridBundle\Tests\DataGrid\Extension\Symfony\ColumnType;
 
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnType\Action;
 use FSi\Bundle\DataGridBundle\Tests\Fixtures\Request;
 use FSi\Component\DataGrid\Extension\Core\ColumnTypeExtension\DefaultColumnOptionsExtension;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\Routing\RouterInterface;
 
-class ActionTest extends \PHPUnit_Framework_TestCase
+class ActionTest extends TestCase
 {
     /**
      * @var RouterInterface
@@ -34,8 +38,8 @@ class ActionTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->router = $this->getMock('Symfony\Component\Routing\RouterInterface');
-        $this->requestStack = $this->getMock('Symfony\Component\HttpFoundation\RequestStack');
+        $this->router = $this->createMock(RouterInterface::class);
+        $this->requestStack = $this->createMock(RequestStack::class);
         $this->requestStack->expects($this->any())
             ->method('getMasterRequest')
             ->will($this->returnValue(new Request()));
@@ -50,21 +54,17 @@ class ActionTest extends \PHPUnit_Framework_TestCase
         $this->column = $column;
     }
 
-    /**
-     * @expectedException \Symfony\Component\OptionsResolver\Exception\InvalidOptionsException
-     */
     public function testFilterValueWrongActionsOptionType()
     {
+        $this->expectException(InvalidOptionsException::class);
         $this->column->setOption('actions', 'boo');
-        $this->column->filterValue([]);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testFilterValueInvalidActionInActionsOption()
     {
         $this->column->setOption('actions', ['edit' => 'asdasd']);
+
+        $this->expectException(\InvalidArgumentException::class);
         $this->column->filterValue([]);
     }
 

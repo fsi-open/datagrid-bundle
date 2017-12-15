@@ -7,6 +7,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace FSi\Bundle\DataGridBundle\HttpFoundation;
 
 class CSVExport extends ExportAbstract
@@ -32,44 +34,25 @@ class CSVExport extends ExportAbstract
     protected $mimeType = 'text/csv';
 
     /**
-     * DataGrid as valid csv string
-     *
      * @var string
      */
     protected $data;
 
-    /**
-     * Set csv delimiter.
-     *
-     * @param string $delimiter
-     * @return CSVExport
-     */
-    public function setDelimiter($delimiter)
+    public function setDelimiter(string $delimiter): self
     {
         $this->delimiter = $delimiter;
 
         return $this;
     }
 
-    /**
-     * Set csv strings wrapper.
-     *
-     * @param $enclosure
-     * @return CSVExport
-     */
-    public function setEnclosure($enclosure)
+    public function setEnclosure(string $enclosure): self
     {
         $this->enclosure = $enclosure;
 
         return $this;
     }
 
-    /**
-     * Convert DataGridView to csv string.
-     *
-     * @return ExportAbstract|\Symfony\Component\HttpFoundation\Response
-     */
-    public function setData()
+    protected function setData(): void
     {
         $dataGrid = $this->getDataGrid();
         $fp = fopen('php://temp', 'r+');
@@ -96,30 +79,20 @@ class CSVExport extends ExportAbstract
 
         rewind($fp);
         $this->data = stream_get_contents($fp);
-        $this->data = $this->setLineEndings($this->data);
-        return $this->update();
+        $this->data = $this->convertLineEndings($this->data);
+        $this->update();
     }
 
-    /**
-     * Change line ending character in child class,
-     * which is \n (LF) by default.
-     */
-    public function setLineEndings($data)
+    protected function convertLineEndings(string $data): string
     {
-        // Do nothing by default.
         return $data;
     }
 
-    /**
-     * Update response headers and content;
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    protected function update()
+    private function update(): void
     {
         $fileName = sprintf('%s.%s', $this->getFileName(), $this->fileExtension);
         $this->headers->set('Content-Type', $this->mimeType);
         $this->headers->set('Content-Disposition', 'attachment; filename="'.$fileName.'"');
-        return $this->setContent($this->data);
+        $this->setContent($this->data);
     }
 }

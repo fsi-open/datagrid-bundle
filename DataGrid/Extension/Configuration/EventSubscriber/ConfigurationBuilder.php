@@ -7,6 +7,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\EventSubscriber;
 
 use FSi\Component\DataGrid\DataGridEventInterface;
@@ -19,30 +21,21 @@ use Symfony\Component\Yaml\Parser;
 class ConfigurationBuilder implements EventSubscriberInterface
 {
     /**
-     * @var \Symfony\Component\HttpKernel\KernelInterface
+     * @var KernelInterface
      */
     protected $kernel;
 
-    /**
-     * @param KernelInterface $kernel
-     */
-    function __construct(KernelInterface $kernel)
+    public function __construct(KernelInterface $kernel)
     {
         $this->kernel = $kernel;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [DataGridEvents::PRE_SET_DATA => ['readConfiguration', 128]];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function readConfiguration(DataGridEventInterface $event)
+    public function readConfiguration(DataGridEventInterface $event): void
     {
         $dataGrid = $event->getDataGrid();
         $dataGridConfiguration = [];
@@ -61,24 +54,15 @@ class ConfigurationBuilder implements EventSubscriberInterface
         }
     }
 
-    /**
-     * @param string $bundlePath
-     * @param string $dataGridName
-     * @return bool
-     */
-    protected function hasDataGridConfiguration($bundlePath, $dataGridName)
+    protected function hasDataGridConfiguration(string $bundlePath, string $dataGridName): bool
     {
         return file_exists(sprintf($bundlePath . '/Resources/config/datagrid/%s.yml', $dataGridName));
     }
 
-    /**
-     * @param string $bundlePath
-     * @param string $dataGridName
-     * @return mixed
-     */
-    protected function getDataGridConfiguration($bundlePath, $dataGridName)
+    protected function getDataGridConfiguration(string $bundlePath, string $dataGridName)
     {
         $yamlParser = new Parser();
+
         return $yamlParser->parse(
             file_get_contents(
                 sprintf($bundlePath . '/Resources/config/datagrid/%s.yml', $dataGridName)
@@ -86,11 +70,7 @@ class ConfigurationBuilder implements EventSubscriberInterface
         );
     }
 
-    /**
-     * @param DataGridInterface $dataGrid
-     * @param array $configuration
-     */
-    protected function buildConfiguration(DataGridInterface $dataGrid, array $configuration)
+    protected function buildConfiguration(DataGridInterface $dataGrid, array $configuration): void
     {
         foreach ($configuration['columns'] as $name => $column) {
             $type = array_key_exists('type', $column)

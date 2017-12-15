@@ -7,15 +7,20 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace FSi\Bundle\DataGridBundle\Tests\DataGrid\Extension\Configuration\EventSubscriber;
 
 use FSi\Component\DataGrid\DataGridEvent;
 use FSi\Component\DataGrid\DataGridEvents;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\HttpKernel\KernelInterface;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\EventSubscriber\ConfigurationBuilder;
+use Symfony\Component\HttpKernel\Bundle\Bundle;
+use FSi\Component\DataGrid\DataGrid;
 
-class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
+class ConfigurationBuilderTest extends TestCase
 {
     /**
      * @var KernelInterface
@@ -29,7 +34,7 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $kernelMockBuilder = $this->getMockBuilder('Symfony\Component\HttpKernel\Kernel')
+        $kernelMockBuilder = $this->getMockBuilder(Kernel::class)
             ->setConstructorArgs(['dev', true]);
         if (version_compare(Kernel::VERSION, '2.7.0', '<')) {
             $kernelMockBuilder->setMethods(['registerContainerConfiguration', 'registerBundles', 'getBundles', 'init']);
@@ -51,19 +56,18 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testReadConfigurationFromOneBundle()
     {
-        $self = $this;
         $this->kernel->expects($this->once())
             ->method('getBundles')
-            ->will($this->returnCallback(function() use ($self) {
-                $bundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle', ['getPath']);
-                $bundle->expects($self->any())
+            ->will($this->returnCallback(function() {
+                $bundle = $this->createMock(Bundle::class);
+                $bundle->expects($this->any())
                     ->method('getPath')
-                    ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/FooBundle'));
+                    ->will($this->returnValue(__DIR__ . '/../../../../Fixtures/FooBundle'));
 
                 return [$bundle];
             }));
 
-        $dataGrid = $this->getMockBuilder('FSi\Component\DataGrid\DataGrid')
+        $dataGrid = $this->getMockBuilder(DataGrid::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -82,26 +86,25 @@ class ConfigurationBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testReadConfigurationFromManyBundles()
     {
-        $self = $this;
         $this->kernel->expects($this->once())
             ->method('getBundles')
-            ->will($this->returnCallback(function() use ($self) {
-                $fooBundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle', ['getPath']);
-                $fooBundle->expects($self->any())
+            ->will($this->returnCallback(function() {
+                $fooBundle = $this->createMock(Bundle::class);
+                $fooBundle->expects($this->any())
                     ->method('getPath')
-                    ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/FooBundle'));
+                    ->will($this->returnValue(__DIR__ . '/../../../../Fixtures/FooBundle'));
 
-                $barBundle = $self->getMock('Symfony\Component\HttpKernel\Bundle\Bundle', ['getPath']);
-                $barBundle->expects($self->any())
+                $barBundle = $this->createMock(Bundle::class);
+                $barBundle->expects($this->any())
                     ->method('getPath')
-                    ->will($self->returnValue(__DIR__ . '/../../../../Fixtures/BarBundle'));
+                    ->will($this->returnValue(__DIR__ . '/../../../../Fixtures/BarBundle'));
                 return [
                     $fooBundle,
                     $barBundle
                 ];
             }));
 
-        $dataGrid = $this->getMockBuilder('FSi\Component\DataGrid\DataGrid')
+        $dataGrid = $this->getMockBuilder(DataGrid::class)
             ->disableOriginalConstructor()
             ->getMock();
 

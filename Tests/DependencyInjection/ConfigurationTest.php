@@ -7,15 +7,15 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace FSi\Bundle\DataGridBundle\Tests\DependencyInjection;
 
 use FSi\Bundle\DataGridBundle\DependencyInjection\Configuration;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Processor;
 
-/**
- * @author Norbert Orzechowicz <norbert@fsi.pl>
- */
-class ConfigurationTest extends \PHPUnit_Framework_TestCase
+class ConfigurationTest extends TestCase
 {
     public function testDefaultOptions()
     {
@@ -47,7 +47,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public static function getBundleDefaultOptions()
+    public static function getBundleDefaultOptions(): array
     {
         return [
             'yaml_configuration' => true,

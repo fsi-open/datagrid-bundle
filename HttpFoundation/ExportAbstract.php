@@ -7,17 +7,18 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace FSi\Bundle\DataGridBundle\HttpFoundation;
 
 use FSi\Component\DataGrid\DataGridViewInterface;
-use Symfony\Bundle\FrameworkBundle\Translation\Translator;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Translation\TranslatorInterface;
 
 abstract class ExportAbstract extends Response
 {
     /**
-     * @var \FSi\Component\DataGrid\DataGridViewInterface
+     * @var DataGridViewInterface
      */
     protected $datagrid;
 
@@ -31,18 +32,11 @@ abstract class ExportAbstract extends Response
      */
     protected $translator;
 
-    /**
-     * @param DataGridViewInterface $datagrid
-     * @param $filename
-     * @param int $status
-     * @param array $headers
-     * @param Translator $translator
-     */
     public function __construct(
         DataGridViewInterface $datagrid,
-        $filename,
-        $status = 200,
-        $headers = [],
+        string $filename,
+        int $status = 200,
+        array $headers = [],
         TranslatorInterface $translator = null
     ) {
         parent::__construct('', $status, $headers);
@@ -53,27 +47,15 @@ abstract class ExportAbstract extends Response
         $this->setData();
     }
 
-    /**
-     * @return \FSi\Component\DataGrid\DataGridViewInterface
-     */
-    public function getDataGrid()
+    public function getDataGrid(): DataGridViewInterface
     {
         return $this->datagrid;
     }
 
-    /**
-     * Return filename without file extension.
-     * File extension should be determined by class that extends ExportAbstract.
-     *
-     * @return string
-     */
-    public function getFileName()
+    public function getFileName(): string
     {
         return $this->filename;
     }
 
-    /**
-     * @return ExportAbstract
-     */
-    public abstract function setData();
+    abstract protected function setData(): void;
 }

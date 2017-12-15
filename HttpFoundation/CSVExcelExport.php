@@ -7,17 +7,13 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace FSi\Bundle\DataGridBundle\HttpFoundation;
 
 class CSVExcelExport extends CSVExport
 {
-    /**
-     * Set CRLF line ending
-     *
-     * @param string $data
-     * @return string
-     */
-    public function setLineEndings($data)
+    public function convertLineEndings(string $data): string
     {
         return str_replace("\n", "\r\n", $data);
     }

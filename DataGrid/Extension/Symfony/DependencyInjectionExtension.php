@@ -7,6 +7,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony;
 
 use FSi\Component\DataGrid\Column\ColumnTypeExtensionInterface;
@@ -58,38 +60,33 @@ class DependencyInjectionExtension implements DataGridExtensionInterface
         $this->eventSubscribers = $eventSubscribers;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function hasColumnType($type)
+    public function hasColumnType(string $type): bool
     {
         return array_key_exists($type, $this->columnTypes);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getColumnType($type)
+    public function getColumnType(string $type): ColumnTypeInterface
     {
         if (!array_key_exists($type, $this->columnTypes)) {
-            throw new \InvalidArgumentException(sprintf('The column type "%s" is not registered with the service container.', $type));
+            throw new \InvalidArgumentException(sprintf(
+                'The column type "%s" is not registered with the service container.',
+                $type
+            ));
         }
 
         return $this->columnTypes[$type];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function hasColumnTypeExtensions($type)
+    public function hasColumnTypeExtensions(string $type): bool
     {
         return array_key_exists($type, $this->columnTypesExtensions);
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $type
+     * @return ColumnTypeExtensionInterface[]
      */
-    public function getColumnTypeExtensions($type)
+    public function getColumnTypeExtensions(string $type): array
     {
         if (!array_key_exists($type, $this->columnTypesExtensions)) {
             return [];
@@ -98,10 +95,7 @@ class DependencyInjectionExtension implements DataGridExtensionInterface
         return $this->columnTypesExtensions[$type];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function registerSubscribers(DataGridInterface $dataGrid)
+    public function registerSubscribers(DataGridInterface $dataGrid): void
     {
         foreach ($this->eventSubscribers as $eventSubscriber) {
             $dataGrid->addEventSubscriber($eventSubscriber);

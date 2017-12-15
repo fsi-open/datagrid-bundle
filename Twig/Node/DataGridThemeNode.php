@@ -7,6 +7,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace FSi\Bundle\DataGridBundle\Twig\Node;
 
 class DataGridThemeNode extends \Twig_Node
@@ -15,18 +17,13 @@ class DataGridThemeNode extends \Twig_Node
         \Twig_Node $dataGrid,
         \Twig_Node $theme,
         \Twig_Node_Expression_Array $vars,
-        $lineno,
-        $tag = null
+        int $lineno,
+        ?string $tag = null
     ) {
         parent::__construct(['datagrid' => $dataGrid, 'theme' => $theme, 'vars' => $vars], [], $lineno, $tag);
     }
 
-    /**
-     * Compiles the node to PHP.
-     *
-     * @param \Twig_Compiler $compiler A Twig_Compiler instance
-     */
-    public function compile(\Twig_Compiler $compiler)
+    public function compile(\Twig_Compiler $compiler): void
     {
         $compiler
             ->addDebugInfo($this)
@@ -37,6 +34,5 @@ class DataGridThemeNode extends \Twig_Node
             ->raw(', ')
             ->subcompile($this->getNode('vars'))
             ->raw(");\n");
-        ;
     }
 }

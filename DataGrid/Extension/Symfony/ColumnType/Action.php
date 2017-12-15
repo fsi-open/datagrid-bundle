@@ -7,57 +7,45 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnType;
 
 use FSi\Component\DataGrid\Column\ColumnAbstractType;
 use FSi\Component\DataGrid\Exception\UnexpectedTypeException;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class Action extends ColumnAbstractType
 {
     /**
-     * Symfony Router to generate urls.
-     *
-     * @var \Symfony\Component\Routing\Router;
+     * @var UrlGeneratorInterface
      */
-    protected $router;
+    protected $urlGenerator;
 
     /**
-     * Service container used to access current request.
-     *
-     * @var \Symfony\Component\HttpFoundation\RequestStack
+     * @var RequestStack
      */
     protected $requestStack;
 
     /**
-     * @var \Symfony\Component\OptionsResolver\OptionsResolver
+     * @var OptionsResolver
      */
     protected $actionOptionsResolver;
 
-    /**
-     * @param \Symfony\Component\Routing\RouterInterface $router
-     * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
-     */
-    public function __construct(RouterInterface $router, RequestStack $requestStack)
+    public function __construct(UrlGeneratorInterface $urlGenerator, RequestStack $requestStack)
     {
-        $this->router = $router;
+        $this->urlGenerator = $urlGenerator;
         $this->requestStack = $requestStack;
         $this->actionOptionsResolver = new OptionsResolver();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
+    public function getId(): string
     {
         return 'action';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function filterValue($value)
     {
         $return = [];
@@ -100,11 +88,13 @@ class Action extends ColumnAbstractType
                 $urlAttributes = $urlAttributes($value, $this->getIndex());
 
                 if (!is_array($urlAttributes)) {
-                    throw new UnexpectedTypeException('url_attr option Closure must return new array with url attributes.');
+                    throw new UnexpectedTypeException(
+                        'url_attr option Closure must return new array with url attributes.'
+                    );
                 }
             }
 
-            $url = $this->router->generate($options['route_name'], $parameters, $options['absolute']);
+            $url = $this->urlGenerator->generate($options['route_name'], $parameters, $options['absolute']);
 
             if (!isset($urlAttributes['href'])) {
                 $urlAttributes['href'] = $url;
@@ -122,10 +112,7 @@ class Action extends ColumnAbstractType
         return $return;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function initOptions()
+    public function initOptions(): void
     {
         $this->getOptionsResolver()->setDefaults([
             'actions' => [],
@@ -150,10 +137,7 @@ class Action extends ColumnAbstractType
         ]);
     }
 
-    /**
-     * @return \Symfony\Component\OptionsResolver\OptionsResolver
-     */
-    public function getActionOptionsResolver()
+    public function getActionOptionsResolver(): OptionsResolver
     {
         return $this->actionOptionsResolver;
     }

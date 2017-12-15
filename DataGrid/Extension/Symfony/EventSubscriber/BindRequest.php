@@ -7,6 +7,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\EventSubscriber;
 
 use FSi\Component\DataGrid\DataGridEventInterface;
@@ -17,18 +19,12 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class BindRequest implements EventSubscriberInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [DataGridEvents::PRE_BIND_DATA => ['preBindData', 128]];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function preBindData(DataGridEventInterface $event)
+    public function preBindData(DataGridEventInterface $event): void
     {
         $dataGrid = $event->getDataGrid();
         $request = $event->getData();
