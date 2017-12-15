@@ -7,11 +7,15 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace FSi\Bundle\DataGridBundle\Tests\DataGrid\Extension\View\ColumnTypeExtension;
 
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnTypeExtension\FormExtension;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\View\ColumnTypeExtension\BooleanColumnExtension;
 use FSi\Component\DataGrid\Extension\Core\ColumnType\Boolean;
+use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Component\Form\FormFactoryInterface;
 
 class BooleanColumnExtensionTest extends \PHPUnit_Framework_TestCase
 {
@@ -30,7 +34,7 @@ class BooleanColumnExtensionTest extends \PHPUnit_Framework_TestCase
 
     private function getTranslator()
     {
-        $translator = $this->getMock('Symfony\Component\Translation\TranslatorInterface');
+        $translator = $this->createMock(TranslatorInterface::class);
 
         $translator->expects($this->at(0))
             ->method('trans')
@@ -47,6 +51,6 @@ class BooleanColumnExtensionTest extends \PHPUnit_Framework_TestCase
 
     private function getFormFactory()
     {
-        return $this->getMock('Symfony\Component\Form\FormFactoryInterface');
+        return $this->createMock(FormFactoryInterface::class);
     }
 }

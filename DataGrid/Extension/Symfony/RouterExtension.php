@@ -7,6 +7,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony;
 
 use FSi\Component\DataGrid\DataGridAbstractExtension;
@@ -14,44 +16,35 @@ use FSi\Bundle\DataGridBundle\Datagrid\Extension\Symfony\EventSubscriber;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnType;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 class RouterExtension extends DataGridAbstractExtension
 {
     /**
-     * @var RouterInterface
+     * @var UrlGeneratorInterface
      */
-    private $router;
+    private $urlGenerator;
 
     /**
      * @var RequestStack
      */
     private $requestStack;
 
-    /**
-     * @param RouterInterface $router
-     * @param RequestStack $requestStack
-     */
-    public function __construct(RouterInterface $router, RequestStack $requestStack)
+    public function __construct(UrlGeneratorInterface $urlGenerator, RequestStack $requestStack)
     {
-        $this->router = $router;
+        $this->urlGenerator = $urlGenerator;
         $this->requestStack = $requestStack;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function loadColumnTypes()
+    protected function loadColumnTypes(): array
     {
         return [
-            new ColumnType\Action($this->router, $this->requestStack),
+            new ColumnType\Action($this->urlGenerator, $this->requestStack),
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function loadSubscribers()
+    protected function loadSubscribers(): array
     {
         return [
             new EventSubscriber\BindRequest(),

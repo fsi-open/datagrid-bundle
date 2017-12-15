@@ -7,23 +7,26 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnTypeExtension;
 
-use Doctrine\Common\Util\ClassUtils;
 use FSi\Bundle\DataGridBundle\Form\Type\RowType;
 use FSi\Bundle\DataGridBundle\Form\Type\Symfony3RowType;
 use FSi\Component\DataGrid\Column\CellViewInterface;
 use FSi\Component\DataGrid\Column\ColumnAbstractTypeExtension;
 use FSi\Component\DataGrid\Column\ColumnTypeInterface;
-use FSi\Component\DataGrid\DataGridInterface;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\AbstractType;
 
 class FormExtension extends ColumnAbstractTypeExtension
 {
     /**
-     * @var \Symfony\Component\Form\FormFactoryInterface
+     * @var FormFactoryInterface
      */
     protected $formFactory;
 
@@ -33,25 +36,17 @@ class FormExtension extends ColumnAbstractTypeExtension
     protected $csrfTokenEnabled;
 
     /**
-     * Form Objects instances created by method CreateForm.
-     *
-     * @var array
+     * @var FormInterface[]
      */
     protected $forms = [];
 
-    /**
-     * @param \Symfony\Component\Form\FormFactoryInterface $formFactory
-     */
-    public function __construct(FormFactoryInterface $formFactory, $csrfTokenEnabled = true)
+    public function __construct(FormFactoryInterface $formFactory, bool $csrfTokenEnabled = true)
     {
         $this->formFactory = $formFactory;
         $this->csrfTokenEnabled = $csrfTokenEnabled;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function bindData(ColumnTypeInterface $column, $data, $object, $index)
+    public function bindData(ColumnTypeInterface $column, $data, $object, $index): void
     {
         if ($column->getOption('editable') === false) {
             return;
@@ -92,10 +87,7 @@ class FormExtension extends ColumnAbstractTypeExtension
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function buildCellView(ColumnTypeInterface $column, CellViewInterface $view)
+    public function buildCellView(ColumnTypeInterface $column, CellViewInterface $view): void
     {
         if (!$column->getOption('editable')) {
             return;
@@ -108,10 +100,7 @@ class FormExtension extends ColumnAbstractTypeExtension
         $view->setAttribute('form', $form->createView());
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getExtendedColumnTypes()
+    public function getExtendedColumnTypes(): array
     {
         return [
             'text',
@@ -123,10 +112,7 @@ class FormExtension extends ColumnAbstractTypeExtension
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function initOptions(ColumnTypeInterface $column)
+    public function initOptions(ColumnTypeInterface $column): void
     {
         $column->getOptionsResolver()->setDefaults([
             'editable' => false,
@@ -139,23 +125,15 @@ class FormExtension extends ColumnAbstractTypeExtension
         $column->getOptionsResolver()->setAllowedTypes('form_type', 'array');
     }
 
-    /**
-     * Create Form Objects for column and rowset index.
-     *
-     * @param \FSi\Component\DataGrid\Column\ColumnTypeInterface $column
-     * @param mixed $index
-     * @param mixed $object
-     * @return FormInterface
-     */
-    private function createForm(ColumnTypeInterface $column, $index, $object)
+    private function createForm(ColumnTypeInterface $column, $index, $object): FormInterface
     {
         $formId = implode([$column->getName(),$column->getId(), $index]);
         if (array_key_exists($formId, $this->forms)) {
             return $this->forms[$formId];
         }
 
-        //Create fields array. There are column types like entity where field_mapping
-        //should not be used to build field array.
+        // Create fields array. There are column types like entity where field_mapping
+        // should not be used to build field array.
         $fields = [];
         switch ($column->getId()) {
             case 'entity':
@@ -257,41 +235,28 @@ class FormExtension extends ColumnAbstractTypeExtension
         return $this->forms[$formId];
     }
 
-    /**
-     * @return string
-     */
-    private function getEntityTypeName()
+    private function getEntityTypeName(): string
     {
-        return 'Symfony\Bridge\Doctrine\Form\Type\EntityType';
+        return EntityType::class;
     }
 
-    /**
-     * @return string
-     */
-    private function getDateTimeTypeName()
+    private function getDateTimeTypeName(): string
     {
-        return 'Symfony\Component\Form\Extension\Core\Type\DateTimeType';
+        return DateTimeType::class;
     }
 
-    private function getCollectionTypeName()
+    private function getCollectionTypeName(): string
     {
-        return 'Symfony\Component\Form\Extension\Core\Type\CollectionType';
+        return CollectionType::class;
     }
 
-    /**
-     * @return string
-     */
-    private function getRowTypeName()
+    private function getRowTypeName(): string
     {
-        return 'FSi\Bundle\DataGridBundle\Form\Type\Symfony3RowType';
+        return Symfony3RowType::class;
     }
 
-    /**
-     * @return bool
-     */
-    private function isSymfony3()
+    private function isSymfony3(): bool
     {
-        return method_exists('Symfony\Component\Form\AbstractType', 'getBlockPrefix');
+        return method_exists(AbstractType::class, 'getBlockPrefix');
     }
-
 }

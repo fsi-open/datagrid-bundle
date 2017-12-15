@@ -7,9 +7,9 @@
  * file that was distributed with this source code.
  */
 
-namespace FSi\Bundle\DataGridBundle\HttpFoundation;
+declare(strict_types=1);
 
-use Symfony\Component\HttpFoundation\Response;
+namespace FSi\Bundle\DataGridBundle\HttpFoundation;
 
 class ExcelExport extends ExportAbstract
 {
@@ -28,10 +28,7 @@ class ExcelExport extends ExportAbstract
      */
     protected $mimeType = 'application/vnd.ms-excel';
 
-    /**
-     * @return ExportAbstract|Response
-     */
-    public function setData()
+    protected function setData(): void
     {
         $PHPExcel = new \PHPExcel();
         $dataGrid = $this->getDataGrid();
@@ -63,29 +60,19 @@ class ExcelExport extends ExportAbstract
         ob_start();
         $writer->save("php://output");
         $this->data = ob_get_clean();
-
-        return $this->update();
+        $this->update();
     }
 
-    /**
-     * @param \PHPExcel $PHPExcel
-     * @return \PHPExcel_Writer_Excel5
-     */
-    protected function getWriter(\PHPExcel $PHPExcel)
+    protected function getWriter(\PHPExcel $PHPExcel): \PHPExcel_Writer_Abstract
     {
         return new \PHPExcel_Writer_Excel5($PHPExcel);
     }
 
-    /**
-     * Update response headers and content;
-     *
-     * @return Response
-     */
-    protected function update()
+    private function update(): void
     {
         $fileName = sprintf('%s.%s', $this->getFileName(), $this->fileExtension);
         $this->headers->set('Content-Type', $this->mimeType);
         $this->headers->set('Content-Disposition', 'attachment; filename="'.$fileName.'"');
-        return $this->setContent($this->data);
+        $this->setContent($this->data);
     }
 }

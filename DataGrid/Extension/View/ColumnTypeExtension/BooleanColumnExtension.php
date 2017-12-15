@@ -7,42 +7,35 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\View\ColumnTypeExtension;
 
 use FSi\Component\DataGrid\Column\ColumnTypeInterface;
 use FSi\Component\DataGrid\Column\ColumnAbstractTypeExtension;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\AbstractType;
 
 class BooleanColumnExtension extends ColumnAbstractTypeExtension
 {
     /**
-     * Symfony Translator to generate translations.
-     *
      * @var TranslatorInterface
      */
     protected $translator;
 
-    /**
-     * @param TranslatorInterface $translator
-     */
     public function __construct(TranslatorInterface $translator)
     {
         $this->translator = $translator;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getExtendedColumnTypes()
+    public function getExtendedColumnTypes(): array
     {
         return ['boolean'];
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function initOptions(ColumnTypeInterface $column)
+    public function initOptions(ColumnTypeInterface $column): void
     {
         $column->getOptionsResolver()->setDefaults([
             'true_value' => $this->translator->trans('datagrid.boolean.yes', [], 'DataGridBundle'),
@@ -50,10 +43,11 @@ class BooleanColumnExtension extends ColumnAbstractTypeExtension
         ]);
 
         $translator = $this->translator;
+
         $column->getOptionsResolver()->setNormalizer(
             'form_options',
             function(Options $options, $value) use ($translator) {
-                if ($options['editable'] && count($options['field_mapping']) == 1) {
+                if ($options['editable'] && count($options['field_mapping']) === 1) {
                     $field = $options['field_mapping'][0];
                     $choices = [
                         0 => $translator->trans('datagrid.boolean.no', [], 'DataGridBundle'),
@@ -68,15 +62,16 @@ class BooleanColumnExtension extends ColumnAbstractTypeExtension
                 return $value;
             }
         );
+
         $column->getOptionsResolver()->setNormalizer(
             'form_type',
             function(Options $options, $value) {
-                if ($options['editable'] && count($options['field_mapping']) == 1) {
+                if ($options['editable'] && count($options['field_mapping']) === 1) {
                     $field = $options['field_mapping'][0];
                     return array_merge(
                         [
                             $field => $this->isSymfony3()
-                                ? 'Symfony\Component\Form\Extension\Core\Type\ChoiceType'
+                                ? ChoiceType::class
                                 : 'choice'
                         ],
                         $value
@@ -88,8 +83,8 @@ class BooleanColumnExtension extends ColumnAbstractTypeExtension
         );
     }
 
-    private function isSymfony3()
+    private function isSymfony3(): bool
     {
-        return method_exists('Symfony\Component\Form\AbstractType', 'getBlockPrefix');
+        return method_exists(AbstractType::class, 'getBlockPrefix');
     }
 }

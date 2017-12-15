@@ -7,16 +7,20 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace FSi\Bundle\DatagridBundle\Tests\DataGrid\Extension\Symfony;
 
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\RouterExtension;
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class RouterExtensionTest extends \PHPUnit_Framework_TestCase
 {
     public function testSymfonyExtension()
     {
-        $router = $this->getMock('Symfony\Component\Routing\RouterInterface');
-        $requestStack = $this->getMock('Symfony\Component\HttpFoundation\RequestStack');
+        $router = $this->createMock(RouterInterface::class);
+        $requestStack = $this->createMock(RequestStack::class);
         $extension = new RouterExtension($router, $requestStack);
 
         $this->assertTrue($extension->hasColumnType('action'));

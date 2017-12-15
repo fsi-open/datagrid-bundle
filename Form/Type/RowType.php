@@ -7,6 +7,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace FSi\Bundle\DataGridBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
@@ -19,28 +21,19 @@ class RowType extends AbstractType
      */
     protected $fields;
 
-    /**
-     * @param array $fields
-     */
-    public function __construct($fields = [])
+    public function __construct(array $fields = [])
     {
         $this->fields = $fields;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         foreach ($this->fields as $field) {
             $builder->add($field['name'], $field['type'], $field['options']);
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    public function getName(): string
     {
         return 'row';
     }

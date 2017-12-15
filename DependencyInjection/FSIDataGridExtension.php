@@ -7,19 +7,22 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace FSi\Bundle\DataGridBundle\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use FSi\Component\DataGrid\DataGridExtensionInterface;
+use FSi\Component\DataGrid\Column\ColumnTypeInterface;
+use FSi\Component\DataGrid\Column\ColumnTypeExtensionInterface;
+use FSi\Bundle\DataGridBundle\DataGrid\EventSubscriberInterface;
 
 class FSIDataGridExtension extends Extension
 {
-    /**
-     * {@inheritDoc}
-     */
-    public function load(array $configs, ContainerBuilder $container)
+    public function load(array $configs, ContainerBuilder $container): void
     {
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
@@ -36,18 +39,18 @@ class FSIDataGridExtension extends Extension
         }
 
         if (method_exists($container, 'registerForAutoconfiguration')) {
-            $container->registerForAutoconfiguration('FSi\Component\DataGrid\DataGridExtensionInterface')
+            $container->registerForAutoconfiguration(DataGridExtensionInterface::class)
                 ->addTag('datagrid.extension');
-            $container->registerForAutoconfiguration('FSi\Component\DataGrid\Column\ColumnTypeInterface')
+            $container->registerForAutoconfiguration(ColumnTypeInterface::class)
                 ->addTag('datagrid.column');
-            $container->registerForAutoconfiguration('FSi\Component\DataGrid\Column\ColumnTypeExtensionInterface')
+            $container->registerForAutoconfiguration(ColumnTypeExtensionInterface::class)
                 ->addTag('datagrid.column_extension');
-            $container->registerForAutoconfiguration('FSi\Bundle\DataGridBundle\DataGrid\EventSubscriberInterface')
+            $container->registerForAutoconfiguration(EventSubscriberInterface::class)
                 ->addTag('datagrid.subscriber');
         }
     }
 
-    public function registerTwigConfiguration(array $config, ContainerBuilder $container, XmlFileLoader $loader)
+    public function registerTwigConfiguration(array $config, ContainerBuilder $container, XmlFileLoader $loader): void
     {
         $loader->load('twig.xml');
         $container->setParameter('datagrid.twig.themes', $config['themes']);

@@ -7,6 +7,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\View\ColumnTypeExtension;
 
 use FSi\Component\DataGrid\Column\ColumnTypeInterface;
@@ -16,26 +18,17 @@ use FSi\Component\DataGrid\Column\HeaderViewInterface;
 
 class ColumnViewOptionsExtension extends ColumnAbstractTypeExtension
 {
-    /**
-     * {@inheritDoc}
-     */
-    public function buildCellView(ColumnTypeInterface $column, CellViewInterface $view)
+    public function buildCellView(ColumnTypeInterface $column, CellViewInterface $view): void
     {
         $view->setAttribute('translation_domain', $column->getOption('translation_domain'));
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function buildHeaderView(ColumnTypeInterface $column, HeaderViewInterface $view)
+    public function buildHeaderView(ColumnTypeInterface $column, HeaderViewInterface $view): void
     {
         $view->setAttribute('translation_domain', $column->getOption('translation_domain'));
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getExtendedColumnTypes()
+    public function getExtendedColumnTypes(): array
     {
         return [
             'action',
@@ -51,10 +44,7 @@ class ColumnViewOptionsExtension extends ColumnAbstractTypeExtension
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function initOptions(ColumnTypeInterface $column)
+    public function initOptions(ColumnTypeInterface $column): void
     {
         $column->getOptionsResolver()->setDefaults([
             'translation_domain' => 'messages',

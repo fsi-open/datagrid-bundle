@@ -7,6 +7,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace FSi\Bundle\DataGridBundle\Tests\Fixtures;
 
 class TwigRuntimeLoader implements \Twig_RuntimeLoaderInterface

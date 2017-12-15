@@ -7,16 +7,15 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace FSi\Bundle\DataGridBundle\Twig\TokenParser;
 
 use FSi\Bundle\DataGridBundle\Twig\Node\DataGridThemeNode;
 
 class DataGridThemeTokenParser extends \Twig_TokenParser
 {
-    /**
-     * {@inheritDoc}
-     */
-    public function parse(\Twig_Token $token)
+    public function parse(\Twig_Token $token): DataGridThemeNode
     {
         $stream = $this->parser->getStream();
         $dataGrid = $this->parser->getExpressionParser()->parseExpression();
@@ -36,10 +35,7 @@ class DataGridThemeTokenParser extends \Twig_TokenParser
         return new DataGridThemeNode($dataGrid, $theme, $vars, $token->getLine(), $this->getTag());
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getTag()
+    public function getTag(): string
     {
         return 'datagrid_theme';
     }

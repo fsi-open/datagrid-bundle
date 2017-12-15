@@ -7,6 +7,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace FSi\Bundle\DataGridBundle\Tests\Twig\Extension;
 
 use FSi\Bundle\DataGridBundle\Tests\Fixtures\TwigRuntimeLoader;
@@ -20,9 +22,6 @@ use Symfony\Bridge\Twig\Tests\Extension\Fixtures\StubTranslator;
 use Symfony\Component\Form\FormRenderer;
 use Symfony\Component\HttpKernel\Kernel;
 
-/**
- * @author Norbert Orzechowicz <norbert@fsi.pl>
- */
 class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -742,7 +741,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
 
     private function getColumnHeaderView(DataGridViewInterface $datagridView, $type, $name, $label = null)
     {
-        $column = $this->getMock('FSi\Component\DataGrid\Column\HeaderViewInterface');
+        $column = $this->createMock('FSi\Component\DataGrid\Column\HeaderViewInterface');
 
         $column->expects($this->any())
             ->method('getType')
@@ -766,7 +765,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
 
     private function getColumnCellView(DataGridViewInterface $datagridView, $type, $name, $value)
     {
-        $column = $this->getMock('FSi\Component\DataGrid\Column\CellViewInterface');
+        $column = $this->createMock('FSi\Component\DataGrid\Column\CellViewInterface');
 
         $column->expects($this->any())
             ->method('getType')
@@ -802,7 +801,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
      */
     private function getTemplateMock()
     {
-        return $this->getMock(
+        return $this->createMock(
             '\Twig_Template',
             [
                 'hasBlock', 'render', 'display', 'getEnvironment', 'displayBlock',

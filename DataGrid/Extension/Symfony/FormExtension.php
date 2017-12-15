@@ -7,6 +7,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony;
 
 use FSi\Component\DataGrid\DataGridAbstractExtension;
@@ -15,24 +17,19 @@ use Symfony\Component\Form\FormFactoryInterface;
 class FormExtension extends DataGridAbstractExtension
 {
     /**
-     * FormFactory used by extension to build forms.
-     *
-     * @var \Symfony\Component\Form\FormFactoryInterface
+     * @var FormFactoryInterface
      */
     protected $formFactory;
 
     /**
-     * @param \Symfony\Component\Form\FormFactoryInterface $formFactory
+     * @param FormFactoryInterface $formFactory
      */
     public function __construct(FormFactoryInterface $formFactory)
     {
         $this->formFactory = $formFactory;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function loadColumnTypesExtensions()
+    protected function loadColumnTypesExtensions(): array
     {
         return [
             new ColumnTypeExtension\FormExtension($this->formFactory),
