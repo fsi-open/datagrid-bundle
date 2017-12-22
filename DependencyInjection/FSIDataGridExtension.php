@@ -18,7 +18,6 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use FSi\Component\DataGrid\DataGridExtensionInterface;
 use FSi\Component\DataGrid\Column\ColumnTypeInterface;
 use FSi\Component\DataGrid\Column\ColumnTypeExtensionInterface;
-use FSi\Bundle\DataGridBundle\DataGrid\EventSubscriberInterface;
 
 class FSIDataGridExtension extends Extension
 {
@@ -45,8 +44,6 @@ class FSIDataGridExtension extends Extension
                 ->addTag('datagrid.column');
             $container->registerForAutoconfiguration(ColumnTypeExtensionInterface::class)
                 ->addTag('datagrid.column_extension');
-            $container->registerForAutoconfiguration(EventSubscriberInterface::class)
-                ->addTag('datagrid.subscriber');
         }
     }
 

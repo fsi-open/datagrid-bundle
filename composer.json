@@ -10,13 +10,19 @@
             "email": "norbert@orzechowicz.pl"
         }
     ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@github.com:chives/datagrid.git"
+        }
+    ],
     "require": {
         "php": ">=7.1",
         "twig/twig": "^1.28|^2.0",
         "symfony/property-access": "^2.3|^3.0|^4.0",
         "symfony/framework-bundle" : "^2.4|^3.0|^4.0",
         "symfony/options-resolver": "^2.6|^3.0|^4.0",
-        "fsi/datagrid": "^1.0|^2.0@dev"
+        "fsi/datagrid": "dev-dev-redesign as 2.0.0"
     },
     "require-dev": {
         "symfony/form" : "^2.4|^3.0|^4.0",

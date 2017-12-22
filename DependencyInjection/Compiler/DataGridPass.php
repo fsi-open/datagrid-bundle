@@ -25,29 +25,16 @@ class DataGridPass implements CompilerPassInterface
 
         $columns = [];
         foreach ($container->findTaggedServiceIds('datagrid.column') as $serviceId => $tag) {
-            $alias = $tag[0]['alias'] ?? $serviceId;
-
-            $columns[$alias] = new Reference($serviceId);
+            $columns[] = new Reference($serviceId);
         }
 
         $container->getDefinition('datagrid.extension')->replaceArgument(0, $columns);
 
         $columnExtensions = [];
         foreach ($container->findTaggedServiceIds('datagrid.column_extension') as $serviceId => $tag) {
-            $alias = $tag[0]['alias'] ?? $serviceId;
-
-            $columnExtensions[$alias] = new Reference($serviceId);
+            $columnExtensions[] = new Reference($serviceId);
         }
 
         $container->getDefinition('datagrid.extension')->replaceArgument(1, $columnExtensions);
-
-        $subscribers = [];
-        foreach ($container->findTaggedServiceIds('datagrid.subscriber') as $serviceId => $tag) {
-            $alias = $tag[0]['alias'] ?? $serviceId;
-
-            $subscribers[$alias] = new Reference($serviceId);
-        }
-
-        $container->getDefinition('datagrid.extension')->replaceArgument(2, $subscribers);
     }
 }

@@ -11,9 +11,10 @@ declare(strict_types=1);
 
 namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\View\ColumnTypeExtension;
 
-use FSi\Component\DataGrid\Column\ColumnTypeInterface;
 use FSi\Component\DataGrid\Column\ColumnAbstractTypeExtension;
+use FSi\Component\DataGrid\Extension\Core\ColumnType\Boolean;
 use Symfony\Component\OptionsResolver\Options;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\AbstractType;
@@ -32,19 +33,19 @@ class BooleanColumnExtension extends ColumnAbstractTypeExtension
 
     public function getExtendedColumnTypes(): array
     {
-        return ['boolean'];
+        return [Boolean::class];
     }
 
-    public function initOptions(ColumnTypeInterface $column): void
+    public function initOptions(OptionsResolver $optionsResolver): void
     {
         $yes = $this->translator->trans('datagrid.boolean.yes', [], 'DataGridBundle');
         $no = $this->translator->trans('datagrid.boolean.no', [], 'DataGridBundle');
-        $column->getOptionsResolver()->setDefaults([
+        $optionsResolver->setDefaults([
             'true_value' => $yes,
             'false_value' => $no
         ]);
 
-        $column->getOptionsResolver()->setNormalizer(
+        $optionsResolver->setNormalizer(
             'form_options',
             function(Options $options, $value) use ($yes, $no) {
                 if ($options['editable'] && count($options['field_mapping']) === 1) {
@@ -61,7 +62,7 @@ class BooleanColumnExtension extends ColumnAbstractTypeExtension
             }
         );
 
-        $column->getOptionsResolver()->setNormalizer(
+        $optionsResolver->setNormalizer(
             'form_type',
             function(Options $options, $value) {
                 if ($options['editable'] && count($options['field_mapping']) === 1) {

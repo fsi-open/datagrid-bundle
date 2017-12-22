@@ -11,19 +11,20 @@ declare(strict_types=1);
 
 namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\View\ColumnTypeExtension;
 
-use FSi\Component\DataGrid\Column\ColumnTypeInterface;
+use FSi\Component\DataGrid\Column\ColumnInterface;
 use FSi\Component\DataGrid\Column\ColumnAbstractTypeExtension;
 use FSi\Component\DataGrid\Column\CellViewInterface;
 use FSi\Component\DataGrid\Column\HeaderViewInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ColumnViewOptionsExtension extends ColumnAbstractTypeExtension
 {
-    public function buildCellView(ColumnTypeInterface $column, CellViewInterface $view): void
+    public function buildCellView(ColumnInterface $column, CellViewInterface $view): void
     {
         $view->setAttribute('translation_domain', $column->getOption('translation_domain'));
     }
 
-    public function buildHeaderView(ColumnTypeInterface $column, HeaderViewInterface $view): void
+    public function buildHeaderView(ColumnInterface $column, HeaderViewInterface $view): void
     {
         $view->setAttribute('translation_domain', $column->getOption('translation_domain'));
     }
@@ -43,13 +44,13 @@ class ColumnViewOptionsExtension extends ColumnAbstractTypeExtension
         ];
     }
 
-    public function initOptions(ColumnTypeInterface $column): void
+    public function initOptions(OptionsResolver $optionsResolver): void
     {
-        $column->getOptionsResolver()->setDefaults([
+        $optionsResolver->setDefaults([
             'translation_domain' => 'messages',
         ]);
 
-        $column->getOptionsResolver()->setAllowedTypes('translation_domain', [
+        $optionsResolver->setAllowedTypes('translation_domain', [
             'string' ,
             'null'
         ]);

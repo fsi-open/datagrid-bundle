@@ -102,14 +102,14 @@ class DataGridExtensionTest extends TestCase
 
         $datagridView = $this->getDataGridView('grid');
         $datagridView->expects($this->any())
-            ->method('getColumns')
+            ->method('getHeaders')
             ->will($this->returnValue(
                 ['title' => $this->getColumnHeaderView($datagridView, 'text', 'title', 'Title')]
             ));
 
         $datagridWithThemeView = $this->getDataGridView('grid_with_theme');
         $datagridWithThemeView->expects($this->any())
-            ->method('getColumns')
+            ->method('getHeaders')
             ->will($this->returnValue(
                 ['title' => $this->getColumnHeaderView($datagridWithThemeView, 'text', 'title', 'Title')]
             ));
@@ -360,7 +360,7 @@ class DataGridExtensionTest extends TestCase
         $datagridView = $this->getDataGridView('grid');
 
         $datagridView->expects($this->any())
-            ->method('getColumns')
+            ->method('getHeaders')
             ->will($this->returnValue([]));
 
         $template->expects($this->at(3))
@@ -783,8 +783,8 @@ class DataGridExtensionTest extends TestCase
             ->will($this->returnValue($name));
 
         $column->expects($this->any())
-            ->method('getDataGridView')
-            ->will($this->returnValue($datagridView));
+            ->method('getDataGridName')
+            ->will($this->returnValue($datagridView->getName()));
 
         return $column;
     }
@@ -817,8 +817,8 @@ class DataGridExtensionTest extends TestCase
             ->will($this->returnValue($name));
 
         $column->expects($this->any())
-            ->method('getDataGridView')
-            ->will($this->returnValue($datagridView));
+            ->method('getDataGridName')
+            ->will($this->returnValue($datagridView->getName()));
 
         return $column;
     }

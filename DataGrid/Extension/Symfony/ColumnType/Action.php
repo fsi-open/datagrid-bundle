@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnType;
 
 use FSi\Component\DataGrid\Column\ColumnAbstractType;
+use FSi\Component\DataGrid\Column\ColumnInterface;
 use FSi\Component\DataGrid\Exception\UnexpectedTypeException;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -36,9 +37,11 @@ class Action extends ColumnAbstractType
 
     public function __construct(UrlGeneratorInterface $urlGenerator, RequestStack $requestStack)
     {
+        $this->actionOptionsResolver = new OptionsResolver();
+        parent::__construct();
+
         $this->urlGenerator = $urlGenerator;
         $this->requestStack = $requestStack;
-        $this->actionOptionsResolver = new OptionsResolver();
     }
 
     public function getId(): string
@@ -46,10 +49,10 @@ class Action extends ColumnAbstractType
         return 'action';
     }
 
-    public function filterValue($value)
+    public function filterValue(ColumnInterface $column, $value)
     {
         $return = [];
-        $actions = $this->getOption('actions');
+        $actions = $column->getOption('actions');
 
         foreach ($actions as $name => $options) {
             $options = $this->actionOptionsResolver->resolve((array) $options);
@@ -112,13 +115,13 @@ class Action extends ColumnAbstractType
         return $return;
     }
 
-    public function initOptions(): void
+    public function initOptions(OptionsResolver $optionsResolver): void
     {
-        $this->getOptionsResolver()->setDefaults([
+        $optionsResolver->setDefaults([
             'actions' => [],
         ]);
 
-        $this->getOptionsResolver()->setAllowedTypes('actions', 'array');
+        $optionsResolver->setAllowedTypes('actions', 'array');
 
         $this->actionOptionsResolver->setDefaults([
             'redirect_uri' => true,

@@ -19,18 +19,7 @@ class TemplatePathPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
-        $loaderDefinition = null;
-
-        if ($container->hasDefinition('twig.loader.filesystem')) {
-            $loaderDefinition = $container->getDefinition('twig.loader.filesystem');
-        } elseif ($container->hasDefinition('twig.loader')) {
-            // Symfony 2.0 and 2.1 were not using an alias for the filesystem loader
-            $loaderDefinition = $container->getDefinition('twig.loader');
-        }
-
-        if (null === $loaderDefinition) {
-            return;
-        }
+        $loaderDefinition = $container->getDefinition('twig.loader.filesystem');;
 
         $refl = new \ReflectionClass(DataGridBundle::class);
         $path = dirname($refl->getFileName()).'/Resources/views';

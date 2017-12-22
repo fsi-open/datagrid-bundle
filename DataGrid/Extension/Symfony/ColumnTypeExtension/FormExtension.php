@@ -11,131 +11,71 @@ declare(strict_types=1);
 
 namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnTypeExtension;
 
-use FSi\Bundle\DataGridBundle\Form\Type\RowType;
-use FSi\Bundle\DataGridBundle\Form\Type\Symfony3RowType;
+use FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\EventSubscriber\FormSubscriber;
 use FSi\Component\DataGrid\Column\CellViewInterface;
 use FSi\Component\DataGrid\Column\ColumnAbstractTypeExtension;
-use FSi\Component\DataGrid\Column\ColumnTypeInterface;
-use Symfony\Component\Form\Extension\Core\Type\CollectionType;
-use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\Component\Form\FormInterface;
+use FSi\Component\DataGrid\Column\ColumnInterface;
+use FSi\Component\DataGrid\Extension\Core\ColumnType\Boolean;
+use FSi\Component\DataGrid\Extension\Core\ColumnType\DateTime;
+use FSi\Component\DataGrid\Extension\Core\ColumnType\Number;
+use FSi\Component\DataGrid\Extension\Core\ColumnType\Text;
+use FSi\Component\DataGrid\Extension\Doctrine\ColumnType\Entity;
+use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class FormExtension extends ColumnAbstractTypeExtension
+class FormExtension extends ColumnAbstractTypeExtension implements CellFormBuilder
 {
     /**
-     * @var FormFactoryInterface
+     * @var FormSubscriber
      */
-    protected $formFactory;
+    private $formSubscriber;
 
-    /**
-     * @var bool
-     */
-    protected $csrfTokenEnabled;
-
-    /**
-     * @var FormInterface[]
-     */
-    protected $forms = [];
-
-    public function __construct(FormFactoryInterface $formFactory, bool $csrfTokenEnabled = true)
+    public function __construct(FormSubscriber $formSubscriber)
     {
-        $this->formFactory = $formFactory;
-        $this->csrfTokenEnabled = $csrfTokenEnabled;
+        $this->formSubscriber = $formSubscriber;
     }
 
-    public function bindData(ColumnTypeInterface $column, $data, $object, $index): void
-    {
-        if ($column->getOption('editable') === false) {
-            return;
-        }
-
-        $formData = [];
-        switch ($column->getId()) {
-            case 'entity':
-                $relationField = $column->getOption('relation_field');
-                if (!isset($data[$relationField])) {
-                    return;
-                }
-
-                $formData[$relationField] = $data[$relationField];
-                break;
-
-            default:
-                $fieldMapping = $column->getOption('field_mapping');
-                foreach ($fieldMapping as $field) {
-                    if (!isset($data[$field])) {
-                        return;
-                    }
-
-                    $formData[$field] = $data[$field];
-                }
-        }
-
-        /** @var FormInterface $form */
-        $form = $this->createForm($column, $index, $object);
-        $form->submit([$index => $formData]);
-        if ($form->isValid()) {
-            $data = $form->getData();
-            foreach ($data as $fields) {
-                foreach ($fields as $field => $value) {
-                    $column->getDataMapper()->setData($field, $object, $value);
-                }
-            }
-        }
-    }
-
-    public function buildCellView(ColumnTypeInterface $column, CellViewInterface $view): void
+    public function buildCellView(ColumnInterface $column, CellViewInterface $view): void
     {
         if (!$column->getOption('editable')) {
             return;
         }
 
-        $data = $view->getSource();
-        $index = $view->getAttribute('row');
-        $form = $this->createForm($column, $index, $data);
-
-        $view->setAttribute('form', $form->createView());
+        $view->setAttribute('form', $this->formSubscriber->getCellForm($view)->createView());
     }
 
     public function getExtendedColumnTypes(): array
     {
         return [
-            'text',
-            'boolean',
-            'number',
-            'datetime',
-            'entity',
-            'gedmo_tree',
+            Text::class,
+            Boolean::class,
+            Number::class,
+            DateTime::class,
+            Entity::class,
         ];
     }
 
-    public function initOptions(ColumnTypeInterface $column): void
+    public function initOptions(OptionsResolver $optionsResolver): void
     {
-        $column->getOptionsResolver()->setDefaults([
+        $optionsResolver->setDefaults([
             'editable' => false,
             'form_options' => [],
             'form_type' => [],
         ]);
 
-        $column->getOptionsResolver()->setAllowedTypes('editable', 'bool');
-        $column->getOptionsResolver()->setAllowedTypes('form_options', 'array');
-        $column->getOptionsResolver()->setAllowedTypes('form_type', 'array');
+        $optionsResolver->setAllowedTypes('editable', 'bool');
+        $optionsResolver->setAllowedTypes('form_options', 'array');
+        $optionsResolver->setAllowedTypes('form_type', 'array');
     }
 
-    private function createForm(ColumnTypeInterface $column, $index, $object): FormInterface
+    public function buildCellForm(FormBuilderInterface $form, ColumnInterface $column): void
     {
-        $formId = implode([$column->getName(),$column->getId(), $index]);
-        if (array_key_exists($formId, $this->forms)) {
-            return $this->forms[$formId];
-        }
-
         // Create fields array. There are column types like entity where field_mapping
         // should not be used to build field array.
         $fields = [];
-        switch ($column->getId()) {
+        switch ($column->getType()->getId()) {
             case 'entity':
                 $field = [
                     'name' => $column->getOption('relation_field'),
@@ -177,82 +117,14 @@ class FormExtension extends ColumnAbstractTypeExtension
             }
         }
 
-        //Build data array, the data array holds data that should be passed into
-        //form elements.
-        switch ($column->getId()) {
-            case 'datetime':
-                foreach ($fields as &$field) {
-                    $value = $column->getDataMapper()->getData($field['name'], $object);
-                    if (!isset($field['type'])) {
-                        $field['type'] = $this->isSymfony3()
-                            ? $this->getDateTimeTypeName()
-                            : 'datetime';
-                    }
-                    if (is_numeric($value) && !isset($field['options']['input'])) {
-                        $field['options']['input'] = 'timestamp';
-                    }
-                    if (is_string($value) && !isset($field['options']['input'])) {
-                        $field['options']['input'] = 'string';
-                    }
-                    if (($value instanceof \DateTime) && !isset($field['options']['input'])) {
-                        $field['options']['input'] = 'datetime';
-                    }
-                }
-                break;
+        foreach ($fields as $field) {
+            $form->add($field['name'], $field['type'], $field['options']);
         }
-
-        $formBuilderOptions = $this->isSymfony3()
-            ? ['entry_type' => $this->getRowTypeName()]
-            : ['type' => new RowType($fields)]
-        ;
-
-        if ($this->csrfTokenEnabled) {
-            $formBuilderOptions['csrf_protection'] = false;
-        }
-
-        if ($this->isSymfony3()) {
-            $formBuilderOptions['entry_options']['fields'] = $fields;
-        }
-
-        $formData = [];
-        foreach (array_keys($fields) as $fieldName) {
-            $formData[$fieldName] = $column->getDataMapper()->getData($fieldName, $object);
-        }
-
-        //Create form builder.
-        $formBuilder = $this->formFactory->createNamedBuilder(
-            $column->getDataGrid()->getName(),
-            ($this->isSymfony3())
-                ? $this->getCollectionTypeName()
-                : 'collection',
-            [$index => $formData],
-            $formBuilderOptions
-        );
-
-        //Create Form.
-        $this->forms[$formId] = $formBuilder->getForm();
-
-        return $this->forms[$formId];
     }
 
     private function getEntityTypeName(): string
     {
         return EntityType::class;
-    }
-
-    private function getDateTimeTypeName(): string
-    {
-        return DateTimeType::class;
-    }
-
-    private function getCollectionTypeName(): string
-    {
-        return CollectionType::class;
-    }
-
-    private function getRowTypeName(): string
-    {
-        return Symfony3RowType::class;
     }
 
     private function isSymfony3(): bool
