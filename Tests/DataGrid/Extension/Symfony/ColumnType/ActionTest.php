@@ -71,13 +71,12 @@ class ActionTest extends TestCase
 
     public function testFilterValueInvalidActionInActionsOption()
     {
-        $column = $this->dataGridFactory->createColumn($this->getDataGridMock(), Action::class, 'actions', [
+        $this->expectException(\TypeError::class);
+
+        $this->dataGridFactory->createColumn($this->getDataGridMock(), Action::class, 'actions', [
             'actions' => ['edit' => 'asdasd'],
             'field_mapping' => ['id'],
         ]);
-
-        $this->expectException(\InvalidArgumentException::class);
-        $this->dataGridFactory->createCellView($column, (object) ['id' => 1]);
     }
 
     public function testFilterValueRequiredActionInActionsOption()
