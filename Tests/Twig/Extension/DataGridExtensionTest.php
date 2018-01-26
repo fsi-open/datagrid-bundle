@@ -16,6 +16,9 @@ use FSi\Bundle\DataGridBundle\Twig\Extension\DataGridExtension;
 use FSi\Component\DataGrid\Column\CellViewInterface;
 use FSi\Component\DataGrid\Column\HeaderViewInterface;
 use FSi\Component\DataGrid\DataGridViewInterface;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Symfony\Bridge\Twig\Extension\FormExtension;
 use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Symfony\Bridge\Twig\Form\TwigRenderer;
@@ -24,11 +27,15 @@ use Symfony\Bridge\Twig\Tests\Extension\Fixtures\StubTranslator;
 use Symfony\Component\Form\FormRenderer;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Translation\TranslatorInterface;
+use Twig_Environment;
+use Twig_Error_Loader;
+use Twig_Loader_Filesystem;
+use Twig_Template;
 
-class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
+class DataGridExtensionTest extends TestCase
 {
     /**
-     * @var \Twig_Environment
+     * @var Twig_Environment
      */
     protected $twig;
 
@@ -45,14 +52,14 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $subPath = version_compare(Kernel::VERSION, '2.7.0', '<') ? 'Symfony/Bridge/Twig/' : '';
-        $loader = new \Twig_Loader_Filesystem([
+        $loader = new Twig_Loader_Filesystem([
             __DIR__ . '/../../../vendor/symfony/twig-bridge/' . $subPath . 'Resources/views/Form',
             __DIR__ . '/../../../Resources/views', // datagrid base theme
             __DIR__ . '/../../Resources/views', // templates used in tests
         ]);
 
         $this->translator = new StubTranslator();
-        $twig = new \Twig_Environment($loader);
+        $twig = new Twig_Environment($loader);
         $twig->addExtension(new TranslationExtension($this->translator));
         $twig->addGlobal('global_var', 'global_value');
 
@@ -72,27 +79,26 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
         $this->extension = new DataGridExtension(['datagrid.html.twig'], $this->translator);
     }
 
-    /**
-     * @expectedException \Twig_Error_Loader
-     * @expectedExceptionMessage Unable to find template "this_is_not_valid_path.html.twig"
-     */
     public function testInitRuntimeShouldThrowExceptionBecauseNotExistingTheme()
     {
+        $this->expectException(Twig_Error_Loader::class);
+        $this->expectExceptionMessage('Unable to find template "this_is_not_valid_path.html.twig"');
+
         $this->twig->addExtension(new DataGridExtension(['this_is_not_valid_path.html.twig'], $this->translator));
         // force initRuntime()
-        $this->twig->loadTemplate('datagrid.html.twig');
+        $this->twig->load('datagrid.html.twig');
     }
 
     public function testInitRuntimeWithValidPathToTheme()
     {
         $this->twig->addExtension($this->extension);
-        $this->twig->loadTemplate('datagrid.html.twig');
+        $this->assertNotNull($this->twig->load('datagrid.html.twig'));
     }
 
     public function testRenderDataGridWidget()
     {
         $this->twig->addExtension($this->extension);
-        $this->twig->loadTemplate('datagrid.html.twig');
+        $this->twig->load('datagrid.html.twig');
 
         $datagridView = $this->getDataGridView('grid');
         $datagridView->expects($this->any())
@@ -122,7 +128,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
     public function testRenderColumnHeaderWidget()
     {
         $this->twig->addExtension($this->extension);
-        $this->twig->loadTemplate('datagrid.html.twig');
+        $this->twig->load('datagrid.html.twig');
 
         $datagridView = $this->getDataGridView('grid');
         $datagridWithThemeView = $this->getDataGridView('grid_with_header_theme');
@@ -145,7 +151,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
     public function testRenderCellWidget()
     {
         $this->twig->addExtension($this->extension);
-        $this->twig->loadTemplate('datagrid.html.twig');
+        $this->twig->load('datagrid.html.twig');
 
         $datagridView = $this->getDataGridView('grid');
         $datagridWithThemeView = $this->getDataGridView('grid_with_header_theme');
@@ -168,7 +174,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
     public function testRenderCellActionWidget()
     {
         $this->twig->addExtension($this->extension);
-        $this->twig->loadTemplate('datagrid.html.twig');
+        $this->twig->load('datagrid.html.twig');
 
         $datagridView = $this->getDataGridView('grid');
         $datagridWithThemeView = $this->getDataGridView('grid_with_header_theme');
@@ -191,7 +197,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
     public function testDataGridRenderBlock()
     {
         $this->twig->addExtension($this->extension);
-        $this->twig->loadTemplate('datagrid.html.twig');
+        $this->twig->load('datagrid.html.twig');
         $template = $this->getTemplateMock();
 
         $template->expects($this->at(0))
@@ -227,7 +233,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
     public function testDataGridMultipleTemplates()
     {
         $this->twig->addExtension($this->extension);
-        $this->twig->loadTemplate('datagrid.html.twig');
+        $this->twig->load('datagrid.html.twig');
 
         $template1 = $this->getTemplateMock();
         $template1->expects($this->at(0))
@@ -284,7 +290,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
     public function testDataGridRenderBlockFromParent()
     {
         $this->twig->addExtension($this->extension);
-        $this->twig->loadTemplate('datagrid.html.twig');
+        $this->twig->load('datagrid.html.twig');
 
         $template = $this->getTemplateMock();
         $parent = $this->getTemplateMock();
@@ -332,7 +338,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
     public function testDataGridHeaderRenderBlock()
     {
         $this->twig->addExtension($this->extension);
-        $this->twig->loadTemplate('datagrid.html.twig');
+        $this->twig->load('datagrid.html.twig');
         $template = $this->getTemplateMock();
 
         $template->expects($this->at(0))
@@ -372,7 +378,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
     public function testDataGridColumnHeaderRenderBlock()
     {
         $this->twig->addExtension($this->extension);
-        $this->twig->loadTemplate('datagrid.html.twig');
+        $this->twig->load('datagrid.html.twig');
         $template = $this->getTemplateMock();
 
         $template->expects($this->at(0))
@@ -455,7 +461,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
     public function testDataGridRowsetRenderBlock()
     {
         $this->twig->addExtension($this->extension);
-        $this->twig->loadTemplate('datagrid.html.twig');
+        $this->twig->load('datagrid.html.twig');
         $template = $this->getTemplateMock();
 
         $template->expects($this->at(0))
@@ -491,7 +497,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
     public function testDataGridColumnCellRenderBlock()
     {
         $this->twig->addExtension($this->extension);
-        $this->twig->loadTemplate('datagrid.html.twig');
+        $this->twig->load('datagrid.html.twig');
         $template = $this->getTemplateMock();
 
         $template->expects($this->at(0))
@@ -582,7 +588,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
     public function testDataGridColumnCellFormRenderBlock()
     {
         $this->twig->addExtension($this->extension);
-        $this->twig->loadTemplate('datagrid.html.twig');
+        $this->twig->load('datagrid.html.twig');
         $template = $this->getTemplateMock();
 
         $template->expects($this->at(0))
@@ -669,7 +675,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
     public function testDataGridColumnActionCellActionRenderBlock()
     {
         $this->twig->addExtension($this->extension);
-        $this->twig->loadTemplate('datagrid.html.twig');
+        $this->twig->load('datagrid.html.twig');
         $template = $this->getTemplateMock();
 
         $template->expects($this->at(0))
@@ -734,9 +740,9 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @param string $name
-     * @return DataGridViewInterface
+     * @return MockObject
      */
-    private function getDataGridView(string $name): \PHPUnit_Framework_MockObject_MockObject
+    private function getDataGridView(string $name): DataGridViewInterface
     {
         $datagridView = $this->getMockBuilder(DataGridViewInterface::class)
             ->disableOriginalConstructor()
@@ -761,7 +767,7 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
         string $type,
         string $name,
         ?string $label = null
-    ): \PHPUnit_Framework_MockObject_MockObject {
+    ): MockObject {
         $column = $this->createMock(HeaderViewInterface::class);
 
         $column->expects($this->any())
@@ -788,14 +794,14 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
      * @param string $type
      * @param string $name
      * @param mixed $value
-     * @return CellViewInterface
+     * @return CellViewInterface|MockObject
      */
     private function getColumnCellView(
         DataGridViewInterface $datagridView,
         string $type,
         string $name,
         $value
-    ): \PHPUnit_Framework_MockObject_MockObject {
+    ): CellViewInterface {
         $column = $this->createMock(CellViewInterface::class);
 
         $column->expects($this->any())
@@ -821,17 +827,17 @@ class DataGridExtensionTest extends \PHPUnit_Framework_TestCase
     {
         $path = __DIR__ . '/../../Resources/views/expected/' . $filename;
         if (!file_exists($path)) {
-            throw new \RuntimeException(sprintf('Invalid expected html file path "%s"', $path));
+            throw new RuntimeException(sprintf('Invalid expected html file path "%s"', $path));
         }
 
         return file_get_contents($path);
     }
 
     /**
-     * @return \Twig_Template
+     * @return Twig_Template|MockObject
      */
-    private function getTemplateMock(): \PHPUnit_Framework_MockObject_MockObject
+    private function getTemplateMock(): Twig_Template
     {
-        return $this->createMock('\Twig_Template');
+        return $this->createMock(Twig_Template::class);
     }
 }

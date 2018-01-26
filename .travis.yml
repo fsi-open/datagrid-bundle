@@ -5,15 +5,13 @@ matrix:
     - php: 7.1
       env:
         - COMPOSER_FLAGS='--prefer-lowest'
-    - php: 7.1
+    - php: 7.2
 
 sudo: false
 
 before_script:
   - phpenv config-rm xdebug.ini
   - composer update $COMPOSER_FLAGS
+  - composer validate
 
 script: bin/phpunit
-
-notifications:
-  irc: "irc.freenode.org#fsi-open"

@@ -37,22 +37,20 @@ class BooleanColumnExtension extends ColumnAbstractTypeExtension
 
     public function initOptions(ColumnTypeInterface $column): void
     {
+        $yes = $this->translator->trans('datagrid.boolean.yes', [], 'DataGridBundle');
+        $no = $this->translator->trans('datagrid.boolean.no', [], 'DataGridBundle');
         $column->getOptionsResolver()->setDefaults([
-            'true_value' => $this->translator->trans('datagrid.boolean.yes', [], 'DataGridBundle'),
-            'false_value' => $this->translator->trans('datagrid.boolean.no', [], 'DataGridBundle')
+            'true_value' => $yes,
+            'false_value' => $no
         ]);
-
-        $translator = $this->translator;
 
         $column->getOptionsResolver()->setNormalizer(
             'form_options',
-            function(Options $options, $value) use ($translator) {
+            function(Options $options, $value) use ($yes, $no) {
                 if ($options['editable'] && count($options['field_mapping']) === 1) {
                     $field = $options['field_mapping'][0];
-                    $choices = [
-                        0 => $translator->trans('datagrid.boolean.no', [], 'DataGridBundle'),
-                        1 => $translator->trans('datagrid.boolean.yes', [], 'DataGridBundle')
-                    ];
+                    $choices = [0 => $no, 1 => $yes];
+
                     return array_merge(
                         [$field => ['choices' => $this->isSymfony3() ? array_flip($choices) : $choices]],
                         $value
@@ -69,11 +67,7 @@ class BooleanColumnExtension extends ColumnAbstractTypeExtension
                 if ($options['editable'] && count($options['field_mapping']) === 1) {
                     $field = $options['field_mapping'][0];
                     return array_merge(
-                        [
-                            $field => $this->isSymfony3()
-                                ? ChoiceType::class
-                                : 'choice'
-                        ],
+                        [$field => $this->isSymfony3() ? ChoiceType::class : 'choice'],
                         $value
                     );
                 }

@@ -26,7 +26,8 @@
         "symfony/phpunit-bridge": "^3.3|^4.0",
         "symfony/security-csrf": "^2.4|^3.0|^4.0",
         "symfony/twig-bridge" : "^2.2.6|^3.0|^4.0",
-        "phpunit/phpunit": "^5.7"
+        "symfony/yaml" : "^2.4|^3.0|^4.0",
+        "phpunit/phpunit": "^6.5"
     },
     "autoload": {
         "psr-4": { "FSi\\Bundle\\DataGridBundle\\": "" }
