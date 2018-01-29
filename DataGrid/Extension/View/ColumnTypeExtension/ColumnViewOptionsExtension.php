@@ -37,10 +37,9 @@ class ColumnViewOptionsExtension extends ColumnAbstractTypeExtension
             'datetime',
             'number',
             'money',
-            'gedmo.tree',
+            'gedmo_tree',
             'entity',
             'collection',
-            'action'
         ];
     }
 
