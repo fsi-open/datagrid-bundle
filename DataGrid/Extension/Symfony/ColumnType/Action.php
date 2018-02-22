@@ -12,8 +12,10 @@ declare(strict_types=1);
 namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnType;
 
 use FSi\Component\DataGrid\Column\ColumnAbstractType;
+use FSi\Component\DataGrid\Column\ColumnInterface;
 use FSi\Component\DataGrid\Exception\UnexpectedTypeException;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -29,16 +31,12 @@ class Action extends ColumnAbstractType
      */
     protected $requestStack;
 
-    /**
-     * @var OptionsResolver
-     */
-    protected $actionOptionsResolver;
-
     public function __construct(UrlGeneratorInterface $urlGenerator, RequestStack $requestStack)
     {
+        parent::__construct();
+
         $this->urlGenerator = $urlGenerator;
         $this->requestStack = $requestStack;
-        $this->actionOptionsResolver = new OptionsResolver();
     }
 
     public function getId(): string
@@ -46,13 +44,12 @@ class Action extends ColumnAbstractType
         return 'action';
     }
 
-    public function filterValue($value)
+    public function filterValue(ColumnInterface $column, $value)
     {
         $return = [];
-        $actions = $this->getOption('actions');
+        $actions = $column->getOption('actions');
 
         foreach ($actions as $name => $options) {
-            $options = $this->actionOptionsResolver->resolve((array) $options);
             $return[$name] = [];
             $parameters = [];
             $urlAttributes = $options['url_attr'];
@@ -61,7 +58,7 @@ class Action extends ColumnAbstractType
             if (isset($options['parameters_field_mapping'])) {
                 foreach ($options['parameters_field_mapping'] as $parameterName => $mappingField) {
                     if ($mappingField instanceof \Closure) {
-                        $parameters[$parameterName] = $mappingField($value, $this->getIndex());
+                        $parameters[$parameterName] = $mappingField($value);
                     } else {
                         $parameters[$parameterName] = $value[$mappingField];
                     }
@@ -69,23 +66,13 @@ class Action extends ColumnAbstractType
             }
 
             if (isset($options['additional_parameters'])) {
-                foreach ($options['additional_parameters'] as $parameterValueName => $parameterValue) {
-                    $parameters[$parameterValueName] = $parameterValue;
-                }
-            }
-
-            if ($options['redirect_uri'] !== false) {
-                if (is_string($options['redirect_uri'])) {
-                    $parameters['redirect_uri'] = $options['redirect_uri'];
-                }
-
-                if ($options['redirect_uri'] === true) {
-                    $parameters['redirect_uri'] = $this->requestStack->getMasterRequest()->getRequestUri();
+                foreach ($options['additional_parameters'] as $parameterName => $parameterValue) {
+                    $parameters[$parameterName] = $parameterValue;
                 }
             }
 
             if ($urlAttributes instanceof \Closure) {
-                $urlAttributes = $urlAttributes($value, $this->getIndex());
+                $urlAttributes = $urlAttributes($value);
 
                 if (!is_array($urlAttributes)) {
                     throw new UnexpectedTypeException(
@@ -94,14 +81,16 @@ class Action extends ColumnAbstractType
                 }
             }
 
-            $url = $this->urlGenerator->generate($options['route_name'], $parameters, $options['absolute']);
-
             if (!isset($urlAttributes['href'])) {
-                $urlAttributes['href'] = $url;
+                $urlAttributes['href'] = $this->urlGenerator->generate(
+                    $options['route_name'],
+                    $parameters,
+                    (int) $options['absolute']
+                );
             }
 
             if (isset($content) && $content instanceof \Closure) {
-                $content = (string) $content($value, $this->getIndex());
+                $content = (string) $content($value);
             }
 
             $return[$name]['content']  = isset($content) ? $content : $name;
@@ -112,15 +101,17 @@ class Action extends ColumnAbstractType
         return $return;
     }
 
-    public function initOptions(): void
+    public function initOptions(OptionsResolver $optionsResolver): void
     {
-        $this->getOptionsResolver()->setDefaults([
+        $optionsResolver->setDefaults([
             'actions' => [],
         ]);
 
-        $this->getOptionsResolver()->setAllowedTypes('actions', 'array');
+        $optionsResolver->setAllowedTypes('actions', 'array');
 
-        $this->actionOptionsResolver->setDefaults([
+        $actionOptionsResolver = new OptionsResolver();
+
+        $actionOptionsResolver->setDefaults([
             'redirect_uri' => true,
             'absolute' => false,
             'url_attr' => [],
@@ -129,16 +120,43 @@ class Action extends ColumnAbstractType
             'additional_parameters' => [],
         ]);
 
-        $this->actionOptionsResolver->setAllowedTypes('url_attr', ['array', 'Closure']);
-        $this->actionOptionsResolver->setAllowedTypes('content', ['null', 'string', 'Closure']);
+        $actionOptionsResolver->setAllowedTypes('url_attr', ['array', 'Closure']);
+        $actionOptionsResolver->setAllowedTypes('content', ['null', 'string', 'Closure']);
+        $actionOptionsResolver->setAllowedTypes('absolute', ['bool', 'int']);
+        $actionOptionsResolver->setAllowedTypes('redirect_uri', ['bool', 'string']);
+        $actionOptionsResolver->setAllowedTypes('additional_parameters', ['array']);
+        $actionOptionsResolver->setAllowedTypes('parameters_field_mapping', ['array']);
+        $actionOptionsResolver->setRequired(['route_name']);
 
-        $this->actionOptionsResolver->setRequired([
-            'route_name',
-        ]);
-    }
+        $actionOptionsResolver->setDefault(
+            'additional_parameters',
+            function (Options $options, array $previousValue): array {
+                if ($options['redirect_uri'] !== false) {
+                    if (is_string($options['redirect_uri'])) {
+                        $previousValue['redirect_uri'] = $options['redirect_uri'];
+                    }
 
-    public function getActionOptionsResolver(): OptionsResolver
-    {
-        return $this->actionOptionsResolver;
+                    if ($options['redirect_uri'] === true) {
+                        $previousValue['redirect_uri'] = $this->requestStack->getMasterRequest()->getRequestUri();
+                    }
+                }
+
+                return $previousValue;
+            }
+        );
+        $optionsResolver->setDefault('action_options_resolver', $actionOptionsResolver);
+        $optionsResolver->setAllowedTypes('action_options_resolver', OptionsResolver::class);
+
+        $optionsResolver->setNormalizer('actions', function (Options $options, array $value): array {
+            $resolvedActionsOptions = [];
+            /** @var OptionsResolver $actionOptionsResolver */
+            $actionOptionsResolver = $options['action_options_resolver'];
+
+            foreach ($value as $action => $actionOptions) {
+                $resolvedActionsOptions[$action] = $actionOptionsResolver->resolve($actionOptions);
+            }
+
+            return $resolvedActionsOptions;
+        });
     }
 }

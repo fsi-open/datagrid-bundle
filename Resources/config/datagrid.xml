@@ -6,9 +6,6 @@
 
     <parameters>
         <parameter key="datagrid.factory.class">FSi\Component\DataGrid\DataGridFactory</parameter>
-        <parameter key="datagrid.data_mapper.chain.class">FSi\Component\DataGrid\DataMapper\ChainMapper</parameter>
-        <parameter key="datagrid.data_mapper.reflection.class">FSi\Component\DataGrid\DataMapper\ReflectionMapper</parameter>
-        <parameter key="datagrid.data_mapper.property_accessor.class">FSi\Component\DataGrid\DataMapper\PropertyAccessorMapper</parameter>
         <parameter key="datagrid.extension.class">FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\DependencyInjectionExtension</parameter>
     </parameters>
 
@@ -23,21 +20,9 @@
             <tag name="datagrid.extension" alias="dependency_injection" />
         </service>
 
-        <!-- DataMapper\Reflection -->
-        <service id="datagrid.data_mapper.reflection" class="%datagrid.data_mapper.reflection.class%" />
-        <!-- DataMapper\PropertyAccessorMapper -->
-        <service id="datagrid.data_mapper.property_accessor" class="%datagrid.data_mapper.property_accessor.class%" />
-
-        <!-- DataMapper\Chain -->
-        <service id="datagrid.data_mapper.chain" class="%datagrid.data_mapper.chain.class%">
-            <argument type="collection">
-                <argument type="service" id="datagrid.data_mapper.property_accessor" />
-                <argument type="service" id="datagrid.data_mapper.reflection" />
-            </argument>
-        </service>
-
         <!-- DataGridFactory -->
         <service id="datagrid.factory" class="%datagrid.factory.class%" lazy="true" public="true">
+            <argument type="service" id="event_dispatcher" />
             <argument type="collection">
                 <argument type="service" id="datagrid.extension" />
                 <!--
@@ -47,7 +32,6 @@
                  * more listeners can be registered with the datagrid.listener tag
                 -->
             </argument>
-            <argument type="service" id="datagrid.data_mapper.chain" />
         </service>
 
         <service id="FSi\Component\DataGrid\DataGridFactoryInterface"
@@ -82,7 +66,7 @@
             <tag name="datagrid.column_extension" alias="core.value_format"/>
         </service>
         <service id="datagrid.subscriber.core.column_order" class="FSi\Component\DataGrid\Extension\Core\EventSubscriber\ColumnOrder">
-            <tag name="datagrid.subscriber" alias="core.column_order"/>
+            <tag name="kernel.event_subscriber" />
         </service>
         <!-- CoreExtension -->
 
@@ -96,32 +80,32 @@
         </service>
         <!-- DoctrineExtension -->
 
-        <!-- GedmoExtension -->
-        <service id="datagrid.column.gedmo_tree" class="FSi\Component\DataGrid\Extension\Gedmo\ColumnType\Tree">
-            <tag name="datagrid.column" alias="gedmo_tree" />
-            <argument type="service" id="doctrine"/>
-        </service>
-        <!-- GedmoExtension -->
-
         <!-- RouterExtension -->
         <service id="datagrid.column.symfony.action" class="FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnType\Action">
             <tag name="datagrid.column" alias="action" />
             <argument type="service" id="router"/>
             <argument type="service" id="request_stack"/>
         </service>
-        <service id="datagrid.column_extension.symfony.form" class="FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnTypeExtension\FormExtension">
-            <tag name="datagrid.column_extension" alias="symfony.form"/>
+        <service id="datagrid.column_extension.action" class="FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnTypeExtension\DefaultColumnOptionsExtension">
+            <tag name="datagrid.column_extension" alias="symfony.action.options"/>
+        </service>
+        <!-- RouterExtension -->
+
+        <!-- FormExtension -->
+        <service id="datagrid.subscriber.symfony.form_subscriber" class="FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\EventSubscriber\FormSubscriber">
             <argument type="service" id="form.factory" />
             <argument>%form.type_extension.csrf.enabled%</argument>
+            <tag name="kernel.event_subscriber" />
         </service>
-        <service id="datagrid.subscriber.symfony.bindrequest" class="FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\EventSubscriber\BindRequest">
-            <tag name="datagrid.subscriber" alias="symfony.form.bindrequest"/>
+        <service id="datagrid.column_extension.symfony.form" class="FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnTypeExtension\FormExtension">
+            <argument type="service" id="datagrid.subscriber.symfony.form_subscriber" />
+            <tag name="datagrid.column_extension" alias="symfony.form"/>
         </service>
         <service id="datagrid.column_extension.symfony.column.boolean" class="FSi\Bundle\DataGridBundle\DataGrid\Extension\View\ColumnTypeExtension\BooleanColumnExtension">
             <tag name="datagrid.column_extension" alias="symfony.column.boolean"/>
             <argument type="service" id="translator" />
         </service>
-        <!-- RouterExtension -->
+        <!-- FormExtension -->
 
         <service id="datagrid.column_extension.view" class="FSi\Bundle\DataGridBundle\DataGrid\Extension\View\ColumnTypeExtension\ColumnViewOptionsExtension">
             <tag name="datagrid.column_extension" alias="datagrid.bundle.view"/>

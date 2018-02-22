@@ -1,13 +1,13 @@
 {% block datagrid_column_type_batch_header %}
     {% spaceless %}
         <th>
-            <input type="checkbox" id="{{ header.attribute('datagrid_name') }}_{{ header.type }}"/>
+            <input type="checkbox" id="{{ header.dataGridName }}_{{ header.type }}"/>
             <script type="text/javascript">
                 (function (w) {
-                    var header = w.document.getElementById('{{ header.attribute('datagrid_name') }}_{{ header.type }}');
+                    var header = w.document.getElementById('{{ header.dataGridName }}_{{ header.type }}');
 
                     header.onclick = function() {
-                        var elements = w.document.getElementsByClassName('{{ header.attribute('datagrid_name') }}_{{ header.type }}'),
+                        var elements = w.document.getElementsByClassName('{{ header.dataGridName }}_{{ header.type }}'),
                             i = 0;
 
                         for (i; i < elements.length; i++) {
@@ -23,7 +23,7 @@
 {% block datagrid_column_type_batch_cell %}
 {% spaceless %}
     <td>
-        <input type="checkbox" name="{{ cell.attribute('datagrid_name') }}_{{ cell.type }}[]" value="{{ cell.value }}" class="{{ cell.attribute('datagrid_name') }}_{{ cell.type }}" />
+        <input type="checkbox" name="{{ cell.dataGridName }}_{{ cell.type }}[]" value="{{ cell.value }}" class="{{ cell.dataGridName }}_{{ cell.type }}" />
     </td>
 {% endspaceless %}
 {% endblock %}

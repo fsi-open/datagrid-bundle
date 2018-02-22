@@ -12,29 +12,16 @@ declare(strict_types=1);
 namespace FSi\Bundle\DataGridBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormBuilderInterface;
 
 class RowType extends AbstractType
 {
-    /**
-     * @var array
-     */
-    protected $fields;
-
-    public function __construct(array $fields = [])
-    {
-        $this->fields = $fields;
-    }
-
-    public function buildForm(FormBuilderInterface $builder, array $options): void
-    {
-        foreach ($this->fields as $field) {
-            $builder->add($field['name'], $field['type'], $field['options']);
-        }
-    }
-
     public function getName(): string
     {
         return 'row';
+    }
+
+    public function getBlockPrefix(): string
+    {
+        return $this->getName();
     }
 }

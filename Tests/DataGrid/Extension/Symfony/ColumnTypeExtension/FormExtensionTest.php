@@ -37,7 +37,6 @@ use Doctrine\Common\Persistence\ManagerRegistry;
 use FSi\Component\DataGrid\DataGridInterface;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use FSi\Component\DataGrid\Column\ColumnTypeInterface;
-use FSi\Component\DataGrid\DataMapper\DataMapperInterface;
 use Symfony\Component\Form\AbstractType;
 
 class FormExtensionTest extends TestCase
