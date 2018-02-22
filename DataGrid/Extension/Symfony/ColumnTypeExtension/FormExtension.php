@@ -75,26 +75,23 @@ class FormExtension extends ColumnAbstractTypeExtension implements CellFormBuild
         // Create fields array. There are column types like entity where field_mapping
         // should not be used to build field array.
         $fields = [];
-        switch ($column->getType()->getId()) {
-            case 'entity':
+        if ($column->getType() instanceof EntityType) {
+            $field = [
+                'name' => $column->getOption('relation_field'),
+                'type' => $this->isSymfony3() ? EntityType::class : 'entity',
+                'options' => [],
+            ];
+
+            $fields[$column->getOption('relation_field')] = $field;
+        } else {
+            foreach ($column->getOption('field_mapping') as $fieldName) {
                 $field = [
-                    'name' => $column->getOption('relation_field'),
-                    'type' => $this->isSymfony3() ? $this->getEntityTypeName() : 'entity',
+                    'name' => $fieldName,
+                    'type' => null,
                     'options' => [],
                 ];
-
-                $fields[$column->getOption('relation_field')] = $field;
-                break;
-
-            default:
-                foreach ($column->getOption('field_mapping') as $fieldName) {
-                    $field = [
-                        'name' => $fieldName,
-                        'type' => null,
-                        'options' => [],
-                    ];
-                    $fields[$fieldName] = $field;
-                }
+                $fields[$fieldName] = $field;
+            }
         }
 
         //Pass fields form options from column into $fields array.

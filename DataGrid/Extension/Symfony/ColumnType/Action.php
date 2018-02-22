@@ -66,8 +66,8 @@ class Action extends ColumnAbstractType
             }
 
             if (isset($options['additional_parameters'])) {
-                foreach ($options['additional_parameters'] as $parameterValueName => $parameterValue) {
-                    $parameters[$parameterValueName] = $parameterValue;
+                foreach ($options['additional_parameters'] as $parameterName => $parameterValue) {
+                    $parameters[$parameterName] = $parameterValue;
                 }
             }
 

@@ -14,9 +14,11 @@ namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\EventSubscriber;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnTypeExtension\CellFormBuilder;
 use FSi\Bundle\DataGridBundle\Form\Type\RowType;
 use FSi\Component\DataGrid\Column\CellViewInterface;
+use FSi\Component\DataGrid\Column\ColumnInterface;
 use FSi\Component\DataGrid\DataGrid;
 use FSi\Component\DataGrid\DataGridEvent;
 use FSi\Component\DataGrid\DataGridEvents;
+use FSi\Component\DataGrid\DataGridInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
@@ -66,6 +68,11 @@ class FormSubscriber implements EventSubscriberInterface
             $formBuilderOptions['csrf_protection'] = false;
         }
 
+        $editableColumns = $this->getEditableColumns($dataGrid);
+        if (0 === count($editableColumns)) {
+            return;
+        }
+
         $formBuilder = $this->formFactory
             ->createNamedBuilder($dataGrid->getName(), $this->getFormTypeName(), $data, $formBuilderOptions);
 
@@ -76,11 +83,7 @@ class FormSubscriber implements EventSubscriberInterface
             ]);
             $rowFormBuilder = $formBuilder->get($index);
 
-            foreach ($dataGrid->getColumns() as $column) {
-                if (!$column->hasOption('editable') || !$column->getOption('editable')) {
-                    continue;
-                }
-
+            foreach ($editableColumns as $column) {
                 $rowFormBuilder->add($column->getName(), $this->getFormTypeName(), ['inherit_data' => true]);
                 $cellFormBuilder = $rowFormBuilder->get($column->getName());
 
@@ -102,17 +105,17 @@ class FormSubscriber implements EventSubscriberInterface
     {
         if (!array_key_exists($dataGrid->getName(), $this->forms)) {
             throw new \RuntimeException(sprintf(
-                'DataGrid "%s" does not have associated form builder',
+                'DataGrid "%s" does not have an associated form builder',
                 $dataGrid->getName()
             ));
         }
 
         $dataGridForm = $this->forms[$dataGrid->getName()];
-        $submittedData = $request->request->get($dataGrid->getName());
-        if (null === $submittedData) {
+        if (!$request->request->has($dataGrid->getName())) {
             return false;
         }
 
+        $submittedData = $request->request->get($dataGrid->getName());
         foreach ($dataGridForm->all() as $index => $rowForm) {
             if (!isset($submittedData[$index])) {
                 $dataGridForm->remove($index);
@@ -135,7 +138,7 @@ class FormSubscriber implements EventSubscriberInterface
     {
         if (!array_key_exists($cellView->getDataGridName(), $this->forms)) {
             throw new \RuntimeException(sprintf(
-                'DataGrid "%s" does not have associated form builder',
+                'DataGrid "%s" does not have an associated form builder',
                 $cellView->getDataGridName()
             ));
         }
@@ -143,7 +146,7 @@ class FormSubscriber implements EventSubscriberInterface
         $index = $cellView->getIndex();
         if (!$this->forms[$cellView->getDataGridName()]->has($index)) {
             throw new \RuntimeException(sprintf(
-                'DataGrid "%s" does not have row with index "%s"',
+                'DataGrid "%s" does not have a row with index "%s"',
                 $cellView->getDataGridName(),
                 $index
             ));
@@ -152,7 +155,7 @@ class FormSubscriber implements EventSubscriberInterface
         $columnName = $cellView->getName();
         if (!$this->forms[$cellView->getDataGridName()]->get($index)->has($columnName)) {
             throw new \RuntimeException(sprintf(
-                'DataGrid "%s" does not have column "%s"',
+                'DataGrid "%s" does not have a column "%s"',
                 $cellView->getDataGridName(),
                 $columnName
             ));
@@ -169,5 +172,19 @@ class FormSubscriber implements EventSubscriberInterface
     private function isSymfony3(): bool
     {
         return method_exists(AbstractType::class, 'getBlockPrefix');
+    }
+
+    /**
+     * @param DataGridInterface $dataGrid
+     * @return ColumnInterface[]
+     */
+    private function getEditableColumns(DataGridInterface $dataGrid): array
+    {
+        return array_filter(
+            $dataGrid->getColumns(),
+            function (ColumnInterface $column): bool {
+                return $column->hasOption('editable') && $column->getOption('editable');
+            }
+        );
     }
 }
