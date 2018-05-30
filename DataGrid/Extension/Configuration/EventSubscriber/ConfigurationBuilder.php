@@ -26,9 +26,15 @@ class ConfigurationBuilder implements EventSubscriberInterface
      */
     protected $kernel;
 
+    /**
+     * @var Parser
+     */
+    private $yamlParser;
+
     public function __construct(KernelInterface $kernel)
     {
         $this->kernel = $kernel;
+        $this->yamlParser = new Parser();
     }
 
     public static function getSubscribedEvents(): array
@@ -54,10 +60,7 @@ class ConfigurationBuilder implements EventSubscriberInterface
 
     protected function getDataGridConfiguration(string $bundlePath, string $dataGridName)
     {
-        // TODO use one instance of the parser instead of creating it each time
-        $yamlParser = new Parser();
-
-        return $yamlParser->parse(
+        return $this->yamlParser->parse(
             file_get_contents(
                 sprintf($bundlePath . '/Resources/config/datagrid/%s.yml', $dataGridName)
             )
@@ -86,8 +89,7 @@ class ConfigurationBuilder implements EventSubscriberInterface
             return null;
         }
 
-        $yamlParser = new Parser();
-        $configuration = $yamlParser->parse(file_get_contents($configurationFile));
+        $configuration = $this->yamlParser->parse(file_get_contents($configurationFile));
         if (false === is_array($configuration)) {
             return null;
         }
