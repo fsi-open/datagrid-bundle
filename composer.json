@@ -27,7 +27,7 @@
         "symfony/security-csrf": "^2.4|^3.0|^4.0",
         "symfony/twig-bridge" : "^2.2.6|^3.0|^4.0",
         "symfony/yaml" : "^2.4|^3.0|^4.0",
-        "phpunit/phpunit": "^6.5"
+        "phpunit/phpunit": "^7.1"
     },
     "autoload": {
         "psr-4": { "FSi\\Bundle\\DataGridBundle\\": "" }
@@ -36,7 +36,7 @@
         "phpoffice/phpexcel" : "Allows exporting data to xls format."
     },
     "config": {
-        "bin-dir": "bin"
+        "bin-dir": "vendor/bin"
     },
     "extra": {
         "branch-alias": {
