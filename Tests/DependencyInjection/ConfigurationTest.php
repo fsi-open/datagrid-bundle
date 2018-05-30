@@ -17,17 +17,6 @@ use Symfony\Component\Config\Definition\Processor;
 
 class ConfigurationTest extends TestCase
 {
-    private const DEFAULTS = [
-        'yaml_configuration' => [
-            'enabled' => true,
-            'main_configuration_directory' => null
-        ],
-        'twig' => [
-            'enabled' => true,
-            'themes' => ['datagrid.html.twig']
-        ]
-    ];
-
     /**
      * @var Processor
      */
@@ -35,8 +24,18 @@ class ConfigurationTest extends TestCase
 
     public function testDefaultOptions()
     {
+        $defaults = [
+            'yaml_configuration' => [
+                'enabled' => true,
+                'main_configuration_directory' => null
+            ],
+            'twig' => [
+                'enabled' => true,
+                'themes' => ['datagrid.html.twig']
+            ]
+        ];
         $this->assertSame(
-            self::DEFAULTS,
+            $defaults,
             $this->processor->processConfiguration(new Configuration(), ['fsi_data_grid' => []])
         );
     }

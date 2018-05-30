@@ -20,41 +20,23 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\HttpKernel\Kernel;
-use Symfony\Component\HttpKernel\KernelInterface;
 
 class ConfigurationBuilderTest extends TestCase
 {
     /**
-     * @var KernelInterface|MockObject
+     * @var MockObject
      */
     private $kernel;
 
     /**
-     * @var ConfigurationBuilder|MockObject
+     * @var MockObject
      */
     private $subscriber;
-
-    public function setUp()
-    {
-        $kernelMockBuilder = $this->getMockBuilder(Kernel::class)->setConstructorArgs(['dev', true]);
-        if (version_compare(Kernel::VERSION, '2.7.0', '<')) {
-            $kernelMockBuilder->setMethods(
-                ['registerContainerConfiguration', 'registerBundles', 'getBundles', 'getContainer', 'init']
-            );
-        } else {
-            $kernelMockBuilder->setMethods(
-                ['registerContainerConfiguration', 'registerBundles', 'getBundles', 'getContainer']
-            );
-        }
-
-        $this->kernel = $kernelMockBuilder->getMock();
-        $this->subscriber = new ConfigurationBuilder($this->kernel);
-    }
 
     public function testSubscribedEvents()
     {
         $this->assertEquals(
-            $this->subscriber->getSubscribedEvents(),
+            $this->subscriber::getSubscribedEvents(),
             [DataGridEvents::PRE_SET_DATA => ['readConfiguration', 128]]
         );
     }
@@ -179,5 +161,22 @@ class ConfigurationBuilderTest extends TestCase
         $dataGrid->expects($this->once())->method('addColumn')->with('username', 'text', []);
 
         $this->subscriber->readConfiguration(new DataGridEvent($dataGrid, []));
+    }
+
+    protected function setUp()
+    {
+        $kernelMockBuilder = $this->getMockBuilder(Kernel::class)->setConstructorArgs(['dev', true]);
+        if (version_compare(Kernel::VERSION, '2.7.0', '<')) {
+            $kernelMockBuilder->setMethods(
+                ['registerContainerConfiguration', 'registerBundles', 'getBundles', 'getContainer', 'init']
+            );
+        } else {
+            $kernelMockBuilder->setMethods(
+                ['registerContainerConfiguration', 'registerBundles', 'getBundles', 'getContainer']
+            );
+        }
+
+        $this->kernel = $kernelMockBuilder->getMock();
+        $this->subscriber = new ConfigurationBuilder($this->kernel);
     }
 }
