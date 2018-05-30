@@ -23,6 +23,14 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->arrayNode('yaml_configuration')
+                    ->beforeNormalization()
+                        ->ifTrue(function ($value): bool {
+                            return true === $value || false === $value;
+                        })
+                        ->then(function ($value): array {
+                            return ['enabled' => $value, 'main_configuration_directory' => null];
+                        })
+                    ->end()
                     ->addDefaultsIfNotSet()
                     ->children()
                         ->booleanNode('enabled')->defaultTrue()->end()

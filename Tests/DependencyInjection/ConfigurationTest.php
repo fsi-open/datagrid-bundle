@@ -40,6 +40,46 @@ class ConfigurationTest extends TestCase
         );
     }
 
+    public function testFoldedYamlConfigurationForTrue()
+    {
+        $folded = [
+            'yaml_configuration' => [
+                'enabled' => true,
+                'main_configuration_directory' => null
+            ],
+            'twig' => [
+                'enabled' => true,
+                'themes' => ['datagrid.html.twig']
+            ]
+        ];
+        $this->assertSame(
+            $folded,
+            $this->processor->processConfiguration(new Configuration(), [
+                'fsi_data_grid' => ['yaml_configuration' => true]
+            ])
+        );
+    }
+
+    public function testFoldedYamlConfigurationForFalse()
+    {
+        $folded = [
+            'yaml_configuration' => [
+                'enabled' => false,
+                'main_configuration_directory' => null
+            ],
+            'twig' => [
+                'enabled' => true,
+                'themes' => ['datagrid.html.twig']
+            ]
+        ];
+        $this->assertSame(
+            $folded,
+            $this->processor->processConfiguration(new Configuration(), [
+                'fsi_data_grid' => ['yaml_configuration' => false]
+            ])
+        );
+    }
+
     public function testThemesOption()
     {
         $config = $this->processor->processConfiguration(new Configuration(), [
@@ -47,11 +87,11 @@ class ConfigurationTest extends TestCase
         ]);
 
         $this->assertSame(
-            $config,
             [
                 'twig' => ['themes' => ['custom_datagrid.html.twig'], 'enabled' => true],
                 'yaml_configuration' => ['enabled' => true, 'main_configuration_directory' => null]
-            ]
+            ],
+            $config
         );
     }
 
@@ -66,14 +106,14 @@ class ConfigurationTest extends TestCase
         ]);
 
         $this->assertSame(
-            $config,
             [
                 'yaml_configuration' => [
                     'main_configuration_directory' => 'a path to main configuration directory',
                     'enabled' => true
                 ],
                 'twig' => ['enabled' => true, 'themes' => ['datagrid.html.twig']]
-            ]
+            ],
+            $config
         );
     }
 
