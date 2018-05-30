@@ -151,4 +151,33 @@ class ConfigurationBuilderTest extends TestCase
 
         $this->subscriber->readConfiguration(new DataGridEvent($dataGrid, []));
     }
+
+    public function testBundleConfigUsedWhenNoFileFoundInMainDirectory()
+    {
+        $container = $this->createMock(ContainerInterface::class);
+        $container->expects($this->once())
+            ->method('getParameter')
+            ->with('fsi_data_grid.yaml_configuration.main_configuration_directory')
+            ->willReturn(sprintf('%s/../../../../Resources/config/main_directory', __DIR__))
+        ;
+
+        $this->kernel->expects($this->once())->method('getContainer')->willReturn($container);
+        $this->kernel->expects($this->once())
+            ->method('getBundles')
+            ->will($this->returnCallback(function() {
+                $bundle = $this->createMock(Bundle::class);
+                $bundle->expects($this->any())
+                    ->method('getPath')
+                    ->will($this->returnValue(sprintf('%s/../../../../Fixtures/FooBundle', __DIR__)))
+                ;
+
+                return [$bundle];
+            }));
+
+        $dataGrid = $this->getMockBuilder(DataGrid::class)->disableOriginalConstructor()->getMock();
+        $dataGrid->expects($this->any())->method('getName')->will($this->returnValue('user'));
+        $dataGrid->expects($this->once())->method('addColumn')->with('username', 'text', []);
+
+        $this->subscriber->readConfiguration(new DataGridEvent($dataGrid, []));
+    }
 }
