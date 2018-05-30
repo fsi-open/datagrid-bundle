@@ -1,0 +1,10 @@
+---
+columns:
+    id:
+        type: number
+        options:
+            label: ID
+    title:
+        type: text
+    author:
+        type: text

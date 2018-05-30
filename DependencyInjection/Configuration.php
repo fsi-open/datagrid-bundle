@@ -26,6 +26,7 @@ class Configuration implements ConfigurationInterface
                     ->addDefaultsIfNotSet()
                     ->children()
                         ->booleanNode('enabled')->defaultTrue()->end()
+                        ->scalarNode('main_configuration_directory')->defaultNull()->end()
                     ->end()
                 ->end()
                 ->arrayNode('twig')

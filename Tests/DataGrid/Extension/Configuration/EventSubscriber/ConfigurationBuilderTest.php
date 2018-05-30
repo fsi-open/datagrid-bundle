@@ -11,14 +11,15 @@ declare(strict_types=1);
 
 namespace FSi\Bundle\DataGridBundle\Tests\DataGrid\Extension\Configuration\EventSubscriber;
 
+use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\EventSubscriber\ConfigurationBuilder;
+use FSi\Component\DataGrid\DataGrid;
 use FSi\Component\DataGrid\DataGridEvent;
 use FSi\Component\DataGrid\DataGridEvents;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\HttpKernel\KernelInterface;
-use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\EventSubscriber\ConfigurationBuilder;
-use Symfony\Component\HttpKernel\Bundle\Bundle;
-use FSi\Component\DataGrid\DataGrid;
 
 class ConfigurationBuilderTest extends TestCase
 {
@@ -34,15 +35,18 @@ class ConfigurationBuilderTest extends TestCase
 
     public function setUp()
     {
-        $kernelMockBuilder = $this->getMockBuilder(Kernel::class)
-            ->setConstructorArgs(['dev', true]);
+        $kernelMockBuilder = $this->getMockBuilder(Kernel::class)->setConstructorArgs(['dev', true]);
         if (version_compare(Kernel::VERSION, '2.7.0', '<')) {
-            $kernelMockBuilder->setMethods(['registerContainerConfiguration', 'registerBundles', 'getBundles', 'init']);
+            $kernelMockBuilder->setMethods(
+                ['registerContainerConfiguration', 'registerBundles', 'getBundles', 'getContainer', 'init']
+            );
         } else {
-            $kernelMockBuilder->setMethods(['registerContainerConfiguration', 'registerBundles', 'getBundles']);
+            $kernelMockBuilder->setMethods(
+                ['registerContainerConfiguration', 'registerBundles', 'getBundles', 'getContainer']
+            );
         }
-        $this->kernel = $kernelMockBuilder->getMock();
 
+        $this->kernel = $kernelMockBuilder->getMock();
         $this->subscriber = new ConfigurationBuilder($this->kernel);
     }
 
@@ -56,6 +60,13 @@ class ConfigurationBuilderTest extends TestCase
 
     public function testReadConfigurationFromOneBundle()
     {
+        $container = $this->createMock(ContainerInterface::class);
+        $container->expects($this->once())
+            ->method('getParameter')
+            ->with('fsi_data_grid.yaml_configuration.main_configuration_directory')
+            ->willReturn(null)
+        ;
+        $this->kernel->expects($this->once())->method('getContainer')->willReturn($container);
         $this->kernel->expects($this->once())
             ->method('getBundles')
             ->will($this->returnCallback(function() {
@@ -86,6 +97,14 @@ class ConfigurationBuilderTest extends TestCase
 
     public function testReadConfigurationFromManyBundles()
     {
+        $container = $this->createMock(ContainerInterface::class);
+        $container->expects($this->once())
+            ->method('getParameter')
+            ->with('fsi_data_grid.yaml_configuration.main_configuration_directory')
+            ->willReturn(null)
+        ;
+
+        $this->kernel->expects($this->once())->method('getContainer')->willReturn($container);
         $this->kernel->expects($this->once())
             ->method('getBundles')
             ->will($this->returnCallback(function() {
@@ -112,7 +131,7 @@ class ConfigurationBuilderTest extends TestCase
             ->method('getName')
             ->will($this->returnValue('news'));
 
-        // 0 - 3 getName() is called
+        // 0  is when getName() is called
         $dataGrid->expects($this->at(1))
             ->method('addColumn')
             ->with('id', 'number', ['label' => 'ID']);
@@ -128,5 +147,43 @@ class ConfigurationBuilderTest extends TestCase
         $event = new DataGridEvent($dataGrid, []);
 
         $this->subscriber->readConfiguration($event);
+    }
+
+    public function testMainConfigurationOverridesBundles()
+    {
+        $container = $this->createMock(ContainerInterface::class);
+        $container->expects($this->once())
+            ->method('getParameter')
+            ->with('fsi_data_grid.yaml_configuration.main_configuration_directory')
+            ->willReturn(sprintf('%s/../../../../Resources/config/main_directory', __DIR__))
+        ;
+
+        $this->kernel->expects($this->once())->method('getContainer')->willReturn($container);
+        $this->kernel->expects($this->never())->method('getBundles');
+        $dataGrid = $this->getMockBuilder(DataGrid::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $dataGrid->expects($this->any())
+            ->method('getName')
+            ->will($this->returnValue('news'));
+
+        // 0  is when getName() is called
+        $dataGrid->expects($this->at(1))
+            ->method('addColumn')
+            ->with('id', 'number', ['label' => 'ID'])
+        ;
+
+        $dataGrid->expects($this->at(2))
+            ->method('addColumn')
+            ->with('title', 'text', [])
+        ;
+
+        $dataGrid->expects($this->at(3))
+            ->method('addColumn')
+            ->with('author', 'text', [])
+        ;
+
+        $this->subscriber->readConfiguration(new DataGridEvent($dataGrid, []));
     }
 }

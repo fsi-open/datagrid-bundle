@@ -39,8 +39,12 @@ class ConfigurationBuilder implements EventSubscriberInterface
     public function readConfiguration(DataGridEventInterface $event): void
     {
         $dataGrid = $event->getDataGrid();
-
-        $this->buildConfigurationFromRegisteredBundles($dataGrid);
+        $mainConfiguration = $this->getMainConfiguration($dataGrid);
+        if (null !== $mainConfiguration) {
+            $this->buildConfiguration($dataGrid, $mainConfiguration);
+        } else {
+            $this->buildConfigurationFromRegisteredBundles($dataGrid);
+        }
     }
 
     protected function hasDataGridConfiguration(string $bundlePath, string $dataGridName): bool
@@ -63,15 +67,32 @@ class ConfigurationBuilder implements EventSubscriberInterface
     protected function buildConfiguration(DataGridInterface $dataGrid, array $configuration): void
     {
         foreach ($configuration['columns'] as $name => $column) {
-            $type = array_key_exists('type', $column)
-                ? $column['type']
-                : 'text';
-            $options = array_key_exists('options', $column)
-                ? $column['options']
-                : [];
-
-            $dataGrid->addColumn($name, $type, $options);
+            $dataGrid->addColumn($name, $column['type'] ?? 'text', $column['options'] ?? []);
         }
+    }
+
+    private function getMainConfiguration(DataGridInterface $dataGrid): ?array
+    {
+        $directory = $this->kernel->getContainer()->getParameter(
+            'fsi_data_grid.yaml_configuration.main_configuration_directory'
+        );
+
+        if (null === $directory || false === is_dir($directory)) {
+            return null;
+        }
+
+        $configurationFile = sprintf('%s/%s.yml', rtrim($directory, '/'), $dataGrid->getName());
+        if (false === file_exists($configurationFile)) {
+            return null;
+        }
+
+        $yamlParser = new Parser();
+        $configuration = $yamlParser->parse(file_get_contents($configurationFile));
+        if (false === is_array($configuration)) {
+            return null;
+        }
+
+        return $configuration;
     }
 
     private function buildConfigurationFromRegisteredBundles(DataGridInterface $dataGrid): void

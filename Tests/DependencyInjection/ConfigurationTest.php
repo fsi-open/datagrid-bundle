@@ -19,7 +19,8 @@ class ConfigurationTest extends TestCase
 {
     private const DEFAULTS = [
         'yaml_configuration' => [
-            'enabled' => true
+            'enabled' => true,
+            'main_configuration_directory' => null
         ],
         'twig' => [
             'enabled' => true,
@@ -27,20 +28,22 @@ class ConfigurationTest extends TestCase
         ]
     ];
 
+    /**
+     * @var Processor
+     */
+    private $processor;
+
     public function testDefaultOptions()
     {
-        $processor = new Processor();
-
         $this->assertSame(
             self::DEFAULTS,
-            $processor->processConfiguration(new Configuration(), ['fsi_data_grid' => []])
+            $this->processor->processConfiguration(new Configuration(), ['fsi_data_grid' => []])
         );
     }
 
     public function testThemesOption()
     {
-        $processor = new Processor();
-        $config = $processor->processConfiguration(new Configuration(), [
+        $config = $this->processor->processConfiguration(new Configuration(), [
             'fsi_data_grid' => ['twig' => ['themes' => ['custom_datagrid.html.twig']]]
         ]);
 
@@ -48,8 +51,35 @@ class ConfigurationTest extends TestCase
             $config,
             [
                 'twig' => ['themes' => ['custom_datagrid.html.twig'], 'enabled' => true],
-                'yaml_configuration' => ['enabled' => true]
+                'yaml_configuration' => ['enabled' => true, 'main_configuration_directory' => null]
             ]
         );
+    }
+
+    public function testCustomMainConfigurationFilesPath()
+    {
+        $config = $this->processor->processConfiguration(new Configuration(), [
+            'fsi_data_grid' => [
+                'yaml_configuration' => [
+                    'main_configuration_directory' => 'a path to main configuration directory'
+                ]
+            ]
+        ]);
+
+        $this->assertSame(
+            $config,
+            [
+                'yaml_configuration' => [
+                    'main_configuration_directory' => 'a path to main configuration directory',
+                    'enabled' => true
+                ],
+                'twig' => ['enabled' => true, 'themes' => ['datagrid.html.twig']]
+            ]
+        );
+    }
+
+    protected function setUp()
+    {
+        $this->processor = new Processor();
     }
 }
