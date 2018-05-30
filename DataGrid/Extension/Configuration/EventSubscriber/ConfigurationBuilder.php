@@ -14,6 +14,7 @@ namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\EventSubscr
 use FSi\Component\DataGrid\DataGridEventInterface;
 use FSi\Component\DataGrid\DataGridEvents;
 use FSi\Component\DataGrid\DataGridInterface;
+use RuntimeException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -66,8 +67,12 @@ class ConfigurationBuilder implements EventSubscriberInterface
     private function getMainConfiguration(string $dataGridName): ?array
     {
         $directory = $this->kernel->getContainer()->getParameter(self::MAIN_CONFIG_DIRECTORY);
-        if (null === $directory || false === is_dir($directory)) {
+        if (null === $directory) {
             return null;
+        }
+
+        if (false === is_dir($directory)) {
+            throw new RuntimeException(sprintf('"%s" is not a directory!', $directory));
         }
 
         $configurationFile = sprintf('%s/%s.yml', rtrim($directory, '/'), $dataGridName);

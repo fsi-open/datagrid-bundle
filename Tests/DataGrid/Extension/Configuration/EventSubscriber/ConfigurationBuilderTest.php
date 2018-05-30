@@ -17,6 +17,7 @@ use FSi\Component\DataGrid\DataGridEvent;
 use FSi\Component\DataGrid\DataGridEvents;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\HttpKernel\Kernel;
@@ -159,6 +160,26 @@ class ConfigurationBuilderTest extends TestCase
         $dataGrid = $this->getMockBuilder(DataGrid::class)->disableOriginalConstructor()->getMock();
         $dataGrid->expects($this->any())->method('getName')->will($this->returnValue('user'));
         $dataGrid->expects($this->once())->method('addColumn')->with('username', 'text', []);
+
+        $this->subscriber->readConfiguration(new DataGridEvent($dataGrid, []));
+    }
+
+    public function testExceptionThrownWhenMainConfigPathIsNotADirectory()
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('"non existant directory" is not a directory!');
+
+        $container = $this->createMock(ContainerInterface::class);
+        $container->expects($this->once())
+            ->method('getParameter')
+            ->with('fsi_data_grid.yaml_configuration.main_configuration_directory')
+            ->willReturn('non existant directory')
+        ;
+
+        $this->kernel->expects($this->once())->method('getContainer')->willReturn($container);
+
+        $dataGrid = $this->getMockBuilder(DataGrid::class)->disableOriginalConstructor()->getMock();
+        $dataGrid->expects($this->any())->method('getName')->will($this->returnValue('news'));
 
         $this->subscriber->readConfiguration(new DataGridEvent($dataGrid, []));
     }
