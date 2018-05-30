@@ -15,6 +15,7 @@ use FSi\Bundle\DataGridBundle\DataGrid\Extension\Configuration\EventSubscriber\C
 use FSi\Component\DataGrid\DataGrid;
 use FSi\Component\DataGrid\DataGridEvent;
 use FSi\Component\DataGrid\DataGridEvents;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
@@ -24,14 +25,14 @@ use Symfony\Component\HttpKernel\KernelInterface;
 class ConfigurationBuilderTest extends TestCase
 {
     /**
-     * @var KernelInterface
+     * @var KernelInterface|MockObject
      */
-    protected $kernel;
+    private $kernel;
 
     /**
-     * @var ConfigurationBuilder
+     * @var ConfigurationBuilder|MockObject
      */
-    protected $subscriber;
+    private $subscriber;
 
     public function setUp()
     {
@@ -73,26 +74,17 @@ class ConfigurationBuilderTest extends TestCase
                 $bundle = $this->createMock(Bundle::class);
                 $bundle->expects($this->any())
                     ->method('getPath')
-                    ->will($this->returnValue(__DIR__ . '/../../../../Fixtures/FooBundle'));
+                    ->will($this->returnValue(sprintf('%s/../../../../Fixtures/FooBundle', __DIR__)))
+                ;
 
                 return [$bundle];
             }));
 
-        $dataGrid = $this->getMockBuilder(DataGrid::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $dataGrid = $this->getMockBuilder(DataGrid::class)->disableOriginalConstructor()->getMock();
+        $dataGrid->expects($this->any())->method('getName')->will($this->returnValue('news'));
+        $dataGrid->expects($this->once())->method('addColumn')->with('id', 'number', ['label' => 'Identity']);
 
-        $dataGrid->expects($this->any())
-            ->method('getName')
-            ->will($this->returnValue('news'));
-
-        $dataGrid->expects($this->once())
-            ->method('addColumn')
-            ->with('id', 'number', ['label' => 'Identity']);
-
-        $event = new DataGridEvent($dataGrid, []);
-
-        $this->subscriber->readConfiguration($event);
+        $this->subscriber->readConfiguration(new DataGridEvent($dataGrid, []));
     }
 
     public function testReadConfigurationFromManyBundles()
@@ -111,42 +103,27 @@ class ConfigurationBuilderTest extends TestCase
                 $fooBundle = $this->createMock(Bundle::class);
                 $fooBundle->expects($this->any())
                     ->method('getPath')
-                    ->will($this->returnValue(__DIR__ . '/../../../../Fixtures/FooBundle'));
+                    ->will($this->returnValue(sprintf('%s/../../../../Fixtures/FooBundle', __DIR__)))
+                ;
 
                 $barBundle = $this->createMock(Bundle::class);
                 $barBundle->expects($this->any())
                     ->method('getPath')
-                    ->will($this->returnValue(__DIR__ . '/../../../../Fixtures/BarBundle'));
-                return [
-                    $fooBundle,
-                    $barBundle
-                ];
+                    ->will($this->returnValue(sprintf('%s/../../../../Fixtures/BarBundle', __DIR__)))
+                ;
+
+                return [$fooBundle, $barBundle];
             }));
 
-        $dataGrid = $this->getMockBuilder(DataGrid::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $dataGrid = $this->getMockBuilder(DataGrid::class)->disableOriginalConstructor()->getMock();
+        $dataGrid->expects($this->any())->method('getName')->will($this->returnValue('news'));
 
-        $dataGrid->expects($this->any())
-            ->method('getName')
-            ->will($this->returnValue('news'));
+        // 0 - 1 is when getName() is called
+        $dataGrid->expects($this->at(2))->method('addColumn')->with('id', 'number', ['label' => 'ID']);
+        $dataGrid->expects($this->at(3))->method('addColumn')->with('title', 'text', []);
+        $dataGrid->expects($this->at(4))->method('addColumn')->with('author', 'text', []);
 
-        // 0  is when getName() is called
-        $dataGrid->expects($this->at(1))
-            ->method('addColumn')
-            ->with('id', 'number', ['label' => 'ID']);
-
-        $dataGrid->expects($this->at(2))
-            ->method('addColumn')
-            ->with('title', 'text', []);
-
-        $dataGrid->expects($this->at(3))
-            ->method('addColumn')
-            ->with('author', 'text', []);
-
-        $event = new DataGridEvent($dataGrid, []);
-
-        $this->subscriber->readConfiguration($event);
+        $this->subscriber->readConfiguration(new DataGridEvent($dataGrid, []));
     }
 
     public function testMainConfigurationOverridesBundles()
@@ -160,28 +137,16 @@ class ConfigurationBuilderTest extends TestCase
 
         $this->kernel->expects($this->once())->method('getContainer')->willReturn($container);
         $this->kernel->expects($this->never())->method('getBundles');
-        $dataGrid = $this->getMockBuilder(DataGrid::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $dataGrid->expects($this->any())
-            ->method('getName')
-            ->will($this->returnValue('news'));
+        $dataGrid = $this->getMockBuilder(DataGrid::class)->disableOriginalConstructor()->getMock();
+        $dataGrid->expects($this->any())->method('getName')->will($this->returnValue('news'));
 
         // 0  is when getName() is called
-        $dataGrid->expects($this->at(1))
-            ->method('addColumn')
-            ->with('id', 'number', ['label' => 'ID'])
+        $dataGrid->expects($this->at(1))->method('addColumn')->with('id', 'number', ['label' => 'ID']);
+        $dataGrid->expects($this->at(2))->method('addColumn')
+            ->with('title_short', 'text', ['label' => 'Short title'])
         ;
-
-        $dataGrid->expects($this->at(2))
-            ->method('addColumn')
-            ->with('title', 'text', [])
-        ;
-
-        $dataGrid->expects($this->at(3))
-            ->method('addColumn')
-            ->with('author', 'text', [])
+        $dataGrid->expects($this->at(3))->method('addColumn')
+            ->with('created_at', 'date', ['label' => 'Created at'])
         ;
 
         $this->subscriber->readConfiguration(new DataGridEvent($dataGrid, []));

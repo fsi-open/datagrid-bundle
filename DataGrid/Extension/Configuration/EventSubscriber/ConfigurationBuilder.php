@@ -21,10 +21,13 @@ use Symfony\Component\Yaml\Parser;
 
 class ConfigurationBuilder implements EventSubscriberInterface
 {
+    private const MAIN_CONFIG_DIRECTORY = 'fsi_data_grid.yaml_configuration.main_configuration_directory';
+    private const BUNDLE_CONFIG_PATH = '%s/Resources/config/datagrid/%s.yml';
+
     /**
      * @var KernelInterface
      */
-    protected $kernel;
+    private $kernel;
 
     /**
      * @var Parser
@@ -45,7 +48,7 @@ class ConfigurationBuilder implements EventSubscriberInterface
     public function readConfiguration(DataGridEventInterface $event): void
     {
         $dataGrid = $event->getDataGrid();
-        $mainConfiguration = $this->getMainConfiguration($dataGrid);
+        $mainConfiguration = $this->getMainConfiguration($dataGrid->getName());
         if (null !== $mainConfiguration) {
             $this->buildConfiguration($dataGrid, $mainConfiguration);
         } else {
@@ -53,43 +56,26 @@ class ConfigurationBuilder implements EventSubscriberInterface
         }
     }
 
-    protected function hasDataGridConfiguration(string $bundlePath, string $dataGridName): bool
-    {
-        return file_exists(sprintf($bundlePath . '/Resources/config/datagrid/%s.yml', $dataGridName));
-    }
-
-    protected function getDataGridConfiguration(string $bundlePath, string $dataGridName)
-    {
-        return $this->yamlParser->parse(
-            file_get_contents(
-                sprintf($bundlePath . '/Resources/config/datagrid/%s.yml', $dataGridName)
-            )
-        );
-    }
-
-    protected function buildConfiguration(DataGridInterface $dataGrid, array $configuration): void
+    private function buildConfiguration(DataGridInterface $dataGrid, array $configuration): void
     {
         foreach ($configuration['columns'] as $name => $column) {
             $dataGrid->addColumn($name, $column['type'] ?? 'text', $column['options'] ?? []);
         }
     }
 
-    private function getMainConfiguration(DataGridInterface $dataGrid): ?array
+    private function getMainConfiguration(string $dataGridName): ?array
     {
-        $directory = $this->kernel->getContainer()->getParameter(
-            'fsi_data_grid.yaml_configuration.main_configuration_directory'
-        );
-
+        $directory = $this->kernel->getContainer()->getParameter(self::MAIN_CONFIG_DIRECTORY);
         if (null === $directory || false === is_dir($directory)) {
             return null;
         }
 
-        $configurationFile = sprintf('%s/%s.yml', rtrim($directory, '/'), $dataGrid->getName());
+        $configurationFile = sprintf('%s/%s.yml', rtrim($directory, '/'), $dataGridName);
         if (false === file_exists($configurationFile)) {
             return null;
         }
 
-        $configuration = $this->yamlParser->parse(file_get_contents($configurationFile));
+        $configuration = $this->parseYamlFile($configurationFile);
         if (false === is_array($configuration)) {
             return null;
         }
@@ -103,14 +89,25 @@ class ConfigurationBuilder implements EventSubscriberInterface
         $eligibleBundles = array_filter(
             $this->kernel->getBundles(),
             function (BundleInterface $bundle) use ($dataGridName): bool {
-                return $this->hasDataGridConfiguration($bundle->getPath(), $dataGridName);
+                return file_exists(sprintf(self::BUNDLE_CONFIG_PATH, $bundle->getPath(), $dataGridName));
             }
         );
-        $configuration = array_reduce(
+
+        // The idea here is that the last found configuration should be used
+        $configuration = $this->findLastBundleConfiguration($dataGridName, $eligibleBundles);
+        if (0 !== count($configuration)) {
+            $this->buildConfiguration($dataGrid, $configuration);
+        }
+    }
+
+    private function findLastBundleConfiguration(string $dataGridName, array $eligibleBundles): array
+    {
+        return array_reduce(
             $eligibleBundles,
             function (array $configuration, BundleInterface $bundle) use ($dataGridName): array {
-                $overridingConfiguration = $this->getDataGridConfiguration($bundle->getPath(), $dataGridName);
-                // The idea here is that the last found configuration should be used
+                $overridingConfiguration = $this->parseYamlFile(
+                    sprintf(self::BUNDLE_CONFIG_PATH, $bundle->getPath(), $dataGridName)
+                );
                 if (true === is_array($overridingConfiguration)) {
                     $configuration = $overridingConfiguration;
                 }
@@ -119,9 +116,10 @@ class ConfigurationBuilder implements EventSubscriberInterface
             },
             []
         );
+    }
 
-        if (0 !== count($configuration)) {
-            $this->buildConfiguration($dataGrid, $configuration);
-        }
+    private function parseYamlFile(string $path)
+    {
+        return $this->yamlParser->parse(file_get_contents($path));
     }
 }

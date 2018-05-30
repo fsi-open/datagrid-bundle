@@ -4,7 +4,11 @@ columns:
         type: number
         options:
             label: ID
-    title:
+    title_short:
         type: text
-    author:
-        type: text
+        options:
+            label: Short title
+    created_at:
+        type: date
+        options:
+            label: Created at
