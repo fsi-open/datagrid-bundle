@@ -9,9 +9,13 @@ matrix:
 
 sudo: false
 
+cache:
+  directories:
+    - vendor
+
 before_script:
   - phpenv config-rm xdebug.ini
   - composer update $COMPOSER_FLAGS
   - composer validate
 
-script: bin/phpunit
+script: vendor/bin/phpunit

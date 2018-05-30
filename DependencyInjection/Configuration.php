@@ -16,21 +16,31 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 class Configuration implements ConfigurationInterface
 {
-    /**
-     * {@inheritDoc}
-     */
     public function getConfigTreeBuilder(): TreeBuilder
     {
         $tb = new TreeBuilder();
         $rootNode = $tb->root('fsi_data_grid');
         $rootNode
             ->children()
-                ->booleanNode('yaml_configuration')->defaultTrue()->end()
+                ->arrayNode('yaml_configuration')
+                    ->beforeNormalization()
+                        ->ifTrue(function ($value): bool {
+                            return true === $value || false === $value;
+                        })
+                        ->then(function ($value): array {
+                            return ['enabled' => $value, 'main_configuration_directory' => null];
+                        })
+                    ->end()
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->booleanNode('enabled')->defaultTrue()->end()
+                        ->scalarNode('main_configuration_directory')->defaultNull()->end()
+                    ->end()
+                ->end()
                 ->arrayNode('twig')
                     ->addDefaultsIfNotSet()
                     ->children()
                         ->booleanNode('enabled')->defaultTrue()->end()
-                        ->scalarNode('template')->end()
                         ->arrayNode('themes')
                             ->prototype('scalar')->end()
                             ->defaultValue(['datagrid.html.twig'])

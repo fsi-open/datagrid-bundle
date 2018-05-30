@@ -13,6 +13,7 @@ Documentation:
 
 * [Installation](Resources/docs/installation.md)
 * [Basic Usage](Resources/docs/basic_usage.md)
+* [Configuration reference](Resources/docs/configuration.md)
 * [Column Types](Resources/docs/columns.md)
 * [Symfony extension](Resources/docs/extensions/symfony.md)
 * [Templating](Resources/docs/templating.md)
