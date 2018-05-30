@@ -32,7 +32,6 @@ class Configuration implements ConfigurationInterface
                     ->addDefaultsIfNotSet()
                     ->children()
                         ->booleanNode('enabled')->defaultTrue()->end()
-                        ->scalarNode('template')->end()
                         ->arrayNode('themes')
                             ->prototype('scalar')->end()
                             ->defaultValue(['datagrid.html.twig'])
