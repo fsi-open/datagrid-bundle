@@ -16,16 +16,18 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 class Configuration implements ConfigurationInterface
 {
-    /**
-     * {@inheritDoc}
-     */
     public function getConfigTreeBuilder(): TreeBuilder
     {
         $tb = new TreeBuilder();
         $rootNode = $tb->root('fsi_data_grid');
         $rootNode
             ->children()
-                ->booleanNode('yaml_configuration')->defaultTrue()->end()
+                ->arrayNode('yaml_configuration')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->booleanNode('enabled')->defaultTrue()->end()
+                    ->end()
+                ->end()
                 ->arrayNode('twig')
                     ->addDefaultsIfNotSet()
                     ->children()
