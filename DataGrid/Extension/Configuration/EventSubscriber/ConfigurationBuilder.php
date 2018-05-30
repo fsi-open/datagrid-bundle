@@ -15,6 +15,7 @@ use FSi\Component\DataGrid\DataGridEventInterface;
 use FSi\Component\DataGrid\DataGridEvents;
 use FSi\Component\DataGrid\DataGridInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Yaml\Parser;
 
@@ -38,20 +39,8 @@ class ConfigurationBuilder implements EventSubscriberInterface
     public function readConfiguration(DataGridEventInterface $event): void
     {
         $dataGrid = $event->getDataGrid();
-        $dataGridConfiguration = [];
-        foreach ($this->kernel->getBundles() as $bundle) {
-            if ($this->hasDataGridConfiguration($bundle->getPath(), $dataGrid->getName())) {
-                $configuration = $this->getDataGridConfiguration($bundle->getPath(), $dataGrid->getName());
 
-                if (is_array($configuration)) {
-                    $dataGridConfiguration = $configuration;
-                }
-            }
-        }
-
-        if (count($dataGridConfiguration)) {
-            $this->buildConfiguration($dataGrid, $dataGridConfiguration);
-        }
+        $this->buildConfigurationFromRegisteredBundles($dataGrid);
     }
 
     protected function hasDataGridConfiguration(string $bundlePath, string $dataGridName): bool
@@ -61,6 +50,7 @@ class ConfigurationBuilder implements EventSubscriberInterface
 
     protected function getDataGridConfiguration(string $bundlePath, string $dataGridName)
     {
+        // TODO use one instance of the parser instead of creating it each time
         $yamlParser = new Parser();
 
         return $yamlParser->parse(
@@ -81,6 +71,34 @@ class ConfigurationBuilder implements EventSubscriberInterface
                 : [];
 
             $dataGrid->addColumn($name, $type, $options);
+        }
+    }
+
+    private function buildConfigurationFromRegisteredBundles(DataGridInterface $dataGrid): void
+    {
+        $dataGridName = $dataGrid->getName();
+        $eligibleBundles = array_filter(
+            $this->kernel->getBundles(),
+            function (BundleInterface $bundle) use ($dataGridName): bool {
+                return $this->hasDataGridConfiguration($bundle->getPath(), $dataGridName);
+            }
+        );
+        $configuration = array_reduce(
+            $eligibleBundles,
+            function (array $configuration, BundleInterface $bundle) use ($dataGridName): array {
+                $overridingConfiguration = $this->getDataGridConfiguration($bundle->getPath(), $dataGridName);
+                // The idea here is that the last found configuration should be used
+                if (true === is_array($overridingConfiguration)) {
+                    $configuration = $overridingConfiguration;
+                }
+
+                return $configuration;
+            },
+            []
+        );
+
+        if (0 !== count($configuration)) {
+            $this->buildConfiguration($dataGrid, $configuration);
         }
     }
 }

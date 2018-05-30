@@ -113,15 +113,15 @@ class ConfigurationBuilderTest extends TestCase
             ->will($this->returnValue('news'));
 
         // 0 - 3 getName() is called
-        $dataGrid->expects($this->at(4))
+        $dataGrid->expects($this->at(1))
             ->method('addColumn')
             ->with('id', 'number', ['label' => 'ID']);
 
-        $dataGrid->expects($this->at(5))
+        $dataGrid->expects($this->at(2))
             ->method('addColumn')
             ->with('title', 'text', []);
 
-        $dataGrid->expects($this->at(6))
+        $dataGrid->expects($this->at(3))
             ->method('addColumn')
             ->with('author', 'text', []);
 
