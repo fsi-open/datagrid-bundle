@@ -36,7 +36,7 @@ class FSIDataGridExtension extends Extension
 
         if (true === $config['twig']['enabled']) {
             $loader->load('twig.xml');
-            $container->setParameter('datagrid.twig.themes', $config['themes']);
+            $container->setParameter('datagrid.twig.themes', $config['twig']['themes']);
         }
 
         if (method_exists($container, 'registerForAutoconfiguration')) {
