@@ -47,7 +47,7 @@ class ConfigurationBuilderTest extends TestCase
         $container = $this->createMock(ContainerInterface::class);
         $container->expects($this->once())
             ->method('getParameter')
-            ->with('fsi_data_grid.yaml_configuration.main_configuration_directory')
+            ->with('datagrid.yaml.main_config')
             ->willReturn(null)
         ;
         $this->kernel->expects($this->once())->method('getContainer')->willReturn($container);
@@ -75,7 +75,7 @@ class ConfigurationBuilderTest extends TestCase
         $container = $this->createMock(ContainerInterface::class);
         $container->expects($this->once())
             ->method('getParameter')
-            ->with('fsi_data_grid.yaml_configuration.main_configuration_directory')
+            ->with('datagrid.yaml.main_config')
             ->willReturn(null)
         ;
 
@@ -114,7 +114,7 @@ class ConfigurationBuilderTest extends TestCase
         $container = $this->createMock(ContainerInterface::class);
         $container->expects($this->once())
             ->method('getParameter')
-            ->with('fsi_data_grid.yaml_configuration.main_configuration_directory')
+            ->with('datagrid.yaml.main_config')
             ->willReturn(sprintf('%s/../../../../Resources/config/main_directory', __DIR__))
         ;
 
@@ -140,7 +140,7 @@ class ConfigurationBuilderTest extends TestCase
         $container = $this->createMock(ContainerInterface::class);
         $container->expects($this->once())
             ->method('getParameter')
-            ->with('fsi_data_grid.yaml_configuration.main_configuration_directory')
+            ->with('datagrid.yaml.main_config')
             ->willReturn(sprintf('%s/../../../../Resources/config/main_directory', __DIR__))
         ;
 
@@ -172,7 +172,7 @@ class ConfigurationBuilderTest extends TestCase
         $container = $this->createMock(ContainerInterface::class);
         $container->expects($this->once())
             ->method('getParameter')
-            ->with('fsi_data_grid.yaml_configuration.main_configuration_directory')
+            ->with('datagrid.yaml.main_config')
             ->willReturn('non existant directory')
         ;
 
