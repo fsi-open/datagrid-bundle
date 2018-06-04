@@ -32,11 +32,15 @@ class FSIDataGridExtension extends Extension
 
         if (true === $config['yaml_configuration']['enabled']) {
             $loader->load('datagrid_yaml_configuration.xml');
+            $container->setParameter(
+                'datagrid.yaml.main_config',
+                $config['yaml_configuration']['main_configuration_directory']
+            );
         }
 
         if (true === $config['twig']['enabled']) {
             $loader->load('twig.xml');
-            $container->setParameter('datagrid.twig.themes', $config['themes']);
+            $container->setParameter('datagrid.twig.themes', $config['twig']['themes']);
         }
 
         if (method_exists($container, 'registerForAutoconfiguration')) {

@@ -22,7 +22,7 @@ use Symfony\Component\Yaml\Parser;
 
 class ConfigurationBuilder implements EventSubscriberInterface
 {
-    private const MAIN_CONFIG_DIRECTORY = 'fsi_data_grid.yaml_configuration.main_configuration_directory';
+    private const MAIN_CONFIG_DIRECTORY = 'datagrid.yaml.main_config';
     private const BUNDLE_CONFIG_PATH = '%s/Resources/config/datagrid/%s.yml';
 
     /**
