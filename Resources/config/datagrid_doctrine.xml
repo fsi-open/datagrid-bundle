@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <!-- DoctrineExtension -->
+        <service id="datagrid.column.entity" class="FSi\Component\DataGrid\Extension\Doctrine\ColumnType\Entity">
+            <tag name="datagrid.column" alias="entity" />
+        </service>
+        <service id="datagrid.column_extension.doctrine.value_format" class="FSi\Component\DataGrid\Extension\Doctrine\ColumnTypeExtension\ValueFormatColumnOptionsExtension">
+            <tag name="datagrid.column_extension" alias="doctrine.value_format"/>
+            <argument type="service" id="router" />
+        </service>
+        <!-- DoctrineExtension -->
+    </services>
+</container>
