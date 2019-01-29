@@ -86,23 +86,6 @@
         </service>
         <!-- CoreExtension -->
 
-        <!-- DoctrineExtension -->
-        <service id="datagrid.column.entity" class="FSi\Component\DataGrid\Extension\Doctrine\ColumnType\Entity">
-            <tag name="datagrid.column" alias="entity" />
-        </service>
-        <service id="datagrid.column_extension.doctrine.value_format" class="FSi\Component\DataGrid\Extension\Doctrine\ColumnTypeExtension\ValueFormatColumnOptionsExtension">
-            <tag name="datagrid.column_extension" alias="doctrine.value_format"/>
-            <argument type="service" id="router" />
-        </service>
-        <!-- DoctrineExtension -->
-
-        <!-- GedmoExtension -->
-        <service id="datagrid.column.gedmo_tree" class="FSi\Component\DataGrid\Extension\Gedmo\ColumnType\Tree">
-            <tag name="datagrid.column" alias="gedmo_tree" />
-            <argument type="service" id="doctrine"/>
-        </service>
-        <!-- GedmoExtension -->
-
         <!-- RouterExtension -->
         <service id="datagrid.column.symfony.action" class="FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnType\Action">
             <tag name="datagrid.column" alias="action" />
