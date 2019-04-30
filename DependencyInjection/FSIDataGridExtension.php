@@ -43,14 +43,6 @@ class FSIDataGridExtension extends Extension
             $container->setParameter('datagrid.twig.themes', $config['twig']['themes']);
         }
 
-        if (true === $container->hasExtension('doctrine')) {
-            $loader->load('datagrid_doctrine.xml');
-        }
-
-        if (true === $container->hasExtension('stof_doctrine_extensions')) {
-            $loader->load('datagrid_gedmo.xml');
-        }
-
         if (method_exists($container, 'registerForAutoconfiguration')) {
             $container->registerForAutoconfiguration(DataGridExtensionInterface::class)
                 ->addTag('datagrid.extension');
