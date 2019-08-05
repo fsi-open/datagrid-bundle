@@ -16,11 +16,16 @@ use FSi\Component\DataGrid\Column\CellViewInterface;
 use FSi\Component\DataGrid\Column\HeaderViewInterface;
 use FSi\Component\DataGrid\DataGridViewInterface;
 use Symfony\Component\Translation\TranslatorInterface;
+use Twig\Environment;
+use Twig\Extension\AbstractExtension;
+use Twig\Extension\InitRuntimeInterface;
+use Twig\Template;
+use Twig\TwigFunction;
 
-class DataGridExtension extends \Twig_Extension implements \Twig_Extension_InitRuntimeInterface
+class DataGridExtension extends AbstractExtension implements InitRuntimeInterface
 {
     /**
-     * @var \Twig_Template[]
+     * @var Template[]
      */
     private $themes;
 
@@ -30,12 +35,12 @@ class DataGridExtension extends \Twig_Extension implements \Twig_Extension_InitR
     private $themesVars;
 
     /**
-     * @var \Twig_Template[]
+     * @var Template[]
      */
     private $baseThemes;
 
     /**
-     * @var \Twig_Environment
+     * @var Environment
      */
     private $environment;
 
@@ -61,7 +66,7 @@ class DataGridExtension extends \Twig_Extension implements \Twig_Extension_InitR
         return 'datagrid';
     }
 
-    public function initRuntime(\Twig_Environment $environment): void
+    public function initRuntime(Environment $environment): void
     {
         $this->environment = $environment;
         for ($i = count($this->baseThemes) - 1; $i >= 0; $i--) {
@@ -72,14 +77,14 @@ class DataGridExtension extends \Twig_Extension implements \Twig_Extension_InitR
     public function getFunctions(): array
     {
         return [
-            new \Twig_SimpleFunction('datagrid_widget', [$this, 'datagrid'], ['is_safe' => ['html']]),
-            new \Twig_SimpleFunction('datagrid_header_widget', [$this, 'datagridHeader'], ['is_safe' => ['html']]),
-            new \Twig_SimpleFunction('datagrid_rowset_widget', [$this, 'datagridRowset'], ['is_safe' => ['html']]),
-            new \Twig_SimpleFunction('datagrid_column_header_widget', [$this, 'datagridColumnHeader'], ['is_safe' => ['html']]),
-            new \Twig_SimpleFunction('datagrid_column_cell_widget', [$this, 'datagridColumnCell'], ['is_safe' => ['html']]),
-            new \Twig_SimpleFunction('datagrid_column_cell_form_widget', [$this, 'datagridColumnCellForm'], ['is_safe' => ['html']]),
-            new \Twig_SimpleFunction('datagrid_column_type_action_cell_action_widget', [$this, 'datagridColumnActionCellActionWidget'], ['is_safe' => ['html']]),
-            new \Twig_SimpleFunction('datagrid_attributes_widget', [$this, 'datagridAttributes'], ['is_safe' => ['html']])
+            new TwigFunction('datagrid_widget', [$this, 'datagrid'], ['is_safe' => ['html']]),
+            new TwigFunction('datagrid_header_widget', [$this, 'datagridHeader'], ['is_safe' => ['html']]),
+            new TwigFunction('datagrid_rowset_widget', [$this, 'datagridRowset'], ['is_safe' => ['html']]),
+            new TwigFunction('datagrid_column_header_widget', [$this, 'datagridColumnHeader'], ['is_safe' => ['html']]),
+            new TwigFunction('datagrid_column_cell_widget', [$this, 'datagridColumnCell'], ['is_safe' => ['html']]),
+            new TwigFunction('datagrid_column_cell_form_widget', [$this, 'datagridColumnCellForm'], ['is_safe' => ['html']]),
+            new TwigFunction('datagrid_column_type_action_cell_action_widget', [$this, 'datagridColumnActionCellActionWidget'], ['is_safe' => ['html']]),
+            new TwigFunction('datagrid_attributes_widget', [$this, 'datagridAttributes'], ['is_safe' => ['html']])
         ];
     }
 
@@ -92,12 +97,12 @@ class DataGridExtension extends \Twig_Extension implements \Twig_Extension_InitR
 
     /**
      * @param DataGridViewInterface $dataGrid
-     * @param \Twig_Template|string $theme
+     * @param Template|string $theme
      * @param array $vars
      */
     public function setTheme(DataGridViewInterface $dataGrid, $theme, array $vars = []): void
     {
-        $this->themes[$dataGrid->getName()] = ($theme instanceof \Twig_Template)
+        $this->themes[$dataGrid->getName()] = ($theme instanceof Template)
             ? $theme
             : $this->environment->loadTemplate($theme);
 
@@ -105,7 +110,7 @@ class DataGridExtension extends \Twig_Extension implements \Twig_Extension_InitR
     }
 
     /**
-     * @param \Twig_Template[]|\Twig_Template|string $theme
+     * @param Template[]|Template|string $theme
      */
     public function setBaseTheme($theme): void
     {
@@ -113,7 +118,7 @@ class DataGridExtension extends \Twig_Extension implements \Twig_Extension_InitR
 
         $this->baseThemes = [];
         foreach ($themes as $theme) {
-            $this->baseThemes[] = ($theme instanceof \Twig_Template)
+            $this->baseThemes[] = ($theme instanceof Template)
                 ? $theme
                 : $this->environment->loadTemplate($theme);
         }
@@ -282,7 +287,7 @@ class DataGridExtension extends \Twig_Extension implements \Twig_Extension_InitR
 
     /**
      * @param DataGridViewInterface $dataGrid
-     * @return \Twig_Template[]
+     * @return Template[]
      */
     private function getTemplates(DataGridViewInterface $dataGrid): array
     {
@@ -332,7 +337,7 @@ class DataGridExtension extends \Twig_Extension implements \Twig_Extension_InitR
         return ob_get_clean();
     }
 
-    private function templateHasBlock(\Twig_Template $template, string $blockName, array $context = null): bool
+    private function templateHasBlock(Template $template, string $blockName, array $context = null): bool
     {
         while ($template !== false) {
             if ($template->hasBlock($blockName, $context)) {

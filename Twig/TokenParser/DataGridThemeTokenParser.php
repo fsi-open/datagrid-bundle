@@ -12,25 +12,28 @@ declare(strict_types=1);
 namespace FSi\Bundle\DataGridBundle\Twig\TokenParser;
 
 use FSi\Bundle\DataGridBundle\Twig\Node\DataGridThemeNode;
+use Twig\Node\Expression\ArrayExpression;
+use Twig\Token;
+use Twig\TokenParser\AbstractTokenParser;
 
-class DataGridThemeTokenParser extends \Twig_TokenParser
+class DataGridThemeTokenParser extends AbstractTokenParser
 {
-    public function parse(\Twig_Token $token): DataGridThemeNode
+    public function parse(Token $token): DataGridThemeNode
     {
         $stream = $this->parser->getStream();
         $dataGrid = $this->parser->getExpressionParser()->parseExpression();
         $theme = $this->parser->getExpressionParser()->parseExpression();
-        $vars = new \Twig_Node_Expression_Array([], $stream->getCurrent()->getLine());
+        $vars = new ArrayExpression([], $stream->getCurrent()->getLine());
 
-        if ($this->parser->getStream()->test(\Twig_Token::NAME_TYPE, 'with')) {
+        if ($this->parser->getStream()->test(Token::NAME_TYPE, 'with')) {
             $this->parser->getStream()->next();
 
-            if ($this->parser->getStream()->test(\Twig_Token::PUNCTUATION_TYPE)) {
+            if ($this->parser->getStream()->test(Token::PUNCTUATION_TYPE)) {
                 $vars = $this->parser->getExpressionParser()->parseExpression();
             }
         }
 
-        $stream->expect(\Twig_Token::BLOCK_END_TYPE);
+        $stream->expect(Token::BLOCK_END_TYPE);
 
         return new DataGridThemeNode($dataGrid, $theme, $vars, $token->getLine(), $this->getTag());
     }
@@ -40,4 +43,3 @@ class DataGridThemeTokenParser extends \Twig_TokenParser
         return 'datagrid_theme';
     }
 }
-

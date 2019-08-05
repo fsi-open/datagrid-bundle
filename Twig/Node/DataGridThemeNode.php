@@ -11,19 +11,23 @@ declare(strict_types=1);
 
 namespace FSi\Bundle\DataGridBundle\Twig\Node;
 
-class DataGridThemeNode extends \Twig_Node
+use Twig\Compiler;
+use Twig\Node\Expression\ArrayExpression;
+use Twig\Node\Node;
+
+class DataGridThemeNode extends Node
 {
     public function __construct(
-        \Twig_Node $dataGrid,
-        \Twig_Node $theme,
-        \Twig_Node_Expression_Array $vars,
+        Node $dataGrid,
+        Node $theme,
+        ArrayExpression $vars,
         int $lineno,
         ?string $tag = null
     ) {
         parent::__construct(['datagrid' => $dataGrid, 'theme' => $theme, 'vars' => $vars], [], $lineno, $tag);
     }
 
-    public function compile(\Twig_Compiler $compiler): void
+    public function compile(Compiler $compiler): void
     {
         $compiler
             ->addDebugInfo($this)
