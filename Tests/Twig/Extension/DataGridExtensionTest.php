@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace FSi\Bundle\DataGridBundle\Tests\Twig\Extension;
 
+use FSi\Bundle\DataGridBundle\Tests\Fixtures\StubTranslator;
 use FSi\Bundle\DataGridBundle\Tests\Fixtures\TwigRuntimeLoader;
 use FSi\Bundle\DataGridBundle\Twig\Extension\DataGridExtension;
 use FSi\Component\DataGrid\Column\CellViewInterface;
@@ -23,7 +24,6 @@ use Symfony\Bridge\Twig\Extension\FormExtension;
 use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Symfony\Bridge\Twig\Form\TwigRenderer;
 use Symfony\Bridge\Twig\Form\TwigRendererEngine;
-use Symfony\Bridge\Twig\Tests\Extension\Fixtures\StubTranslator;
 use Symfony\Component\Form\FormRenderer;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Translation\TranslatorInterface;

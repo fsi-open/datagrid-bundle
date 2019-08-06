@@ -5,9 +5,7 @@ matrix:
     - php: 7.1
       env:
         - COMPOSER_FLAGS='--prefer-lowest'
-    - php: 7.2
-
-sudo: false
+    - php: 7.3
 
 cache:
   directories:
@@ -15,7 +13,7 @@ cache:
 
 before_script:
   - phpenv config-rm xdebug.ini
-  - composer update $COMPOSER_FLAGS
+  - COMPOSER_MEMORY_LIMIT=-1 composer update $COMPOSER_FLAGS
   - composer validate
 
 script: vendor/bin/phpunit
