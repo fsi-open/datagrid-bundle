@@ -18,8 +18,14 @@ class Configuration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder(): TreeBuilder
     {
-        $tb = new TreeBuilder();
-        $rootNode = $tb->root('fsi_data_grid');
+        if (true === method_exists(TreeBuilder::class, 'getRootNode')) {
+            $treeBuilder = new TreeBuilder('fsi_data_grid');
+            $rootNode = $treeBuilder->getRootNode();
+        } else {
+            $treeBuilder = new TreeBuilder();
+            $rootNode = $treeBuilder->root('fsi_data_grid');
+        }
+
         $rootNode
             ->children()
                 ->arrayNode('yaml_configuration')
@@ -50,6 +56,6 @@ class Configuration implements ConfigurationInterface
             ->end()
         ->end();
 
-        return $tb;
+        return $treeBuilder;
     }
 }

@@ -11,7 +11,9 @@ declare(strict_types=1);
 
 namespace FSi\Bundle\DataGridBundle\Tests\Fixtures;
 
-class TwigRuntimeLoader implements \Twig_RuntimeLoaderInterface
+use Twig\RuntimeLoader\RuntimeLoaderInterface;
+
+class TwigRuntimeLoader implements RuntimeLoaderInterface
 {
     private $instances = [];
 
@@ -22,9 +24,6 @@ class TwigRuntimeLoader implements \Twig_RuntimeLoaderInterface
         }
     }
 
-    /**
-     * @inheritdoc
-     */
     public function load($class)
     {
         if (isset($this->instances[$class])) {
