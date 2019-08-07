@@ -13,5 +13,5 @@ fsi_data_grid:
     twig:
         enabled: true
         themes:
-            - datagrid.html.twig
+            - '@DataGrid/datagrid.html.twig'
 ```

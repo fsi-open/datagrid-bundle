@@ -11,6 +11,10 @@ cache:
   directories:
     - vendor
 
+env:
+  global:
+    - SYMFONY_DEPRECATIONS_HELPER=weak
+
 before_script:
   - phpenv config-rm xdebug.ini
   - COMPOSER_MEMORY_LIMIT=-1 composer update $COMPOSER_FLAGS

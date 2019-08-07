@@ -27,15 +27,15 @@ use Symfony\Bridge\Twig\Form\TwigRendererEngine;
 use Symfony\Component\Form\FormRenderer;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Translation\TranslatorInterface;
-use Twig_Environment;
-use Twig_Error_Loader;
-use Twig_Loader_Filesystem;
-use Twig_Template;
+use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Loader\FilesystemLoader;
+use Twig\Template;
 
 class DataGridExtensionTest extends TestCase
 {
     /**
-     * @var Twig_Environment
+     * @var Environment
      */
     protected $twig;
 
@@ -52,14 +52,14 @@ class DataGridExtensionTest extends TestCase
     public function setUp()
     {
         $subPath = version_compare(Kernel::VERSION, '2.7.0', '<') ? 'Symfony/Bridge/Twig/' : '';
-        $loader = new Twig_Loader_Filesystem([
+        $loader = new FilesystemLoader([
             __DIR__ . '/../../../vendor/symfony/twig-bridge/' . $subPath . 'Resources/views/Form',
             __DIR__ . '/../../../Resources/views', // datagrid base theme
             __DIR__ . '/../../Resources/views', // templates used in tests
         ]);
 
         $this->translator = new StubTranslator();
-        $twig = new Twig_Environment($loader);
+        $twig = new Environment($loader);
         $twig->addExtension(new TranslationExtension($this->translator));
         $twig->addGlobal('global_var', 'global_value');
 
@@ -71,7 +71,7 @@ class DataGridExtensionTest extends TestCase
         }
         $formExtension = ($subPath !== '') ? new FormExtension($renderer) : new FormExtension();
         $twig->addExtension($formExtension);
-        if (interface_exists('Twig_RuntimeLoaderInterface')) {
+        if (interface_exists('Twig\RuntimeLoader\RuntimeLoaderInterface')) {
             $twig->addRuntimeLoader(new TwigRuntimeLoader([$renderer]));
         }
 
@@ -81,7 +81,7 @@ class DataGridExtensionTest extends TestCase
 
     public function testInitRuntimeShouldThrowExceptionBecauseNotExistingTheme()
     {
-        $this->expectException(Twig_Error_Loader::class);
+        $this->expectException(LoaderError::class);
         $this->expectExceptionMessage('Unable to find template "this_is_not_valid_path.html.twig"');
 
         $this->twig->addExtension(new DataGridExtension(['this_is_not_valid_path.html.twig'], $this->translator));
@@ -834,10 +834,10 @@ class DataGridExtensionTest extends TestCase
     }
 
     /**
-     * @return Twig_Template|MockObject
+     * @return Template|MockObject
      */
-    private function getTemplateMock(): Twig_Template
+    private function getTemplateMock(): Template
     {
-        return $this->createMock(Twig_Template::class);
+        return $this->createMock(Template::class);
     }
 }
