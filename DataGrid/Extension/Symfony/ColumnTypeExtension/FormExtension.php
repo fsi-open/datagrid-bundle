@@ -11,17 +11,16 @@ declare(strict_types=1);
 
 namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnTypeExtension;
 
-use FSi\Bundle\DataGridBundle\Form\Type\RowType;
+use DateTime;
 use FSi\Bundle\DataGridBundle\Form\Type\Symfony3RowType;
 use FSi\Component\DataGrid\Column\CellViewInterface;
 use FSi\Component\DataGrid\Column\ColumnAbstractTypeExtension;
 use FSi\Component\DataGrid\Column\ColumnTypeInterface;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
-use Symfony\Component\Form\AbstractType;
 
 class FormExtension extends ColumnAbstractTypeExtension
 {
@@ -139,7 +138,7 @@ class FormExtension extends ColumnAbstractTypeExtension
             case 'entity':
                 $field = [
                     'name' => $column->getOption('relation_field'),
-                    'type' => $this->isSymfony3() ? $this->getEntityTypeName() : 'entity',
+                    'type' => EntityType::class,
                     'options' => [],
                 ];
 
@@ -184,9 +183,7 @@ class FormExtension extends ColumnAbstractTypeExtension
                 foreach ($fields as &$field) {
                     $value = $column->getDataMapper()->getData($field['name'], $object);
                     if (!isset($field['type'])) {
-                        $field['type'] = $this->isSymfony3()
-                            ? $this->getDateTimeTypeName()
-                            : 'datetime';
+                        $field['type'] = DateTimeType::class;
                     }
                     if (is_numeric($value) && !isset($field['options']['input'])) {
                         $field['options']['input'] = 'timestamp';
@@ -194,26 +191,19 @@ class FormExtension extends ColumnAbstractTypeExtension
                     if (is_string($value) && !isset($field['options']['input'])) {
                         $field['options']['input'] = 'string';
                     }
-                    if (($value instanceof \DateTime) && !isset($field['options']['input'])) {
+                    if (($value instanceof DateTime) && !isset($field['options']['input'])) {
                         $field['options']['input'] = 'datetime';
                     }
                 }
                 break;
         }
 
-        $formBuilderOptions = $this->isSymfony3()
-            ? ['entry_type' => $this->getRowTypeName()]
-            : ['type' => new RowType($fields)]
-        ;
-
+        $formBuilderOptions = ['entry_type' => Symfony3RowType::class];
         if ($this->csrfTokenEnabled) {
             $formBuilderOptions['csrf_protection'] = false;
         }
 
-        if ($this->isSymfony3()) {
-            $formBuilderOptions['entry_options']['fields'] = $fields;
-        }
-
+        $formBuilderOptions['entry_options']['fields'] = $fields;
         $formData = [];
         foreach (array_keys($fields) as $fieldName) {
             $formData[$fieldName] = $column->getDataMapper()->getData($fieldName, $object);
@@ -222,9 +212,7 @@ class FormExtension extends ColumnAbstractTypeExtension
         //Create form builder.
         $formBuilder = $this->formFactory->createNamedBuilder(
             $column->getDataGrid()->getName(),
-            ($this->isSymfony3())
-                ? $this->getCollectionTypeName()
-                : 'collection',
+            CollectionType::class,
             [$index => $formData],
             $formBuilderOptions
         );
@@ -233,30 +221,5 @@ class FormExtension extends ColumnAbstractTypeExtension
         $this->forms[$formId] = $formBuilder->getForm();
 
         return $this->forms[$formId];
-    }
-
-    private function getEntityTypeName(): string
-    {
-        return EntityType::class;
-    }
-
-    private function getDateTimeTypeName(): string
-    {
-        return DateTimeType::class;
-    }
-
-    private function getCollectionTypeName(): string
-    {
-        return CollectionType::class;
-    }
-
-    private function getRowTypeName(): string
-    {
-        return Symfony3RowType::class;
-    }
-
-    private function isSymfony3(): bool
-    {
-        return method_exists(AbstractType::class, 'getBlockPrefix');
     }
 }
