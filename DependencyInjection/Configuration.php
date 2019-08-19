@@ -49,7 +49,7 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode('enabled')->defaultTrue()->end()
                         ->arrayNode('themes')
                             ->prototype('scalar')->end()
-                            ->defaultValue(['datagrid.html.twig'])
+                            ->defaultValue(['@DataGrid/datagrid.html.twig'])
                         ->end()
                     ->end()
                 ->end()

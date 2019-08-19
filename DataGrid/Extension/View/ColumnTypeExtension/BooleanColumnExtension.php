@@ -11,12 +11,11 @@ declare(strict_types=1);
 
 namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\View\ColumnTypeExtension;
 
-use FSi\Component\DataGrid\Column\ColumnTypeInterface;
 use FSi\Component\DataGrid\Column\ColumnAbstractTypeExtension;
+use FSi\Component\DataGrid\Column\ColumnTypeInterface;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\Translation\TranslatorInterface;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\AbstractType;
 
 class BooleanColumnExtension extends ColumnAbstractTypeExtension
 {
@@ -47,12 +46,12 @@ class BooleanColumnExtension extends ColumnAbstractTypeExtension
         $column->getOptionsResolver()->setNormalizer(
             'form_options',
             function(Options $options, $value) use ($yes, $no) {
-                if ($options['editable'] && count($options['field_mapping']) === 1) {
+                if ($options['editable'] && 1 === count($options['field_mapping'])) {
                     $field = $options['field_mapping'][0];
-                    $choices = [0 => $no, 1 => $yes];
+                    $choices = [$no => 0, $yes => 1];
 
                     return array_merge(
-                        [$field => ['choices' => $this->isSymfony3() ? array_flip($choices) : $choices]],
+                        [$field => ['choices' => $choices]],
                         $value
                     );
                 }
@@ -64,21 +63,13 @@ class BooleanColumnExtension extends ColumnAbstractTypeExtension
         $column->getOptionsResolver()->setNormalizer(
             'form_type',
             function(Options $options, $value) {
-                if ($options['editable'] && count($options['field_mapping']) === 1) {
+                if ($options['editable'] && 1 === count($options['field_mapping'])) {
                     $field = $options['field_mapping'][0];
-                    return array_merge(
-                        [$field => $this->isSymfony3() ? ChoiceType::class : 'choice'],
-                        $value
-                    );
+                    return array_merge([$field => ChoiceType::class], $value);
                 }
 
                 return $value;
             }
         );
-    }
-
-    private function isSymfony3(): bool
-    {
-        return method_exists(AbstractType::class, 'getBlockPrefix');
     }
 }

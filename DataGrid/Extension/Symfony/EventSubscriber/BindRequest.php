@@ -29,23 +29,20 @@ class BindRequest implements EventSubscriberInterface
         $dataGrid = $event->getDataGrid();
         $request = $event->getData();
 
-        if (!$request instanceof Request) {
+        if (false === $request instanceof Request) {
             return;
         }
 
         $name = $dataGrid->getName();
-
-        $default = [];
-
         switch ($request->getMethod()) {
             case 'POST':
             case 'PUT':
             case 'DELETE':
             case 'PATCH':
-                $data = $request->request->get($name, $default);
+                $data = $request->request->get($name, []);
                 break;
             case 'GET':
-                $data = $request->query->get($name, $default);
+                $data = $request->query->get($name, []);
                 break;
 
             default:

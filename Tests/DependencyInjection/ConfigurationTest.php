@@ -31,7 +31,7 @@ class ConfigurationTest extends TestCase
             ],
             'twig' => [
                 'enabled' => true,
-                'themes' => ['datagrid.html.twig']
+                'themes' => ['@DataGrid/datagrid.html.twig']
             ]
         ];
         $this->assertSame(
@@ -49,7 +49,7 @@ class ConfigurationTest extends TestCase
             ],
             'twig' => [
                 'enabled' => true,
-                'themes' => ['datagrid.html.twig']
+                'themes' => ['@DataGrid/datagrid.html.twig']
             ]
         ];
         $this->assertSame(
@@ -69,7 +69,7 @@ class ConfigurationTest extends TestCase
             ],
             'twig' => [
                 'enabled' => true,
-                'themes' => ['datagrid.html.twig']
+                'themes' => ['@DataGrid/datagrid.html.twig']
             ]
         ];
         $this->assertSame(
@@ -83,12 +83,12 @@ class ConfigurationTest extends TestCase
     public function testThemesOption()
     {
         $config = $this->processor->processConfiguration(new Configuration(), [
-            'fsi_data_grid' => ['twig' => ['themes' => ['custom_datagrid.html.twig']]]
+            'fsi_data_grid' => ['twig' => ['themes' => ['@DataGrid/custom_datagrid.html.twig']]]
         ]);
 
         $this->assertSame(
             [
-                'twig' => ['themes' => ['custom_datagrid.html.twig'], 'enabled' => true],
+                'twig' => ['themes' => ['@DataGrid/custom_datagrid.html.twig'], 'enabled' => true],
                 'yaml_configuration' => ['enabled' => true, 'main_configuration_directory' => null]
             ],
             $config
@@ -111,7 +111,7 @@ class ConfigurationTest extends TestCase
                     'main_configuration_directory' => 'a path to main configuration directory',
                     'enabled' => true
                 ],
-                'twig' => ['enabled' => true, 'themes' => ['datagrid.html.twig']]
+                'twig' => ['enabled' => true, 'themes' => ['@DataGrid/datagrid.html.twig']]
             ],
             $config
         );
