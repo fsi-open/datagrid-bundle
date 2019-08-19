@@ -1,5 +1,5 @@
 {% block datagrid_column_type_batch_header %}
-    {% filter spaceless %}
+    {% apply spaceless %}
         <th>
             <input type="checkbox" id="{{ header.attribute('datagrid_name') }}_{{ header.type }}"/>
             <script type="text/javascript">
@@ -17,15 +17,15 @@
                 }(window));
             </script>
         </th>
-    {% endfilter %}
+    {% endapply %}
 {% endblock %}
 
 {% block datagrid_column_type_batch_cell %}
-{% filter spaceless %}
+{% apply spaceless %}
     <td>
         <input type="checkbox" name="{{ cell.attribute('datagrid_name') }}_{{ cell.type }}[]" value="{{ cell.value }}" class="{{ cell.attribute('datagrid_name') }}_{{ cell.type }}" />
     </td>
-{% endfilter %}
+{% endapply %}
 {% endblock %}
 
 {% block datagrid_column_type_action_cell_action %}
@@ -33,7 +33,7 @@
 {% endblock %}
 
 {% block datagrid_column_type_action_cell %}
-{% filter spaceless %}
+{% apply spaceless %}
     <td>
         <div>
             {% for action_name, action in cell.value %}
@@ -47,11 +47,11 @@
             {% endfor %}
         </div>
     </td>
-{% endfilter %}
+{% endapply %}
 {% endblock %}
 
 {% block datagrid_column_header %}
-{% filter spaceless %}
+{% apply spaceless %}
 {% if header.label == header.name %}
     {% set label =  header.label|humanize|trans({}, translation_domain)  %}
 {% else %}
@@ -60,17 +60,17 @@
     <th>
         <span>{{ label }}</span>
     </th>
-{% endfilter %}
+{% endapply %}
 {% endblock %}
 
 {% block datagrid_header %}
-{% filter spaceless %}
+{% apply spaceless %}
 <tr>
     {% for header in headers %}
         {{ datagrid_column_header_widget(header) }}
     {% endfor %}
 </tr>
-{% endfilter %}
+{% endapply %}
 {% endblock %}
 
 {% block datagrid_column_cell_form %}
@@ -86,17 +86,17 @@
 {% endblock %}
 
 {% block datagrid_column_cell %}
-{% filter spaceless %}
+{% apply spaceless %}
 <td>
     <div>
-        {% endfilter %}{{ cell.value|raw }}{{ datagrid_column_cell_form_widget(cell) }}{% filter spaceless %}
+        {% endapply %}{{ cell.value|raw }}{{ datagrid_column_cell_form_widget(cell) }}{% apply spaceless %}
     </div>
 </td>
-{% endfilter %}
+{% endapply %}
 {% endblock %}
 
 {% block datagrid_rowset %}
-{% filter spaceless %}
+{% apply spaceless %}
     {% for index, row in datagrid %}
         <tr>
             {% for cell in row %}
@@ -104,11 +104,11 @@
             {% endfor %}
         </tr>
     {% endfor %}
-{% endfilter %}
+{% endapply %}
 {% endblock %}
 
 {% block datagrid %}
-{% filter spaceless %}
+{% apply spaceless %}
     <table>
         <thead>
             {{ datagrid_header_widget(datagrid) }}
@@ -117,5 +117,5 @@
             {{ datagrid_rowset_widget(datagrid) }}
         </tbody>
     </table>
-{% endfilter %}
+{% endapply %}
 {% endblock %}
