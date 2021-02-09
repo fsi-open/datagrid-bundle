@@ -49,7 +49,7 @@ class DataGridExtensionTest extends TestCase
      */
     protected $translator;
 
-    public function setUp()
+    public function setUp(): void
     {
         $subPath = version_compare(Kernel::VERSION, '2.7.0', '<') ? 'Symfony/Bridge/Twig/' : '';
         $loader = new FilesystemLoader([

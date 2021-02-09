@@ -17,6 +17,7 @@ use FSi\Component\DataGrid\Extension\Core\ColumnTypeExtension\DefaultColumnOptio
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 class ActionTest extends TestCase
@@ -36,7 +37,7 @@ class ActionTest extends TestCase
      */
     private $column;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->router = $this->createMock(RouterInterface::class);
         $this->requestStack = $this->createMock(RequestStack::class);
@@ -72,7 +73,7 @@ class ActionTest extends TestCase
     {
         $this->router->expects($this->any())
             ->method('generate')
-            ->with('foo', ['redirect_uri' => Request::RELATIVE_URI], false)
+            ->with('foo', ['redirect_uri' => Request::RELATIVE_URI], UrlGeneratorInterface::ABSOLUTE_PATH)
             ->will($this->returnValue('/test/bar?redirect_uri=' . urlencode(Request::ABSOLUTE_URI)));
 
         $this->column->setName('action');
@@ -85,7 +86,7 @@ class ActionTest extends TestCase
         $this->column->setOption('actions', [
             'edit' => [
                 'route_name' => 'foo',
-                'absolute' => false
+                'absolute' => UrlGeneratorInterface::ABSOLUTE_PATH
             ]
         ]);
 
@@ -111,7 +112,7 @@ class ActionTest extends TestCase
     {
         $this->router->expects($this->once())
             ->method('generate')
-            ->with('foo', ['foo' => 'bar', 'redirect_uri' => Request::RELATIVE_URI], true)
+            ->with('foo', ['foo' => 'bar', 'redirect_uri' => Request::RELATIVE_URI], UrlGeneratorInterface::ABSOLUTE_URL)
             ->will($this->returnValue('https://fsi.pl/test/bar?redirect_uri=' . urlencode(Request::RELATIVE_URI)));
 
         $this->column->setName('action');
@@ -125,7 +126,7 @@ class ActionTest extends TestCase
             'edit' => [
                 'route_name' => 'foo',
                 'parameters_field_mapping' => ['foo' => 'foo'],
-                'absolute' => true
+                'absolute' => UrlGeneratorInterface::ABSOLUTE_URL
             ]
         ]);
 
@@ -134,7 +135,7 @@ class ActionTest extends TestCase
                'edit' => [
                    'content' => 'edit',
                    'field_mapping_values' => [
-                           'foo' => 'bar'
+                       'foo' => 'bar'
                    ],
                    'url_attr' => [
                        'href' => 'https://fsi.pl/test/bar?redirect_uri=' . urlencode(Request::RELATIVE_URI)
@@ -152,7 +153,7 @@ class ActionTest extends TestCase
     {
         $this->router->expects($this->once())
             ->method('generate')
-            ->with('foo', [], false)
+            ->with('foo', [], UrlGeneratorInterface::ABSOLUTE_PATH)
             ->will($this->returnValue('/test/bar'));
 
         $this->column->setName('action');
@@ -164,7 +165,7 @@ class ActionTest extends TestCase
         $this->column->setOption('actions', [
             'edit' => [
                 'route_name' => 'foo',
-                'absolute' => false,
+                'absolute' => UrlGeneratorInterface::ABSOLUTE_PATH,
                 'redirect_uri' => false
             ]
         ]);

@@ -11,16 +11,27 @@ declare(strict_types=1);
 
 namespace FSi\Bundle\DatagridBundle\Tests\DataGrid\Extension\Symfony\ColumnTypeExtension;
 
+use Doctrine\Common\Persistence\ManagerRegistry as CommonManagerRegistry;
+use Doctrine\ORM\AbstractQuery;
+use Doctrine\ORM\Configuration;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\Persistence\ManagerRegistry as PersistenceManagerRegistry;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnTypeExtension\FormExtension;
 use FSi\Bundle\DataGridBundle\Tests\Fixtures\Entity;
 use FSi\Bundle\DataGridBundle\Tests\Fixtures\EntityCategory;
+use FSi\Component\DataGrid\Column\ColumnTypeInterface;
 use FSi\Component\DataGrid\DataGrid;
+use FSi\Component\DataGrid\DataGridInterface;
+use FSi\Component\DataGrid\DataMapper\DataMapperInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bridge\Doctrine\Form\DoctrineOrmExtension;
+use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\CoreExtension;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Csrf\CsrfExtension;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\Form\FormFactory;
@@ -29,16 +40,7 @@ use Symfony\Component\Form\ResolvedFormTypeFactory;
 use Symfony\Component\Security\Csrf\CsrfTokenManager;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\ValidatorBuilder;
-use Doctrine\ORM\Configuration;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\AbstractQuery;
-use Doctrine\ORM\EntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
-use FSi\Component\DataGrid\DataGridInterface;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use FSi\Component\DataGrid\Column\ColumnTypeInterface;
-use FSi\Component\DataGrid\DataMapper\DataMapperInterface;
-use Symfony\Component\Form\AbstractType;
+use function interface_exists;
 
 class FormExtensionTest extends TestCase
 {
@@ -52,7 +54,7 @@ class FormExtensionTest extends TestCase
      */
     private $dataGrid;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $entities = [
             new EntityCategory(1, 'category name 1'),
@@ -126,7 +128,11 @@ class FormExtensionTest extends TestCase
             ->method('contains')
             ->will($this->returnValue(true));
 
-        $managerRegistry = $this->createMock(ManagerRegistry::class);
+        if (interface_exists(PersistenceManagerRegistry::class)) {
+            $managerRegistry = $this->createMock(PersistenceManagerRegistry::class);
+        } else {
+            $managerRegistry = $this->createMock(CommonManagerRegistry::class);
+        }
         $managerRegistry->expects($this->any())
             ->method('getManagerForClass')
             ->will($this->returnValue($objectManager));

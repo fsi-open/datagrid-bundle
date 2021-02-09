@@ -184,7 +184,7 @@ class ConfigurationBuilderTest extends TestCase
         $this->subscriber->readConfiguration(new DataGridEvent($dataGrid, []));
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $kernelMockBuilder = $this->getMockBuilder(Kernel::class)->setConstructorArgs(['dev', true]);
         if (version_compare(Kernel::VERSION, '2.7.0', '<')) {
