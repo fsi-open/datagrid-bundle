@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace FSi\Bundle\DataGridBundle\HttpFoundation;
 
 /**
- * @deprecated
+ * @deprecated https://github.com/PHPOffice/PHPExcel is dead
  */
 class Excel2003Export extends Excel2007Export
 {

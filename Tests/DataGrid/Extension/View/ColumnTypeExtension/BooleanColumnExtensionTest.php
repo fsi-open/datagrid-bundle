@@ -21,7 +21,7 @@ use Symfony\Component\Translation\TranslatorInterface;
 
 class BooleanColumnExtensionTest extends TestCase
 {
-    public function testColumnOptions()
+    public function testColumnOptions(): void
     {
         $column = new Boolean();
         $formExtension = new FormExtension($this->getFormFactory());
@@ -30,23 +30,27 @@ class BooleanColumnExtensionTest extends TestCase
         $extension->initOptions($column);
         $options = $column->getOptionsResolver()->resolve();
 
-        $this->assertEquals('YES', $options['true_value']);
-        $this->assertEquals('NO', $options['false_value']);
+        self::assertEquals('YES', $options['true_value']);
+        self::assertEquals('NO', $options['false_value']);
     }
 
-    private function getTranslator()
+    /**
+     * @return TranslatorInterface&MockObject
+     */
+    private function getTranslator(): TranslatorInterface
     {
+        /** @var TranslatorInterface&MockObject $translator */
         $translator = $this->createMock(TranslatorInterface::class);
 
-        $translator->expects($this->at(0))
+        $translator->expects(self::at(0))
             ->method('trans')
             ->with('datagrid.boolean.yes', [], 'DataGridBundle')
-            ->will($this->returnValue('YES'));
+            ->willReturn('YES');
 
-        $translator->expects($this->at(1))
+        $translator->expects(self::at(1))
             ->method('trans')
             ->with('datagrid.boolean.no', [], 'DataGridBundle')
-            ->will($this->returnValue('NO'));
+            ->willReturn('NO');
 
         return $translator;
     }
@@ -56,6 +60,9 @@ class BooleanColumnExtensionTest extends TestCase
      */
     private function getFormFactory(): FormFactoryInterface
     {
-        return $this->createMock(FormFactoryInterface::class);
+        /** @var FormFactoryInterface&MockObject $formFactory */
+        $formFactory = $this->createMock(FormFactoryInterface::class);
+
+        return $formFactory;
     }
 }

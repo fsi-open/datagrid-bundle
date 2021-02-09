@@ -54,7 +54,7 @@ class ConfigurationBuilderTest extends TestCase
         $this->kernel->expects(self::once())
             ->method('getBundles')
             ->willReturnCallback(
-                function () {
+                function (): array {
                     $bundle = $this->createMock(Bundle::class);
                     $bundle->method('getPath')
                         ->willReturn(sprintf('%s/../../../../Fixtures/FooBundle', __DIR__));
@@ -83,7 +83,7 @@ class ConfigurationBuilderTest extends TestCase
         $this->kernel->expects(self::once())
             ->method('getBundles')
             ->willReturnCallback(
-                function () {
+                function (): array {
                     $fooBundle = $this->createMock(Bundle::class);
                     $fooBundle->method('getPath')
                         ->willReturn(sprintf('%s/../../../../Fixtures/FooBundle', __DIR__));
@@ -146,7 +146,7 @@ class ConfigurationBuilderTest extends TestCase
         $this->kernel->expects(self::once())
             ->method('getBundles')
             ->willReturnCallback(
-                function () {
+                function (): array {
                     $bundle = $this->createMock(Bundle::class);
                     $bundle->method('getPath')
                         ->willReturn(sprintf('%s/../../../../Fixtures/FooBundle', __DIR__));
@@ -184,11 +184,13 @@ class ConfigurationBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $kernelMockBuilder = $this->getMockBuilder(Kernel::class)
+        /** @var Kernel&MockObject $kernelMock */
+        $kernelMock = $this->getMockBuilder(Kernel::class)
             ->setConstructorArgs(['dev', true])
-            ->onlyMethods(['registerContainerConfiguration', 'registerBundles', 'getBundles', 'getContainer']);
+            ->setMethods(['registerContainerConfiguration', 'registerBundles', 'getBundles', 'getContainer'])
+            ->getMock();
 
-        $this->kernel = $kernelMockBuilder->getMock();
+        $this->kernel = $kernelMock;
         $this->subscriber = new ConfigurationBuilder($this->kernel);
     }
 }
