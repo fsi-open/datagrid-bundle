@@ -11,16 +11,28 @@ declare(strict_types=1);
 
 namespace FSi\Bundle\DatagridBundle\Tests\DataGrid\Extension\Symfony\ColumnTypeExtension;
 
+use Doctrine\Common\Persistence\ManagerRegistry as CommonManagerRegistry;
+use Doctrine\ORM\AbstractQuery;
+use Doctrine\ORM\Configuration;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\Persistence\ManagerRegistry as PersistenceManagerRegistry;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnTypeExtension\FormExtension;
 use FSi\Bundle\DataGridBundle\Tests\Fixtures\Entity;
 use FSi\Bundle\DataGridBundle\Tests\Fixtures\EntityCategory;
-use FSi\Component\DataGrid\DataGrid;
+use FSi\Component\DataGrid\Column\ColumnTypeInterface;
+use FSi\Component\DataGrid\DataGridInterface;
+use FSi\Component\DataGrid\DataMapper\DataMapperInterface;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\RuntimeException;
+use PHPUnit\Framework\MockObject\Stub\ReturnCallback;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bridge\Doctrine\Form\DoctrineOrmExtension;
 use Symfony\Component\Form\Extension\Core\CoreExtension;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Csrf\CsrfExtension;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\Form\FormFactory;
@@ -29,16 +41,8 @@ use Symfony\Component\Form\ResolvedFormTypeFactory;
 use Symfony\Component\Security\Csrf\CsrfTokenManager;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\ValidatorBuilder;
-use Doctrine\ORM\Configuration;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\AbstractQuery;
-use Doctrine\ORM\EntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
-use FSi\Component\DataGrid\DataGridInterface;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use FSi\Component\DataGrid\Column\ColumnTypeInterface;
-use FSi\Component\DataGrid\DataMapper\DataMapperInterface;
-use Symfony\Component\Form\AbstractType;
+
+use function interface_exists;
 
 class FormExtensionTest extends TestCase
 {
@@ -48,11 +52,11 @@ class FormExtensionTest extends TestCase
     private $extension;
 
     /**
-     * @var DataGrid
+     * @var DataGridInterface&MockObject
      */
     private $dataGrid;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $entities = [
             new EntityCategory(1, 'category name 1'),
@@ -62,34 +66,18 @@ class FormExtensionTest extends TestCase
         $configuration = $this->createMock(Configuration::class);
 
         $objectManager = $this->getMockBuilder(EntityManager::class)->disableOriginalConstructor()->getMock();
-        $objectManager->expects($this->any())
-            ->method('getConfiguration')
-            ->will($this->returnValue($configuration));
-
-        $objectManager->expects($this->any())
-            ->method('getExpressionBuilder')
-            ->will($this->returnValue(new Expr()));
+        $objectManager->method('getConfiguration')->willReturn($configuration);
+        $objectManager->method('getExpressionBuilder')->willReturn(new Expr());
 
         $query = $this->getMockBuilder(AbstractQuery::class)
             ->setConstructorArgs([$objectManager])
             ->setMethods(['execute', '_doExecute', 'getSql', 'setFirstResult', 'setMaxResults'])
             ->getMock();
-        $query->expects($this->any())
-            ->method('execute')
-            ->will($this->returnValue($entities));
+        $query->method('execute')->willReturn($entities);
+        $query->method('setFirstResult')->willReturn($query);
+        $query->method('setMaxResults')->willReturn($query);
 
-        $query->expects($this->any())
-            ->method('setFirstResult')
-            ->will($this->returnValue($query));
-
-        $query->expects($this->any())
-            ->method('setMaxResults')
-            ->will($this->returnValue($query));
-
-        $objectManager->expects($this->any())
-            ->method('createQuery')
-            ->withAnyParameters()
-            ->will($this->returnValue($query));
+        $objectManager->method('createQuery')->withAnyParameters()->willReturn($query);
 
         $queryBuilder = new QueryBuilder($objectManager);
 
@@ -98,41 +86,36 @@ class FormExtensionTest extends TestCase
         $classMetadata->identifier = ['id'];
         $classMetadata->fieldMappings = [
             'id' => [
-                'fieldName' => 'id',
                 'type' => 'integer',
+                'fieldName' => 'id',
+                'columnName' => 'id',
+                'inherited' => $entityClass,
             ]
         ];
         $classMetadata->reflFields = [
             'id' => new \ReflectionProperty($entityClass, 'id'),
         ];
 
-        $repository = $this->createMock(EntityRepository::class, [], [$objectManager, $classMetadata]);
-        $repository->expects($this->any())
-            ->method('createQueryBuilder')
-            ->withAnyParameters()
-            ->will($this->returnValue($queryBuilder));
-        $repository->expects($this->any())
-            ->method('findAll')
-            ->will($this->returnValue($entities));
+        $repository = $this->getMockBuilder(EntityRepository::class)
+            ->setConstructorArgs([$objectManager, $classMetadata])
+            ->getMock();
 
-        $objectManager->expects($this->any())
-            ->method('getClassMetadata')
-            ->withAnyParameters()
-            ->will($this->returnValue($classMetadata));
-        $objectManager->expects($this->any())
-            ->method('getRepository')
-            ->will($this->returnValue($repository));
-        $objectManager->expects($this->any())
-            ->method('contains')
-            ->will($this->returnValue(true));
+        $repository->method('createQueryBuilder')->withAnyParameters()->willReturn($queryBuilder);
+        $repository->method('findAll')->willReturn($entities);
 
-        $managerRegistry = $this->createMock(ManagerRegistry::class);
-        $managerRegistry->expects($this->any())
-            ->method('getManagerForClass')
-            ->will($this->returnValue($objectManager));
-        $managerRegistry->expects($this->any())
-            ->method('getManagers')
-            ->will($this->returnValue([]));
+        $objectManager->method('getClassMetadata')->withAnyParameters()->willReturn($classMetadata);
+        $objectManager->method('getRepository')->willReturn($repository);
+        $objectManager->method('contains')->willReturn(true);
+
+        if (interface_exists(PersistenceManagerRegistry::class)) {
+            $managerRegistry = $this->createMock(PersistenceManagerRegistry::class);
+        } elseif (interface_exists(CommonManagerRegistry::class)) {
+            $managerRegistry = $this->createMock(CommonManagerRegistry::class);
+        } else {
+            throw new RuntimeException();
+        }
+        $managerRegistry->method('getManagerForClass')->willReturn($objectManager);
+        $managerRegistry->method('getManagers')->willReturn([]);
 
         $validatorBuilder = new ValidatorBuilder();
         $resolvedTypeFactory = new ResolvedFormTypeFactory();
@@ -146,17 +129,17 @@ class FormExtensionTest extends TestCase
             $resolvedTypeFactory
         );
 
-        $formFactory = new FormFactory($formRegistry, $resolvedTypeFactory);
+        $formFactory = new FormFactory($formRegistry);
 
-        $this->dataGrid = $this->createMock(DataGridInterface::class);
-        $this->dataGrid->expects($this->any())
-            ->method('getName')
-            ->will($this->returnValue('grid'));
+        /** @var DataGridInterface&MockObject $dataGrid */
+        $dataGrid = $this->createMock(DataGridInterface::class);
+        $this->dataGrid = $dataGrid;
+        $this->dataGrid->method('getName')->willReturn('grid');
 
         $this->extension = new FormExtension($formFactory);
     }
 
-    public function testSimpleBindData()
+    public function testSimpleBindData(): void
     {
         $column = $this->createColumnMock();
         $this->setColumnId($column, 'text');
@@ -165,8 +148,8 @@ class FormExtensionTest extends TestCase
             'editable' => true,
             'form_options' => [],
             'form_type' => [
-                'name' => ['type' => $this->isSymfonyForm28() ? TextType::class : 'text'],
-                'author' => ['type' => $this->isSymfonyForm28() ? TextType::class : 'text'],
+                'name' => ['type' => TextType::class],
+                'author' => ['type' => TextType::class],
             ]
         ]);
 
@@ -179,12 +162,12 @@ class FormExtensionTest extends TestCase
 
         $this->extension->bindData($column, $data, $object, 1);
 
-        $this->assertSame('norbert@fsi.pl', $object->getAuthor());
-        $this->assertSame('object', $object->getName());
+        self::assertSame('norbert@fsi.pl', $object->getAuthor());
+        self::assertSame('object', $object->getName());
     }
 
 
-    public function testAvoidBindingDataWhenFormIsNotValid()
+    public function testAvoidBindingDataWhenFormIsNotValid(): void
     {
         $column = $this->createColumnMock();
         $this->setColumnId($column, 'text');
@@ -199,8 +182,8 @@ class FormExtensionTest extends TestCase
                 ]
             ],
             'form_type' => [
-                'name' => ['type' => $this->isSymfonyForm28() ? TextType::class : 'text'],
-                'author' => ['type' => $this->isSymfonyForm28() ? TextType::class : 'text'],
+                'name' => ['type' => TextType::class],
+                'author' => ['type' => TextType::class],
             ]
         ]);
 
@@ -213,11 +196,11 @@ class FormExtensionTest extends TestCase
 
         $this->extension->bindData($column, $data, $object, 1);
 
-        $this->assertNull($object->getAuthor());
-        $this->assertSame('old_name', $object->getName());
+        self::assertNull($object->getAuthor());
+        self::assertSame('old_name', $object->getName());
     }
 
-    public function testEntityBindData()
+    public function testEntityBindData(): void
     {
         $nestedEntityClass = EntityCategory::class;
 
@@ -240,69 +223,65 @@ class FormExtensionTest extends TestCase
             'category' => 1,
         ];
 
-        $this->assertNull($object->getCategory());
+        self::assertNull($object->getCategory());
 
         $this->extension->bindData($column, $data, $object, 1);
 
-        $this->assertInstanceOf($nestedEntityClass, $object->getCategory());
-        $this->assertSame('category name 1', $object->getCategory()->getName());
+        self::assertInstanceOf($nestedEntityClass, $object->getCategory());
+        self::assertSame('category name 1', $object->getCategory()->getName());
     }
 
-    private function createColumnMock()
+    /**
+     * @return ColumnTypeInterface&MockObject
+     */
+    private function createColumnMock(): ColumnTypeInterface
     {
+        /** @var ColumnTypeInterface&MockObject $column */
         $column = $this->createMock(ColumnTypeInterface::class);
-
-        $column->expects($this->any())
-            ->method('getDataMapper')
-            ->will($this->getDataMapperReturnCallback());
-
-        $column->expects($this->any())
-            ->method('getDataGrid')
-            ->will($this->returnValue($this->dataGrid));
+        $column->method('getDataMapper')->will($this->getDataMapperReturnCallback());
+        $column->method('getDataGrid')->willReturn($this->dataGrid);
 
         return $column;
     }
 
-    private function setColumnId($column, $id)
+    private function setColumnId($column, $id): void
     {
-        $column->expects($this->any())
-            ->method('getId')
-            ->will($this->returnValue($id));
+        $column->method('getId')->willReturn($id);
     }
 
-    private function setColumnOptions($column, $optionsMap)
+    private function setColumnOptions($column, $optionsMap): void
     {
-        $column->expects($this->any())
-            ->method('getOption')
-            ->will($this->returnCallback(function($option) use($optionsMap) {
-                return $optionsMap[$option];
-            }));
+        $column->method('getOption')
+            ->willReturnCallback(
+                function ($option) use ($optionsMap) {
+                    return $optionsMap[$option];
+                }
+            );
     }
 
-    private function getDataMapperReturnCallback()
+    private function getDataMapperReturnCallback(): ReturnCallback
     {
         $dataMapper = $this->createMock(DataMapperInterface::class);
-        $dataMapper->expects($this->any())
-            ->method('getData')
-            ->will($this->returnCallback(function($field, $object){
-                $method = 'get' . ucfirst($field);
-                return $object->$method();
-            }));
+        $dataMapper->method('getData')
+            ->willReturnCallback(
+                function ($field, $object) {
+                    $method = 'get' . ucfirst($field);
 
-        $dataMapper->expects($this->any())
-            ->method('setData')
-            ->will($this->returnCallback(function($field, $object, $value){
-                $method = 'set' . ucfirst($field);
-                return $object->$method($value);
-            }));
+                    return $object->$method();
+                }
+            );
 
-        return $this->returnCallback(function() use ($dataMapper) {
+        $dataMapper->method('setData')
+            ->willReturnCallback(
+                function ($field, $object, $value) {
+                    $method = 'set' . ucfirst($field);
+
+                    return $object->$method($value);
+                }
+            );
+
+        return self::returnCallback(function () use ($dataMapper) {
             return $dataMapper;
         });
-    }
-
-    private function isSymfonyForm28(): bool
-    {
-        return method_exists(AbstractType::class, 'getBlockPrefix');
     }
 }

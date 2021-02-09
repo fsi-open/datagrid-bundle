@@ -17,12 +17,12 @@ use Symfony\Component\Form\FormFactoryInterface;
 
 class FormExtensionTest extends TestCase
 {
-    public function testSymfonyFormExtension()
+    public function testSymfonyFormExtension(): void
     {
         $formFactory = $this->createMock(FormFactoryInterface::class);
         $extension = new FormExtension($formFactory);
 
-        $this->assertFalse($extension->hasColumnType('foo'));
-        $this->assertTrue($extension->hasColumnTypeExtensions('text'));
+        self::assertFalse($extension->hasColumnType('foo'));
+        self::assertTrue($extension->hasColumnTypeExtensions('text'));
     }
 }

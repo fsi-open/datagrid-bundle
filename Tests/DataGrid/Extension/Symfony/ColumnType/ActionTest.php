@@ -14,37 +14,35 @@ namespace FSi\Bundle\DatagridBundle\Tests\DataGrid\Extension\Symfony\ColumnType;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnType\Action;
 use FSi\Bundle\DataGridBundle\Tests\Fixtures\Request;
 use FSi\Component\DataGrid\Extension\Core\ColumnTypeExtension\DefaultColumnOptionsExtension;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 class ActionTest extends TestCase
 {
     /**
-     * @var RouterInterface
+     * @var RouterInterface&MockObject
      */
     private $router;
-
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
 
     /**
      * @var Action
      */
     private $column;
 
-    protected function setUp()
+    protected function setUp(): void
     {
-        $this->router = $this->createMock(RouterInterface::class);
-        $this->requestStack = $this->createMock(RequestStack::class);
-        $this->requestStack->expects($this->any())
-            ->method('getMasterRequest')
-            ->will($this->returnValue(new Request()));
+        /** @var RouterInterface&MockObject $router */
+        $router = $this->createMock(RouterInterface::class);
+        $this->router = $router;
 
-        $column = new Action($this->router, $this->requestStack);
+        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack->method('getMasterRequest')->willReturn(new Request());
+
+        $column = new Action($this->router, $requestStack);
         $column->setName('action');
         $column->initOptions();
 
@@ -70,10 +68,9 @@ class ActionTest extends TestCase
 
     public function testFilterValueRequiredActionInActionsOption()
     {
-        $this->router->expects($this->any())
-            ->method('generate')
-            ->with('foo', ['redirect_uri' => Request::RELATIVE_URI], false)
-            ->will($this->returnValue('/test/bar?redirect_uri=' . urlencode(Request::ABSOLUTE_URI)));
+        $this->router->method('generate')
+            ->with('foo', ['redirect_uri' => Request::RELATIVE_URI], UrlGeneratorInterface::ABSOLUTE_PATH)
+            ->willReturn('/test/bar?redirect_uri=' . urlencode(Request::ABSOLUTE_URI));
 
         $this->column->setName('action');
         $this->column->initOptions();
@@ -85,34 +82,38 @@ class ActionTest extends TestCase
         $this->column->setOption('actions', [
             'edit' => [
                 'route_name' => 'foo',
-                'absolute' => false
+                'absolute' => UrlGeneratorInterface::ABSOLUTE_PATH
             ]
         ]);
 
-       $this->assertSame(
-           [
-               'edit' => [
-                   'content' => 'edit',
-                   'field_mapping_values' => [
-                           'foo' => 'bar'
-                   ],
-                   'url_attr' => [
-                       'href' => '/test/bar?redirect_uri=http%3A%2F%2Fexample.com%2F%3Ftest%3D1%26test%3D2'
-                   ]
-               ]
-           ],
-           $this->column->filterValue([
-               'foo' => 'bar'
-           ])
-       );
+        self::assertSame(
+            [
+                'edit' => [
+                    'content' => 'edit',
+                    'field_mapping_values' => [
+                            'foo' => 'bar'
+                    ],
+                    'url_attr' => [
+                        'href' => '/test/bar?redirect_uri=http%3A%2F%2Fexample.com%2F%3Ftest%3D1%26test%3D2'
+                    ]
+                ]
+            ],
+            $this->column->filterValue([
+                'foo' => 'bar'
+            ])
+        );
     }
 
     public function testFilterValueAvailableActionInActionsOption()
     {
-        $this->router->expects($this->once())
+        $this->router->expects(self::once())
             ->method('generate')
-            ->with('foo', ['foo' => 'bar', 'redirect_uri' => Request::RELATIVE_URI], true)
-            ->will($this->returnValue('https://fsi.pl/test/bar?redirect_uri=' . urlencode(Request::RELATIVE_URI)));
+            ->with(
+                'foo',
+                ['foo' => 'bar', 'redirect_uri' => Request::RELATIVE_URI],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            )
+            ->willReturn('https://fsi.pl/test/bar?redirect_uri=' . urlencode(Request::RELATIVE_URI));
 
         $this->column->setName('action');
         $this->column->initOptions();
@@ -125,35 +126,35 @@ class ActionTest extends TestCase
             'edit' => [
                 'route_name' => 'foo',
                 'parameters_field_mapping' => ['foo' => 'foo'],
-                'absolute' => true
+                'absolute' => UrlGeneratorInterface::ABSOLUTE_URL
             ]
         ]);
 
-       $this->assertSame(
-           [
-               'edit' => [
-                   'content' => 'edit',
-                   'field_mapping_values' => [
-                           'foo' => 'bar'
-                   ],
-                   'url_attr' => [
-                       'href' => 'https://fsi.pl/test/bar?redirect_uri=' . urlencode(Request::RELATIVE_URI)
-                   ]
-               ]
-           ],
-           $this->column->filterValue([
-               'foo' => 'bar'
-           ])
-       );
+        self::assertSame(
+            [
+                'edit' => [
+                    'content' => 'edit',
+                    'field_mapping_values' => [
+                        'foo' => 'bar'
+                    ],
+                    'url_attr' => [
+                        'href' => 'https://fsi.pl/test/bar?redirect_uri=' . urlencode(Request::RELATIVE_URI)
+                    ]
+                ]
+            ],
+            $this->column->filterValue([
+                'foo' => 'bar'
+            ])
+        );
     }
 
 
     public function testFilterValueWithRedirectUriFalse()
     {
-        $this->router->expects($this->once())
+        $this->router->expects(self::once())
             ->method('generate')
-            ->with('foo', [], false)
-            ->will($this->returnValue('/test/bar'));
+            ->with('foo', [], UrlGeneratorInterface::ABSOLUTE_PATH)
+            ->willReturn('/test/bar');
 
         $this->column->setName('action');
         $this->column->initOptions();
@@ -164,12 +165,12 @@ class ActionTest extends TestCase
         $this->column->setOption('actions', [
             'edit' => [
                 'route_name' => 'foo',
-                'absolute' => false,
+                'absolute' => UrlGeneratorInterface::ABSOLUTE_PATH,
                 'redirect_uri' => false
             ]
         ]);
 
-        $this->assertSame(
+        self::assertSame(
             [
                 'edit' => [
                     'content' => 'edit',

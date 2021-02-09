@@ -13,94 +13,64 @@ namespace FSi\Bundle\DatagridBundle\Tests\DataGrid\Extension\Symfony\EventSubscr
 
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\EventSubscriber\BindRequest;
 use FSi\Component\DataGrid\DataGridEventInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use FSi\Component\DataGrid\DataGridInterface;
+use function class_exists;
 
 class BindRequestTest extends TestCase
 {
-    public function testPreBindDataWithoutRequestObject()
+    public function testPreBindDataWithoutRequestObject(): void
     {
         $event = $this->createMock(DataGridEventInterface::class);
-        $event->expects($this->never())
-            ->method('setData');
+        $event->expects(self::never())->method('setData');
 
         $subscriber = new BindRequest();
 
         $subscriber->preBindData($event);
     }
 
-    public function testPreBindDataPOST()
+    public function testPreBindDataPOST(): void
     {
+        /** @var Request&MockObject $request */
         $request = $this->createMock(Request::class);
-        $request->expects($this->once())
-             ->method('getMethod')
-             ->will($this->returnValue('POST'));
+        $request->expects(self::once())->method('getMethod')->willReturn('POST');
 
+        /** @var ParameterBag&MockObject $requestBag */
         $requestBag = $this->createMock(ParameterBag::class);
-        $requestBag->expects($this->once())
-            ->method('get')
-            ->with('grid', [])
-            ->will($this->returnValue(['foo' => 'bar']));
+        $requestBag->expects(self::once())->method('get')->with('grid', [])->willReturn(['foo' => 'bar']);
 
         $request->request = $requestBag;
 
         $grid = $this->createMock(DataGridInterface::class);
-        $grid->expects($this->once())
-             ->method('getName')
-             ->will($this->returnValue('grid'));
+        $grid->expects(self::once())->method('getName')->willReturn('grid');
 
         $event = $this->createMock(DataGridEventInterface::class);
-        $event->expects($this->once())
-            ->method('getData')
-            ->will($this->returnValue($request));
-
-        $event->expects($this->once())
-            ->method('setData')
-            ->with(['foo' => 'bar']);
-
-        $event->expects($this->once())
-            ->method('getDataGrid')
-            ->will($this->returnValue($grid));
+        $event->expects(self::once())->method('getData')->willReturn($request);
+        $event->expects(self::once())->method('setData')->with(['foo' => 'bar']);
+        $event->expects(self::once())->method('getDataGrid')->willReturn($grid);
 
         $subscriber = new BindRequest();
 
         $subscriber->preBindData($event);
     }
 
-    public function testPreBindDataGET()
+    public function testPreBindDataGET(): void
     {
-        $request = $this->createMock(Request::class);
-        $request->expects($this->once())
-             ->method('getMethod')
-             ->will($this->returnValue('GET'));
-
-        $queryBag = $this->createMock(ParameterBag::class);
-        $queryBag->expects($this->once())
-            ->method('get')
-            ->with('grid', [])
-            ->will($this->returnValue(['foo' => 'bar']));
-
-        $request->query = $queryBag;
+        $request = new Request();
+        $request->setMethod('GET');
+        $request->query->set('grid', ['foo' => 'bar']);
 
         $grid = $this->createMock(DataGridInterface::class);
-        $grid->expects($this->once())
-             ->method('getName')
-             ->will($this->returnValue('grid'));
+        $grid->expects(self::once())->method('getName')->willReturn('grid');
 
         $event = $this->createMock(DataGridEventInterface::class);
-        $event->expects($this->once())
-            ->method('getData')
-            ->will($this->returnValue($request));
-
-        $event->expects($this->once())
-            ->method('setData')
-            ->with(['foo' => 'bar']);
-
-        $event->expects($this->once())
-            ->method('getDataGrid')
-            ->will($this->returnValue($grid));
+        $event->expects(self::once())->method('getData')->willReturn($request);
+        $event->expects(self::once())->method('setData')->with(['foo' => 'bar']);
+        $event->expects(self::once())->method('getDataGrid')->willReturn($grid);
 
         $subscriber = new BindRequest();
 

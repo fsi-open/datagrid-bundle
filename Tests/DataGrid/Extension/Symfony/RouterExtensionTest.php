@@ -18,12 +18,12 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 class RouterExtensionTest extends TestCase
 {
-    public function testSymfonyExtension()
+    public function testSymfonyExtension(): void
     {
         $router = $this->createMock(RouterInterface::class);
         $requestStack = $this->createMock(RequestStack::class);
         $extension = new RouterExtension($router, $requestStack);
 
-        $this->assertTrue($extension->hasColumnType('action'));
+        self::assertTrue($extension->hasColumnType('action'));
     }
 }
