@@ -21,4 +21,7 @@ before_script:
   - COMPOSER_MEMORY_LIMIT=-1 composer update $COMPOSER_FLAGS
   - composer validate
 
-script: vendor/bin/phpunit
+script:
+  - vendor/bin/phpcs
+  - vendor/bin/phpstan analyze -c phpstan.neon
+  - vendor/bin/phpunit

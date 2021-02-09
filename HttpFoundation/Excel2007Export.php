@@ -11,6 +11,9 @@ declare(strict_types=1);
 
 namespace FSi\Bundle\DataGridBundle\HttpFoundation;
 
+/**
+ * @deprecated
+ */
 class Excel2007Export extends ExcelExport
 {
     /**

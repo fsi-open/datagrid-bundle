@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony;
 
 use FSi\Component\DataGrid\DataGridAbstractExtension;
-use FSi\Bundle\DataGridBundle\Datagrid\Extension\Symfony\EventSubscriber;
+use FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\EventSubscriber;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnType;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;

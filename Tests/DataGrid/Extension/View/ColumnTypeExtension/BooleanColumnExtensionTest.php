@@ -52,7 +52,7 @@ class BooleanColumnExtensionTest extends TestCase
     }
 
     /**
-     * @return FormFactoryInterface|MockObject
+     * @return FormFactoryInterface&MockObject
      */
     private function getFormFactory(): FormFactoryInterface
     {

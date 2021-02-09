@@ -19,12 +19,12 @@ class StubTranslator implements TranslatorInterface
 
     public function trans($id, array $parameters = array(), $domain = null, $locale = null)
     {
-        return '[trans]'.$id.'[/trans]';
+        return '[trans]' . $id . '[/trans]';
     }
 
     public function transChoice($id, $number, array $parameters = [], $domain = null, $locale = null)
     {
-        return '[trans]'.$id.'[/trans]';
+        return '[trans]' . $id . '[/trans]';
     }
 
     public function setLocale($locale)

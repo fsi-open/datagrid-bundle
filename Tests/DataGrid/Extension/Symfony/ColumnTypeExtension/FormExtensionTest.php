@@ -24,9 +24,10 @@ use FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnTypeExtension\For
 use FSi\Bundle\DataGridBundle\Tests\Fixtures\Entity;
 use FSi\Bundle\DataGridBundle\Tests\Fixtures\EntityCategory;
 use FSi\Component\DataGrid\Column\ColumnTypeInterface;
-use FSi\Component\DataGrid\DataGrid;
 use FSi\Component\DataGrid\DataGridInterface;
 use FSi\Component\DataGrid\DataMapper\DataMapperInterface;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\RuntimeException;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bridge\Doctrine\Form\DoctrineOrmExtension;
 use Symfony\Component\Form\AbstractType;
@@ -40,6 +41,7 @@ use Symfony\Component\Form\ResolvedFormTypeFactory;
 use Symfony\Component\Security\Csrf\CsrfTokenManager;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\ValidatorBuilder;
+
 use function interface_exists;
 
 class FormExtensionTest extends TestCase
@@ -50,7 +52,7 @@ class FormExtensionTest extends TestCase
     private $extension;
 
     /**
-     * @var DataGrid
+     * @var DataGridInterface&MockObject
      */
     private $dataGrid;
 
@@ -100,15 +102,19 @@ class FormExtensionTest extends TestCase
         $classMetadata->identifier = ['id'];
         $classMetadata->fieldMappings = [
             'id' => [
-                'fieldName' => 'id',
                 'type' => 'integer',
+                'fieldName' => 'id',
+                'columnName' => 'id',
+                'inherited' => $entityClass,
             ]
         ];
         $classMetadata->reflFields = [
             'id' => new \ReflectionProperty($entityClass, 'id'),
         ];
 
-        $repository = $this->createMock(EntityRepository::class, [], [$objectManager, $classMetadata]);
+        $repository = $this->getMockBuilder(EntityRepository::class)
+            ->setConstructorArgs([$objectManager, $classMetadata])
+            ->getMock();
         $repository->expects($this->any())
             ->method('createQueryBuilder')
             ->withAnyParameters()
@@ -130,8 +136,10 @@ class FormExtensionTest extends TestCase
 
         if (interface_exists(PersistenceManagerRegistry::class)) {
             $managerRegistry = $this->createMock(PersistenceManagerRegistry::class);
-        } else {
+        } elseif (interface_exists(CommonManagerRegistry::class)) {
             $managerRegistry = $this->createMock(CommonManagerRegistry::class);
+        } else {
+            throw new RuntimeException();
         }
         $managerRegistry->expects($this->any())
             ->method('getManagerForClass')
@@ -152,7 +160,7 @@ class FormExtensionTest extends TestCase
             $resolvedTypeFactory
         );
 
-        $formFactory = new FormFactory($formRegistry, $resolvedTypeFactory);
+        $formFactory = new FormFactory($formRegistry);
 
         $this->dataGrid = $this->createMock(DataGridInterface::class);
         $this->dataGrid->expects($this->any())
@@ -280,7 +288,7 @@ class FormExtensionTest extends TestCase
     {
         $column->expects($this->any())
             ->method('getOption')
-            ->will($this->returnCallback(function($option) use($optionsMap) {
+            ->will($this->returnCallback(function ($option) use ($optionsMap) {
                 return $optionsMap[$option];
             }));
     }
@@ -290,19 +298,19 @@ class FormExtensionTest extends TestCase
         $dataMapper = $this->createMock(DataMapperInterface::class);
         $dataMapper->expects($this->any())
             ->method('getData')
-            ->will($this->returnCallback(function($field, $object){
+            ->will($this->returnCallback(function ($field, $object) {
                 $method = 'get' . ucfirst($field);
                 return $object->$method();
             }));
 
         $dataMapper->expects($this->any())
             ->method('setData')
-            ->will($this->returnCallback(function($field, $object, $value){
+            ->will($this->returnCallback(function ($field, $object, $value) {
                 $method = 'set' . ucfirst($field);
                 return $object->$method($value);
             }));
 
-        return $this->returnCallback(function() use ($dataMapper) {
+        return $this->returnCallback(function () use ($dataMapper) {
             return $dataMapper;
         });
     }

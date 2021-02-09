@@ -18,6 +18,7 @@ use FSi\Component\DataGrid\Column\CellViewInterface;
 use FSi\Component\DataGrid\Column\HeaderViewInterface;
 use FSi\Component\DataGrid\DataGridViewInterface;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\RuntimeException as MockObjectRuntimeException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Symfony\Bridge\Twig\Extension\FormExtension;
@@ -31,6 +32,8 @@ use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Loader\FilesystemLoader;
 use Twig\Template;
+use function class_exists;
+use Twig\RuntimeLoader\RuntimeLoaderInterface;
 
 class DataGridExtensionTest extends TestCase
 {
@@ -51,9 +54,8 @@ class DataGridExtensionTest extends TestCase
 
     public function setUp(): void
     {
-        $subPath = version_compare(Kernel::VERSION, '2.7.0', '<') ? 'Symfony/Bridge/Twig/' : '';
         $loader = new FilesystemLoader([
-            __DIR__ . '/../../../vendor/symfony/twig-bridge/' . $subPath . 'Resources/views/Form',
+            __DIR__ . '/../../../vendor/symfony/twig-bridge/Resources/views/Form',
             __DIR__ . '/../../../Resources/views', // datagrid base theme
             __DIR__ . '/../../Resources/views', // templates used in tests
         ]);
@@ -64,16 +66,10 @@ class DataGridExtensionTest extends TestCase
         $twig->addGlobal('global_var', 'global_value');
 
         $twigRendererEngine = new TwigRendererEngine(['form_div_layout.html.twig'], $twig);
-        if (version_compare(Kernel::VERSION, '3.4.0', '>=')) {
-            $renderer = new FormRenderer($twigRendererEngine);
-        } else {
-            $renderer = new TwigRenderer($twigRendererEngine);
-        }
-        $formExtension = ($subPath !== '') ? new FormExtension($renderer) : new FormExtension();
+        $renderer = new FormRenderer($twigRendererEngine);
+        $formExtension = new FormExtension();
         $twig->addExtension($formExtension);
-        if (interface_exists('Twig\RuntimeLoader\RuntimeLoaderInterface')) {
-            $twig->addRuntimeLoader(new TwigRuntimeLoader([$renderer]));
-        }
+        $twig->addRuntimeLoader(new TwigRuntimeLoader([$renderer]));
 
         $this->twig = $twig;
         $this->extension = new DataGridExtension(['datagrid.html.twig'], $this->translator);
@@ -134,7 +130,7 @@ class DataGridExtensionTest extends TestCase
         $datagridWithThemeView = $this->getDataGridView('grid_with_header_theme');
 
         $headerView = $this->getColumnHeaderView($datagridView, 'text', 'title', 'title');
-        $headerWithThemeView = $this->getColumnHeaderView($datagridWithThemeView, 'text', 'title' ,'title');
+        $headerWithThemeView = $this->getColumnHeaderView($datagridWithThemeView, 'text', 'title', 'title');
 
         $html = $this->twig->render('datagrid/header_widget_test.html.twig', [
             'grid_with_header_theme' => $datagridWithThemeView,
@@ -157,7 +153,7 @@ class DataGridExtensionTest extends TestCase
         $datagridWithThemeView = $this->getDataGridView('grid_with_header_theme');
 
         $cellView = $this->getColumnCellView($datagridView, 'text', 'title', 'This is value 1');
-        $cellWithThemeView = $this->getColumnCellView($datagridWithThemeView, 'text', 'title' ,'This is value 2');
+        $cellWithThemeView = $this->getColumnCellView($datagridWithThemeView, 'text', 'title', 'This is value 2');
 
         $html = $this->twig->render('datagrid/cell_widget_test.html.twig', [
             'grid_with_header_theme' => $datagridWithThemeView,
@@ -561,7 +557,7 @@ class DataGridExtensionTest extends TestCase
 
         $cellView->expects($this->any())
             ->method('getAttribute')
-            ->will($this->returnCallback(function($key) {
+            ->will($this->returnCallback(function ($key) {
                 switch ($key) {
                     case 'row':
                         return 0;
@@ -740,7 +736,7 @@ class DataGridExtensionTest extends TestCase
 
     /**
      * @param string $name
-     * @return MockObject
+     * @return DataGridViewInterface&MockObject
      */
     private function getDataGridView(string $name): DataGridViewInterface
     {
@@ -760,14 +756,14 @@ class DataGridExtensionTest extends TestCase
      * @param string $type
      * @param string $name
      * @param string|null $label
-     * @return HeaderViewInterface
+     * @return HeaderViewInterface&MockObject
      */
     private function getColumnHeaderView(
         DataGridViewInterface $datagridView,
         string $type,
         string $name,
         ?string $label = null
-    ): MockObject {
+    ): HeaderViewInterface {
         $column = $this->createMock(HeaderViewInterface::class);
 
         $column->expects($this->any())
@@ -794,7 +790,7 @@ class DataGridExtensionTest extends TestCase
      * @param string $type
      * @param string $name
      * @param mixed $value
-     * @return CellViewInterface|MockObject
+     * @return CellViewInterface&MockObject
      */
     private function getColumnCellView(
         DataGridViewInterface $datagridView,
@@ -834,7 +830,7 @@ class DataGridExtensionTest extends TestCase
     }
 
     /**
-     * @return Template|MockObject
+     * @return Template&MockObject
      */
     private function getTemplateMock(): Template
     {

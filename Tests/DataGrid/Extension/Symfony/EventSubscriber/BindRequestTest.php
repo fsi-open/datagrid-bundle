@@ -13,7 +13,9 @@ namespace FSi\Bundle\DatagridBundle\Tests\DataGrid\Extension\Symfony\EventSubscr
 
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\EventSubscriber\BindRequest;
 use FSi\Component\DataGrid\DataGridEventInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use FSi\Component\DataGrid\DataGridInterface;
@@ -76,11 +78,8 @@ class BindRequestTest extends TestCase
              ->method('getMethod')
              ->will($this->returnValue('GET'));
 
-        $queryBag = $this->createMock(ParameterBag::class);
-        $queryBag->expects($this->once())
-            ->method('get')
-            ->with('grid', [])
-            ->will($this->returnValue(['foo' => 'bar']));
+        $queryBag = new InputBag();
+        $queryBag->set('grid', ['foo' => 'bar']);
 
         $request->query = $queryBag;
 

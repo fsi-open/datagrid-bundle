@@ -14,6 +14,7 @@ namespace FSi\Bundle\DatagridBundle\Tests\DataGrid\Extension\Symfony\ColumnType;
 use FSi\Bundle\DataGridBundle\DataGrid\Extension\Symfony\ColumnType\Action;
 use FSi\Bundle\DataGridBundle\Tests\Fixtures\Request;
 use FSi\Component\DataGrid\Extension\Core\ColumnTypeExtension\DefaultColumnOptionsExtension;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
@@ -23,12 +24,12 @@ use Symfony\Component\Routing\RouterInterface;
 class ActionTest extends TestCase
 {
     /**
-     * @var RouterInterface
+     * @var RouterInterface&MockObject
      */
     private $router;
 
     /**
-     * @var RequestStack
+     * @var RequestStack&MockObject
      */
     private $requestStack;
 
@@ -90,29 +91,33 @@ class ActionTest extends TestCase
             ]
         ]);
 
-       $this->assertSame(
-           [
-               'edit' => [
-                   'content' => 'edit',
-                   'field_mapping_values' => [
-                           'foo' => 'bar'
-                   ],
-                   'url_attr' => [
-                       'href' => '/test/bar?redirect_uri=http%3A%2F%2Fexample.com%2F%3Ftest%3D1%26test%3D2'
-                   ]
-               ]
-           ],
-           $this->column->filterValue([
-               'foo' => 'bar'
-           ])
-       );
+        $this->assertSame(
+            [
+                'edit' => [
+                    'content' => 'edit',
+                    'field_mapping_values' => [
+                            'foo' => 'bar'
+                    ],
+                    'url_attr' => [
+                        'href' => '/test/bar?redirect_uri=http%3A%2F%2Fexample.com%2F%3Ftest%3D1%26test%3D2'
+                    ]
+                ]
+            ],
+            $this->column->filterValue([
+                'foo' => 'bar'
+            ])
+        );
     }
 
     public function testFilterValueAvailableActionInActionsOption()
     {
         $this->router->expects($this->once())
             ->method('generate')
-            ->with('foo', ['foo' => 'bar', 'redirect_uri' => Request::RELATIVE_URI], UrlGeneratorInterface::ABSOLUTE_URL)
+            ->with(
+                'foo',
+                ['foo' => 'bar', 'redirect_uri' => Request::RELATIVE_URI],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            )
             ->will($this->returnValue('https://fsi.pl/test/bar?redirect_uri=' . urlencode(Request::RELATIVE_URI)));
 
         $this->column->setName('action');
@@ -130,22 +135,22 @@ class ActionTest extends TestCase
             ]
         ]);
 
-       $this->assertSame(
-           [
-               'edit' => [
-                   'content' => 'edit',
-                   'field_mapping_values' => [
-                       'foo' => 'bar'
-                   ],
-                   'url_attr' => [
-                       'href' => 'https://fsi.pl/test/bar?redirect_uri=' . urlencode(Request::RELATIVE_URI)
-                   ]
-               ]
-           ],
-           $this->column->filterValue([
-               'foo' => 'bar'
-           ])
-       );
+        $this->assertSame(
+            [
+                'edit' => [
+                    'content' => 'edit',
+                    'field_mapping_values' => [
+                        'foo' => 'bar'
+                    ],
+                    'url_attr' => [
+                        'href' => 'https://fsi.pl/test/bar?redirect_uri=' . urlencode(Request::RELATIVE_URI)
+                    ]
+                ]
+            ],
+            $this->column->filterValue([
+                'foo' => 'bar'
+            ])
+        );
     }
 
 

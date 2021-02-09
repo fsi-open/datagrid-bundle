@@ -11,6 +11,9 @@ declare(strict_types=1);
 
 namespace FSi\Bundle\DataGridBundle\HttpFoundation;
 
+/**
+ * @deprecated
+ */
 class ExcelExport extends ExportAbstract
 {
     /**
@@ -72,7 +75,7 @@ class ExcelExport extends ExportAbstract
     {
         $fileName = sprintf('%s.%s', $this->getFileName(), $this->fileExtension);
         $this->headers->set('Content-Type', $this->mimeType);
-        $this->headers->set('Content-Disposition', 'attachment; filename="'.$fileName.'"');
+        $this->headers->set('Content-Disposition', 'attachment; filename="' . $fileName . '"');
         $this->setContent($this->data);
     }
 }

@@ -11,6 +11,9 @@ declare(strict_types=1);
 
 namespace FSi\Bundle\DataGridBundle\HttpFoundation;
 
+/**
+ * @deprecated
+ */
 class Excel2003Export extends Excel2007Export
 {
     protected function getWriter(\PHPExcel $PHPExcel): \PHPExcel_Writer_Abstract

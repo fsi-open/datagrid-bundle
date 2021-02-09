@@ -1,0 +1,11 @@
+parameters:
+    level: 4
+    paths:
+        - .
+    excludePaths:
+        - DependencyInjection/Configuration.php
+        - HttpFoundation/Excel*
+        - Resources
+        - bin
+        - features
+        - vendor
