@@ -35,6 +35,11 @@ class DataGridExtension extends AbstractExtension implements InitRuntimeInterfac
     private $themesVars;
 
     /**
+     * @var string[]
+     */
+    private $baseThemesNames;
+
+    /**
      * @var Template[]
      */
     private $baseThemes;
@@ -57,7 +62,8 @@ class DataGridExtension extends AbstractExtension implements InitRuntimeInterfac
     {
         $this->themes = [];
         $this->themesVars = [];
-        $this->baseThemes = $themes;
+        $this->baseThemesNames = $themes;
+        $this->baseThemes = [];
         $this->translator = $translator;
     }
 
@@ -69,8 +75,8 @@ class DataGridExtension extends AbstractExtension implements InitRuntimeInterfac
     public function initRuntime(Environment $environment): void
     {
         $this->environment = $environment;
-        for ($i = count($this->baseThemes) - 1; $i >= 0; $i--) {
-            $this->baseThemes[$i] = $this->environment->loadTemplate($this->baseThemes[$i]);
+        for ($i = count($this->baseThemesNames) - 1; $i >= 0; $i--) {
+            $this->baseThemes[$i] = $this->environment->loadTemplate($this->baseThemesNames[$i]);
         }
     }
 
@@ -82,8 +88,16 @@ class DataGridExtension extends AbstractExtension implements InitRuntimeInterfac
             new TwigFunction('datagrid_rowset_widget', [$this, 'datagridRowset'], ['is_safe' => ['html']]),
             new TwigFunction('datagrid_column_header_widget', [$this, 'datagridColumnHeader'], ['is_safe' => ['html']]),
             new TwigFunction('datagrid_column_cell_widget', [$this, 'datagridColumnCell'], ['is_safe' => ['html']]),
-            new TwigFunction('datagrid_column_cell_form_widget', [$this, 'datagridColumnCellForm'], ['is_safe' => ['html']]),
-            new TwigFunction('datagrid_column_type_action_cell_action_widget', [$this, 'datagridColumnActionCellActionWidget'], ['is_safe' => ['html']]),
+            new TwigFunction(
+                'datagrid_column_cell_form_widget',
+                [$this, 'datagridColumnCellForm'],
+                ['is_safe' => ['html']]
+            ),
+            new TwigFunction(
+                'datagrid_column_type_action_cell_action_widget',
+                [$this, 'datagridColumnActionCellActionWidget'],
+                ['is_safe' => ['html']]
+            ),
             new TwigFunction('datagrid_attributes_widget', [$this, 'datagridAttributes'], ['is_safe' => ['html']])
         ];
     }
@@ -279,7 +293,7 @@ class DataGridExtension extends AbstractExtension implements InitRuntimeInterfac
                 $attributeValue = $this->translator->trans($attributeValue, [], $translationDomain);
             }
 
-            $attrs[] = sprintf( '%s="%s"', $attributeName, $attributeValue);
+            $attrs[] = sprintf('%s="%s"', $attributeName, $attributeValue);
         }
 
         return ' ' . implode(' ', $attrs);

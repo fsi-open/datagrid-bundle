@@ -45,7 +45,7 @@ class BooleanColumnExtension extends ColumnAbstractTypeExtension
 
         $column->getOptionsResolver()->setNormalizer(
             'form_options',
-            function(Options $options, $value) use ($yes, $no) {
+            function (Options $options, $value) use ($yes, $no) {
                 if ($options['editable'] && 1 === count($options['field_mapping'])) {
                     $field = $options['field_mapping'][0];
                     $choices = [$no => 0, $yes => 1];
@@ -62,7 +62,7 @@ class BooleanColumnExtension extends ColumnAbstractTypeExtension
 
         $column->getOptionsResolver()->setNormalizer(
             'form_type',
-            function(Options $options, $value) {
+            function (Options $options, $value) {
                 if ($options['editable'] && 1 === count($options['field_mapping'])) {
                     $field = $options['field_mapping'][0];
                     return array_merge([$field => ChoiceType::class], $value);

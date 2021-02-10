@@ -31,7 +31,9 @@ class DataGridThemeNode extends Node
     {
         $compiler
             ->addDebugInfo($this)
-            ->write('$this->env->getExtension(\'FSi\Bundle\DataGridBundle\Twig\Extension\DataGridExtension\')->setTheme(')
+            ->write(
+                '$this->env->getExtension(\'FSi\Bundle\DataGridBundle\Twig\Extension\DataGridExtension\')->setTheme('
+            )
             ->subcompile($this->getNode('datagrid'))
             ->raw(', ')
             ->subcompile($this->getNode('theme'))

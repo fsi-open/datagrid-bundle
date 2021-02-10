@@ -22,7 +22,7 @@ class ConfigurationTest extends TestCase
      */
     private $processor;
 
-    public function testDefaultOptions()
+    public function testDefaultOptions(): void
     {
         $defaults = [
             'yaml_configuration' => [
@@ -34,13 +34,13 @@ class ConfigurationTest extends TestCase
                 'themes' => ['@DataGrid/datagrid.html.twig']
             ]
         ];
-        $this->assertSame(
+        self::assertSame(
             $defaults,
             $this->processor->processConfiguration(new Configuration(), ['fsi_data_grid' => []])
         );
     }
 
-    public function testFoldedYamlConfigurationForTrue()
+    public function testFoldedYamlConfigurationForTrue(): void
     {
         $folded = [
             'yaml_configuration' => [
@@ -52,7 +52,7 @@ class ConfigurationTest extends TestCase
                 'themes' => ['@DataGrid/datagrid.html.twig']
             ]
         ];
-        $this->assertSame(
+        self::assertSame(
             $folded,
             $this->processor->processConfiguration(new Configuration(), [
                 'fsi_data_grid' => ['yaml_configuration' => true]
@@ -60,7 +60,7 @@ class ConfigurationTest extends TestCase
         );
     }
 
-    public function testFoldedYamlConfigurationForFalse()
+    public function testFoldedYamlConfigurationForFalse(): void
     {
         $folded = [
             'yaml_configuration' => [
@@ -72,7 +72,7 @@ class ConfigurationTest extends TestCase
                 'themes' => ['@DataGrid/datagrid.html.twig']
             ]
         ];
-        $this->assertSame(
+        self::assertSame(
             $folded,
             $this->processor->processConfiguration(new Configuration(), [
                 'fsi_data_grid' => ['yaml_configuration' => false]
@@ -80,13 +80,13 @@ class ConfigurationTest extends TestCase
         );
     }
 
-    public function testThemesOption()
+    public function testThemesOption(): void
     {
         $config = $this->processor->processConfiguration(new Configuration(), [
             'fsi_data_grid' => ['twig' => ['themes' => ['@DataGrid/custom_datagrid.html.twig']]]
         ]);
 
-        $this->assertSame(
+        self::assertSame(
             [
                 'twig' => ['themes' => ['@DataGrid/custom_datagrid.html.twig'], 'enabled' => true],
                 'yaml_configuration' => ['enabled' => true, 'main_configuration_directory' => null]
@@ -95,7 +95,7 @@ class ConfigurationTest extends TestCase
         );
     }
 
-    public function testCustomMainConfigurationFilesPath()
+    public function testCustomMainConfigurationFilesPath(): void
     {
         $config = $this->processor->processConfiguration(new Configuration(), [
             'fsi_data_grid' => [
@@ -105,7 +105,7 @@ class ConfigurationTest extends TestCase
             ]
         ]);
 
-        $this->assertSame(
+        self::assertSame(
             [
                 'yaml_configuration' => [
                     'main_configuration_directory' => 'a path to main configuration directory',
@@ -117,7 +117,7 @@ class ConfigurationTest extends TestCase
         );
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->processor = new Processor();
     }

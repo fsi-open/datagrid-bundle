@@ -57,7 +57,7 @@ class CSVExport extends ExportAbstract
         $dataGrid = $this->getDataGrid();
         $fp = fopen('php://temp', 'r+');
         // BOM
-        fprintf($fp, chr(0xEF).chr(0xBB).chr(0xBF));
+        fprintf($fp, chr(0xEF) . chr(0xBB) . chr(0xBF));
         $columns = [];
 
         foreach ($dataGrid->getColumns() as $column) {
@@ -92,7 +92,7 @@ class CSVExport extends ExportAbstract
     {
         $fileName = sprintf('%s.%s', $this->getFileName(), $this->fileExtension);
         $this->headers->set('Content-Type', $this->mimeType);
-        $this->headers->set('Content-Disposition', 'attachment; filename="'.$fileName.'"');
+        $this->headers->set('Content-Disposition', 'attachment; filename="' . $fileName . '"');
         $this->setContent($this->data);
     }
 }

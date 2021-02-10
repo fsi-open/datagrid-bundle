@@ -27,7 +27,7 @@ class FSIDataGridExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('datagrid.xml');
 
         if (true === $config['yaml_configuration']['enabled']) {
