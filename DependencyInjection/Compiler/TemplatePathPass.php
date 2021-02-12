@@ -20,7 +20,7 @@ class TemplatePathPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
-        $loaderDefinition = $container->getDefinition('twig.loader.filesystem');
+        $loaderDefinition = $container->getDefinition('twig.loader.native_filesystem');
 
         $reflection = new ReflectionClass(DataGridBundle::class);
         $loaderDefinition->addMethodCall(
