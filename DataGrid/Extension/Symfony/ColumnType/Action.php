@@ -122,7 +122,7 @@ class Action extends ColumnAbstractType
 
         $this->actionOptionsResolver->setDefaults([
             'redirect_uri' => true,
-            'absolute' => false,
+            'absolute' => UrlGeneratorInterface::ABSOLUTE_PATH,
             'url_attr' => [],
             'content' => null,
             'parameters_field_mapping' => [],
